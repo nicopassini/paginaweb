@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test de Salud Financiera | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Century Gothic Fallback';
+  src: local('Century Gothic'), local('CenturyGothic');
+}
+
+:root {
+  --navy: #1a3753;
+  --blue: #0b80e1;
+  --black: #141414;
+  --white: #ffffff;
+  --teal: #11b3b7;
+  --bg: #0d1b2e;
+  --surface: #132640;
+  --surface-2: #17304d;
+  --surface-3: #1c3a5a;
+  --border: #1f4672;
+  --text: #e4eaf2;
+  --text-muted: #8da4bf;
+  --accent: var(--teal);
+  --accent-glow: rgba(17, 179, 183, 0.15);
+  --green: #11b3b7;
+  --green-bg: rgba(17, 179, 183, 0.12);
+  --orange: #f0a030;
+  --orange-bg: rgba(240, 160, 48, 0.12);
+  --red: #e85454;
+  --red-bg: rgba(232, 84, 84, 0.12);
+  --purple: #a374f5;
+  --purple-bg: rgba(163, 116, 245, 0.12);
+  --gold: #f0c040;
+  --gold-bg: rgba(240, 192, 64, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-main: 'Century Gothic Fallback', 'Questrial', 'Futura', 'Trebuchet MS', Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.noise-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0.025; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.glow-orb {
+  position: fixed; width: 600px; height: 600px; border-radius: 50%;
+  filter: blur(130px); opacity: 0.06; pointer-events: none; z-index: 0;
+}
+.glow-orb-1 { top: -200px; right: -100px; background: var(--blue); }
+.glow-orb-2 { bottom: -200px; left: -100px; background: var(--teal); }
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 700px; margin: 0 auto; padding: 40px 20px 60px;
+}
+
+/* HEADER */
+.header {
+  text-align: center; margin-bottom: 40px;
+  animation: fadeInUp 0.7s ease;
+}
+
+.brand-logo { text-align: center; margin-bottom: 28px; }
+
+.brand-wordmark {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 32px; font-weight: 300; letter-spacing: 6px;
+  text-transform: uppercase; color: var(--white); display: inline-block;
+}
+
+.brand-wordmark-line {
+  display: block; width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  margin-top: 6px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 42px); font-weight: 700;
+  line-height: 1.15; margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--white), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.header .subtitle {
+  color: var(--text-muted); font-size: 16px; line-height: 1.6;
+  max-width: 550px; margin: 0 auto;
+}
+
+/* PROGRESS BAR */
+.progress-container {
+  margin-bottom: 32px;
+  animation: fadeInUp 0.7s ease 0.1s both;
+}
+
+.progress-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+}
+
+.progress-count {
+  font-size: 13px; font-weight: 700; color: var(--teal);
+}
+
+.progress-bar {
+  height: 6px; background: var(--surface-3);
+  border-radius: 100px; overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* AREA TAG */
+.area-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 20px;
+}
+
+.area-ahorro { background: var(--green-bg); color: var(--green); border: 1px solid rgba(17,179,183,0.3); }
+.area-deudas { background: var(--red-bg); color: var(--red); border: 1px solid rgba(232,84,84,0.3); }
+.area-presupuesto { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(240,160,48,0.3); }
+.area-inversiones { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(163,116,245,0.3); }
+.area-ingresos { background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(240,192,64,0.3); }
+.area-mentalidad { background: rgba(11,128,225,0.12); color: var(--blue); border: 1px solid rgba(11,128,225,0.3); }
+
+/* QUESTION CARD */
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  animation: slideIn 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  opacity: 0.6;
+}
+
+.question-number {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  letter-spacing: 1px; margin-bottom: 12px;
+}
+
+.question-text {
+  font-size: 20px; font-weight: 700; color: var(--white);
+  line-height: 1.4; margin-bottom: 28px;
+}
+
+/* OPTIONS */
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+
+.option-btn {
+  width: 100%; padding: 16px 20px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-main);
+  font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all 0.25s;
+  text-align: left;
+  display: flex; align-items: center; gap: 12px;
+}
+
+.option-btn:hover {
+  border-color: var(--teal);
+  background: var(--accent-glow);
+  transform: translateX(4px);
+}
+
+.option-btn .opt-letter {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+
+.option-btn:hover .opt-letter {
+  background: var(--teal);
+  color: var(--bg);
+}
+
+/* INTRO SCREEN */
+.intro-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 44px 36px;
+  text-align: center;
+  animation: fadeInUp 0.7s ease 0.2s both;
+}
+
+.intro-card .intro-icon { font-size: 56px; margin-bottom: 20px; }
+
+.intro-card h2 {
+  font-size: 24px; font-weight: 700; color: var(--white);
+  margin-bottom: 14px;
+}
+
+.intro-card p {
+  color: var(--text-muted); font-size: 15px; line-height: 1.6;
+  margin-bottom: 8px; max-width: 480px; margin-left: auto; margin-right: auto;
+}
+
+.intro-areas {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 8px; margin: 24px 0 32px;
+}
+
+.btn-start {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 18px 48px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-main); font-size: 17px; font-weight: 700;
+  color: white; cursor: pointer; transition: all 0.3s;
+}
+
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(11,128,225,0.3);
+}
+
+/* ============ RESULTS ============ */
+.results-screen { display: none; }
+.results-screen.show { display: block; animation: fadeInUp 0.6s ease; }
+
+/* SCORE RING */
+.score-hero {
+  text-align: center; padding: 44px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+
+.score-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--red), var(--orange), var(--gold), var(--teal), var(--green));
+}
+
+.score-ring-wrap {
+  position: relative; width: 180px; height: 180px;
+  margin: 0 auto 24px;
+}
+
+.score-ring-bg, .score-ring-fill {
+  position: absolute; top: 0; left: 0;
+  width: 180px; height: 180px;
+}
+
+.score-ring-bg circle, .score-ring-fill circle {
+  fill: none; stroke-width: 8;
+  cx: 90; cy: 90; r: 80;
+}
+
+.score-ring-bg circle { stroke: var(--surface-3); }
+
+.score-ring-fill circle {
+  stroke-dasharray: 502.65;
+  stroke-dashoffset: 502.65;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.score-number {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.score-number .big { font-size: 48px; font-weight: 700; line-height: 1; }
+.score-number .of100 { font-size: 16px; color: var(--text-muted); }
+
+.level-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; border-radius: 100px;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.level-desc {
+  font-size: 15px; color: var(--text-muted); line-height: 1.6;
+  max-width: 440px; margin: 0 auto;
+}
+
+/* AREA BREAKDOWN */
+.areas-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.areas-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.area-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(31,70,114,0.3);
+}
+
+.area-row:last-child { border-bottom: none; }
+
+.area-icon { font-size: 20px; flex-shrink: 0; }
+
+.area-info { flex: 1; }
+
+.area-name { font-size: 14px; font-weight: 600; color: var(--white); }
+
+.area-bar-wrap {
+  height: 6px; background: var(--surface-3);
+  border-radius: 100px; margin-top: 6px; overflow: hidden;
+}
+
+.area-bar-fill {
+  height: 100%; border-radius: 100px;
+  transition: width 1s ease 0.3s;
+}
+
+.area-score {
+  font-size: 16px; font-weight: 700;
+  min-width: 45px; text-align: right;
+}
+
+/* RECO CARDS */
+.reco-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.reco-item {
+  display: flex; gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(31,70,114,0.3);
+}
+
+.reco-item:last-child { border-bottom: none; }
+
+.reco-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+
+.reco-text { flex: 1; }
+.reco-text h4 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.reco-text p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+/* SHARE SECTION */
+.share-section {
+  background: var(--surface);
+  border: 1px solid var(--teal);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.share-section h3 {
+  font-size: 18px; font-weight: 700; color: var(--white);
+  margin-bottom: 8px;
+}
+
+.share-section p {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 20px;
+}
+
+.share-btns {
+  display: flex; gap: 10px; justify-content: center;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s;
+  border: none; color: white;
+}
+
+.share-btn:hover { transform: translateY(-2px); }
+
+.share-btn.btn-download {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+}
+
+.share-btn.btn-whatsapp { background: #25D366; }
+.share-btn.btn-twitter { background: #1DA1F2; }
+.share-btn.btn-copy {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* CTA */
+.cta-card {
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border: 1px solid var(--teal);
+  border-radius: var(--radius);
+  padding: 36px 28px; text-align: center;
+  margin-bottom: 24px;
+}
+
+.cta-card h3 { font-size: 20px; color: var(--white); margin-bottom: 10px; }
+.cta-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 18px; line-height: 1.6; }
+
+.btn-cta {
+  display: inline-block; padding: 14px 36px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white; text-decoration: none;
+  font-weight: 600; font-size: 15px; transition: all 0.3s;
+}
+
+.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(11,128,225,0.3);
+}
+
+.btn-retake {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 12px 28px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s;
+  margin-top: 16px;
+}
+
+.btn-retake:hover { border-color: var(--teal); color: var(--teal); }
+
+/* FOOTER */
+.footer {
+  text-align: center; padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted); font-size: 13px; line-height: 1.6;
+}
+
+.footer a { color: var(--teal); text-decoration: none; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-muted); text-decoration: none;
+  font-size: 14px; margin-bottom: 24px; transition: color 0.2s;
+  animation: fadeInUp 0.5s ease;
+}
+
+.back-link:hover { color: var(--teal); }
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--teal); color: var(--bg);
+  padding: 14px 28px; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: 14px; z-index: 100;
+  transition: transform 0.4s ease; pointer-events: none;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<div class="container">
+  <a href="index.html" class="back-link">← Volver a herramientas</a>
+
+  <div class="header">
+    <div class="brand-logo">
+      <span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span>
+    </div>
+    <h1>Test de Salud Financiera 🩺</h1>
+    <p class="subtitle">15 preguntas. 3 minutos. Descubrí qué tan sana está tu vida financiera y qué podés hacer para mejorarla.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-container" id="progressContainer" style="display:none;">
+    <div class="progress-header">
+      <span class="progress-label" id="progressLabel">Pregunta 1 de 15</span>
+      <span class="progress-count" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="introScreen">
+    <div class="intro-card">
+      <div class="intro-icon">🩺</div>
+      <h2>¿Qué tan sana está tu vida financiera?</h2>
+      <p>Este test analiza 6 áreas clave de tus finanzas personales y te da un diagnóstico con puntaje, nivel y recomendaciones concretas.</p>
+      <div class="intro-areas">
+        <span class="area-tag area-ahorro">💰 Ahorro</span>
+        <span class="area-tag area-deudas">🔴 Deudas</span>
+        <span class="area-tag area-presupuesto">📋 Presupuesto</span>
+        <span class="area-tag area-inversiones">📈 Inversiones</span>
+        <span class="area-tag area-ingresos">💼 Ingresos</span>
+        <span class="area-tag area-mentalidad">🧠 Mentalidad</span>
+      </div>
+      <p style="font-size:13px; opacity:0.7;">⏱ Toma 3 minutos · 100% anónimo</p>
+      <button class="btn-start" onclick="startQuiz()" style="margin-top:20px;">Empezar el test →</button>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="questionScreen" style="display:none;"></div>
+
+  <!-- RESULTS -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="score-hero" id="scoreHero">
+      <div class="score-ring-wrap">
+        <svg class="score-ring-bg" viewBox="0 0 180 180"><circle/></svg>
+        <svg class="score-ring-fill" viewBox="0 0 180 180"><circle id="ringCircle"/></svg>
+        <div class="score-number">
+          <div class="big" id="scoreNumber">0</div>
+          <div class="of100">de 100</div>
+        </div>
+      </div>
+      <div class="level-badge" id="levelBadge"></div>
+      <div class="level-desc" id="levelDesc"></div>
+    </div>
+
+    <div class="areas-section">
+      <div class="areas-title">📊 Desglose por área</div>
+      <div id="areasBreakdown"></div>
+    </div>
+
+    <div class="reco-section">
+      <div class="areas-title">💡 Recomendaciones</div>
+      <div id="recoList"></div>
+    </div>
+
+    <div class="share-section">
+      <h3>📲 Compartí tu resultado</h3>
+      <p>Descargá tu imagen o compartila directo en redes</p>
+      <div class="share-btns">
+        <button class="share-btn btn-download" onclick="downloadImage()">📥 Descargar imagen</button>
+        <button class="share-btn btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
+        <button class="share-btn btn-twitter" onclick="shareTwitter()">🐦 Twitter/X</button>
+        <button class="share-btn" onclick="shareFacebook()" style="background:#1877F2;">📘 Facebook</button>
+        <button class="share-btn btn-copy" onclick="copyLink()">🔗 Copiar link</button>
+      </div>
+    </div>
+
+    <div class="cta-card" id="ctaCard">
+      <h3 id="ctaTitle"></h3>
+      <p id="ctaText"></p>
+      <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+      <br>
+      <button class="btn-retake" onclick="retake()">🔄 Volver a hacer el test</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+    <p style="margin-top:6px;">Con fines educativos. No constituye asesoramiento financiero.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== QUESTIONS ======
+const questions = [
+  // AHORRO (1-3)
+  {
+    area: 'ahorro', areaLabel: '💰 Ahorro', areaClass: 'area-ahorro',
+    text: '¿Tenés un fondo de emergencia (dinero ahorrado para imprevistos)?',
+    options: [
+      { text: 'Sí, cubro al menos 6 meses de gastos', score: 7 },
+      { text: 'Sí, pero cubre menos de 3 meses', score: 5 },
+      { text: 'Tengo algo ahorrado pero no organizado', score: 3 },
+      { text: 'No tengo ningún ahorro', score: 0 }
+    ]
+  },
+  {
+    area: 'ahorro', areaLabel: '💰 Ahorro', areaClass: 'area-ahorro',
+    text: '¿Qué porcentaje de tus ingresos ahorrás cada mes?',
+    options: [
+      { text: 'Más del 20%', score: 7 },
+      { text: 'Entre 10% y 20%', score: 5 },
+      { text: 'Menos del 10%', score: 3 },
+      { text: 'No ahorro nada, a veces gasto más de lo que gano', score: 0 }
+    ]
+  },
+  {
+    area: 'ahorro', areaLabel: '💰 Ahorro', areaClass: 'area-ahorro',
+    text: '¿Tenés un objetivo claro de ahorro (viaje, departamento, libertad financiera)?',
+    options: [
+      { text: 'Sí, con monto y fecha definida', score: 6 },
+      { text: 'Tengo una idea vaga pero sin plan', score: 3 },
+      { text: 'Ahorro lo que sobra, sin objetivo', score: 1 },
+      { text: 'No ahorro', score: 0 }
+    ]
+  },
+  // DEUDAS (4-5)
+  {
+    area: 'deudas', areaLabel: '🔴 Deudas', areaClass: 'area-deudas',
+    text: '¿Cómo es tu situación actual con deudas?',
+    options: [
+      { text: 'No tengo deudas', score: 7 },
+      { text: 'Tengo deudas pero las pago puntualmente', score: 5 },
+      { text: 'Pago el mínimo de tarjeta o refinancio seguido', score: 2 },
+      { text: 'Tengo deudas atrasadas o en cobranza', score: 0 }
+    ]
+  },
+  {
+    area: 'deudas', areaLabel: '🔴 Deudas', areaClass: 'area-deudas',
+    text: '¿Sabés exactamente cuánto debés en total y a qué tasa?',
+    options: [
+      { text: 'Sí, tengo todo mapeado (montos, tasas, plazos)', score: 6 },
+      { text: 'Sé más o menos cuánto debo pero no las tasas', score: 3 },
+      { text: 'No tengo muy claro el total', score: 1 },
+      { text: 'Prefiero no mirar', score: 0 }
+    ]
+  },
+  // PRESUPUESTO (6-8)
+  {
+    area: 'presupuesto', areaLabel: '📋 Presupuesto', areaClass: 'area-presupuesto',
+    text: '¿Tenés un presupuesto mensual armado?',
+    options: [
+      { text: 'Sí, lo sigo todos los meses', score: 7 },
+      { text: 'Lo armé alguna vez pero no lo mantengo', score: 3 },
+      { text: 'Tengo una idea general en la cabeza', score: 2 },
+      { text: 'No, nunca armé uno', score: 0 }
+    ]
+  },
+  {
+    area: 'presupuesto', areaLabel: '📋 Presupuesto', areaClass: 'area-presupuesto',
+    text: '¿Sabés exactamente cuánto gastaste el mes pasado?',
+    options: [
+      { text: 'Sí, al peso', score: 6 },
+      { text: 'Más o menos, con un margen de error', score: 3 },
+      { text: 'Ni idea, solo sé que no me alcanzó', score: 1 },
+      { text: 'No llevo registro de nada', score: 0 }
+    ]
+  },
+  {
+    area: 'presupuesto', areaLabel: '📋 Presupuesto', areaClass: 'area-presupuesto',
+    text: '¿Llegás a fin de mes con tranquilidad?',
+    options: [
+      { text: 'Sí, siempre me sobra', score: 7 },
+      { text: 'Llego justo pero sin deudas', score: 4 },
+      { text: 'A veces me quedo corto', score: 2 },
+      { text: 'Casi siempre me quedo sin plata antes de cobrar', score: 0 }
+    ]
+  },
+  // INVERSIONES (9-11)
+  {
+    area: 'inversiones', areaLabel: '📈 Inversiones', areaClass: 'area-inversiones',
+    text: '¿Invertís tu dinero de alguna forma?',
+    options: [
+      { text: 'Sí, tengo un portafolio diversificado', score: 7 },
+      { text: 'Algo: plazo fijo, FCI o cripto', score: 4 },
+      { text: 'Solo tengo dólares guardados', score: 2 },
+      { text: 'No invierto nada, todo queda en la cuenta', score: 0 }
+    ]
+  },
+  {
+    area: 'inversiones', areaLabel: '📈 Inversiones', areaClass: 'area-inversiones',
+    text: '¿Entendés cómo funciona el interés compuesto?',
+    options: [
+      { text: 'Sí, y lo uso a mi favor activamente', score: 6 },
+      { text: 'Lo entiendo en teoría pero no lo aplico', score: 3 },
+      { text: 'Escuché el concepto pero no lo manejo', score: 1 },
+      { text: 'No sé qué es', score: 0 }
+    ]
+  },
+  {
+    area: 'inversiones', areaLabel: '📈 Inversiones', areaClass: 'area-inversiones',
+    text: '¿Tenés un plan para tu jubilación o retiro?',
+    options: [
+      { text: 'Sí, aporto regularmente pensando en el futuro', score: 7 },
+      { text: 'Lo pienso pero todavía no empecé', score: 3 },
+      { text: 'Me parece muy lejano como para pensar en eso', score: 1 },
+      { text: 'Cuento con la jubilación del estado', score: 0 }
+    ]
+  },
+  // INGRESOS (12-13)
+  {
+    area: 'ingresos', areaLabel: '💼 Ingresos', areaClass: 'area-ingresos',
+    text: '¿De cuántas fuentes recibís ingresos?',
+    options: [
+      { text: '3 o más fuentes de ingreso', score: 7 },
+      { text: '2 fuentes (ej: sueldo + freelance)', score: 5 },
+      { text: 'Solo 1 fuente (mi sueldo)', score: 2 },
+      { text: 'Ingresos irregulares / no estables', score: 0 }
+    ]
+  },
+  {
+    area: 'ingresos', areaLabel: '💼 Ingresos', areaClass: 'area-ingresos',
+    text: '¿Tus ingresos crecieron en el último año (en términos reales)?',
+    options: [
+      { text: 'Sí, significativamente', score: 6 },
+      { text: 'Más o menos al ritmo de la inflación', score: 3 },
+      { text: 'Se mantuvieron igual', score: 1 },
+      { text: 'Disminuyeron', score: 0 }
+    ]
+  },
+  // MENTALIDAD (14-15)
+  {
+    area: 'mentalidad', areaLabel: '🧠 Mentalidad', areaClass: 'area-mentalidad',
+    text: '¿Con qué frecuencia hacés compras impulsivas de las que después te arrepentís?',
+    options: [
+      { text: 'Casi nunca, soy muy consciente', score: 7 },
+      { text: 'Alguna que otra vez al mes', score: 4 },
+      { text: 'Seguido, me cuesta controlarme', score: 2 },
+      { text: 'Constantemente, es un problema real', score: 0 }
+    ]
+  },
+  {
+    area: 'mentalidad', areaLabel: '🧠 Mentalidad', areaClass: 'area-mentalidad',
+    text: '¿Cómo te sentís cuando pensás en tu situación financiera?',
+    options: [
+      { text: 'Tranquilo/a y con control', score: 6 },
+      { text: 'Más o menos, podría estar mejor', score: 4 },
+      { text: 'Ansioso/a, prefiero no pensar en eso', score: 1 },
+      { text: 'Angustiado/a, me genera mucho estrés', score: 0 }
+    ]
+  }
+];
+
+// LEVELS
+const levels = [
+  { min: 0,  max: 20,  name: 'Crítico',  emoji: '🚨', color: 'var(--red)',    bg: 'var(--red-bg)',    border: 'rgba(232,84,84,0.35)',
+    desc: 'Tu salud financiera necesita atención urgente. La buena noticia: con los pasos correctos, la mejora puede ser rápida.' },
+  { min: 21, max: 40,  name: 'Frágil',   emoji: '⚠️', color: 'var(--orange)', bg: 'var(--orange-bg)', border: 'rgba(240,160,48,0.35)',
+    desc: 'Hay señales de alerta. Tenés bases pero falta estructura y disciplina para estabilizarte.' },
+  { min: 41, max: 60,  name: 'En camino', emoji: '🔄', color: 'var(--gold)',   bg: 'var(--gold-bg)',   border: 'rgba(240,192,64,0.35)',
+    desc: 'Vas por buen camino pero hay áreas importantes donde mejorar. Con ajustes puntuales, el salto puede ser grande.' },
+  { min: 61, max: 80,  name: 'Sólido',   emoji: '✅', color: 'var(--teal)',   bg: 'var(--green-bg)',  border: 'rgba(17,179,183,0.35)',
+    desc: 'Tenés buenas bases financieras. Algunos ajustes te pueden llevar al siguiente nivel.' },
+  { min: 81, max: 100, name: 'Excelente', emoji: '🏆', color: 'var(--green)', bg: 'var(--green-bg)',  border: 'rgba(17,179,183,0.35)',
+    desc: 'Tu salud financiera es envidiable. Seguí así y enfocate en optimizar y hacer crecer tu patrimonio.' }
+];
+
+const areaConfig = {
+  ahorro:       { icon: '💰', name: 'Ahorro',       maxScore: 20 },
+  deudas:       { icon: '🔴', name: 'Deudas',       maxScore: 13 },
+  presupuesto:  { icon: '📋', name: 'Presupuesto',  maxScore: 20 },
+  inversiones:  { icon: '📈', name: 'Inversiones',  maxScore: 20 },
+  ingresos:     { icon: '💼', name: 'Ingresos',     maxScore: 13 },
+  mentalidad:   { icon: '🧠', name: 'Mentalidad',   maxScore: 13 }
+};
+
+// Max possible raw score
+const MAX_RAW = Object.values(areaConfig).reduce((s, a) => s + a.maxScore, 0);
+
+let currentQ = 0;
+let answers = [];
+
+// ====== QUIZ LOGIC ======
+function startQuiz() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('progressContainer').style.display = 'block';
+  document.getElementById('questionScreen').style.display = 'block';
+  currentQ = 0;
+  answers = [];
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[currentQ];
+  const pct = Math.round((currentQ / questions.length) * 100);
+  document.getElementById('progressLabel').textContent = `Pregunta ${currentQ + 1} de ${questions.length}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  const letters = ['A', 'B', 'C', 'D'];
+  let optionsHTML = '';
+  q.options.forEach((opt, i) => {
+    optionsHTML += `
+      <button class="option-btn" onclick="answer(${opt.score})">
+        <span class="opt-letter">${letters[i]}</span>
+        ${opt.text}
+      </button>`;
+  });
+
+  document.getElementById('questionScreen').innerHTML = `
+    <div class="question-card">
+      <span class="area-tag ${q.areaClass}">${q.areaLabel}</span>
+      <div class="question-number">Pregunta ${currentQ + 1} de ${questions.length}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options-list">${optionsHTML}</div>
+    </div>`;
+}
+
+function answer(score) {
+  answers.push({ area: questions[currentQ].area, score });
+  currentQ++;
+  if (currentQ < questions.length) {
+    showQuestion();
+  } else {
+    showResults();
+  }
+}
+
+// ====== RESULTS ======
+function showResults() {
+  document.getElementById('progressContainer').style.display = 'none';
+  document.getElementById('questionScreen').style.display = 'none';
+
+  // Calculate scores
+  const areaScores = {};
+  for (const key in areaConfig) areaScores[key] = 0;
+  answers.forEach(a => areaScores[a.area] += a.score);
+
+  const rawTotal = Object.values(areaScores).reduce((s, v) => s + v, 0);
+  const score100 = Math.round((rawTotal / MAX_RAW) * 100);
+
+  const level = levels.find(l => score100 >= l.min && score100 <= l.max) || levels[0];
+
+  // Animate score ring
+  const circumference = 2 * Math.PI * 80; // r=80
+  const offset = circumference - (score100 / 100) * circumference;
+  const ring = document.getElementById('ringCircle');
+  ring.style.stroke = level.color;
+  setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+
+  // Animate score number
+  animateNumber('scoreNumber', score100, 1500);
+
+  // Level badge
+  const badge = document.getElementById('levelBadge');
+  badge.style.background = level.bg;
+  badge.style.color = level.color;
+  badge.style.border = `1px solid ${level.border}`;
+  badge.textContent = `${level.emoji} ${level.name}`;
+
+  document.getElementById('levelDesc').textContent = level.desc;
+
+  // Area breakdown
+  const areasDiv = document.getElementById('areasBreakdown');
+  areasDiv.innerHTML = '';
+  const areaEntries = Object.entries(areaConfig);
+  areaEntries.forEach(([key, cfg]) => {
+    const raw = areaScores[key];
+    const pct = Math.round((raw / cfg.maxScore) * 100);
+    const color = pct >= 70 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+    areasDiv.innerHTML += `
+      <div class="area-row">
+        <div class="area-icon">${cfg.icon}</div>
+        <div class="area-info">
+          <div class="area-name">${cfg.name}</div>
+          <div class="area-bar-wrap">
+            <div class="area-bar-fill" style="width:0%; background:${color};" data-target="${pct}"></div>
+          </div>
+        </div>
+        <div class="area-score" style="color:${color}">${pct}%</div>
+      </div>`;
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.area-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 200);
+
+  // Recommendations
+  generateRecos(areaScores, score100);
+
+  // CTA
+  if (score100 <= 40) {
+    document.getElementById('ctaTitle').textContent = '🚀 Tu transformación financiera empieza hoy';
+    document.getElementById('ctaText').textContent = 'En el Método FBC vas a aprender a ordenar tus finanzas desde cero: armar un presupuesto, eliminar deudas, y empezar a invertir. Paso a paso, con acompañamiento.';
+  } else if (score100 <= 70) {
+    document.getElementById('ctaTitle').textContent = '📈 Llevá tus finanzas al siguiente nivel';
+    document.getElementById('ctaText').textContent = 'Tenés las bases pero te falta estructura. En el Método FBC vas a aprender a optimizar tu dinero, invertir con estrategia, y construir ingresos pasivos.';
+  } else {
+    document.getElementById('ctaTitle').textContent = '🏆 Potenciá lo que ya estás haciendo bien';
+    document.getElementById('ctaText').textContent = 'Ya tenés control — ahora es momento de multiplicar. En el Método FBC vas a aprender estrategias avanzadas de inversión y planificación patrimonial.';
+  }
+
+  // Setup share card
+  setupShareCard(score100, level, areaScores);
+
+  document.getElementById('resultsScreen').classList.add('show');
+  document.getElementById('resultsScreen').scrollIntoView({ behavior: 'smooth' });
+}
+
+function animateNumber(id, target, duration) {
+  const el = document.getElementById(id);
+  let start = null;
+  function step(timestamp) {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function generateRecos(areaScores, total) {
+  const container = document.getElementById('recoList');
+  container.innerHTML = '';
+  const recos = [];
+
+  // Determine weakest areas
+  const areas = Object.entries(areaScores).map(([key, score]) => ({
+    key, score, pct: Math.round((score / areaConfig[key].maxScore) * 100)
+  })).sort((a, b) => a.pct - b.pct);
+
+  areas.forEach(a => {
+    if (a.pct < 40) {
+      const r = getRecoForArea(a.key, 'critical');
+      if (r) recos.push(r);
+    } else if (a.pct < 70) {
+      const r = getRecoForArea(a.key, 'improve');
+      if (r) recos.push(r);
+    } else {
+      const r = getRecoForArea(a.key, 'good');
+      if (r) recos.push(r);
+    }
+  });
+
+  recos.forEach(r => {
+    container.innerHTML += `
+      <div class="reco-item">
+        <div class="reco-icon" style="background:${r.bg}">${r.icon}</div>
+        <div class="reco-text">
+          <h4>${r.title}</h4>
+          <p>${r.text}</p>
+        </div>
+      </div>`;
+  });
+}
+
+function getRecoForArea(area, level) {
+  const map = {
+    ahorro: {
+      critical: { icon: '🚨', bg: 'var(--red-bg)', title: 'Ahorro: prioridad urgente',
+        text: 'Armá un fondo de emergencia YA. Empezá con un objetivo chico: 1 mes de gastos. Automatizá una transferencia el día que cobrás, aunque sea el 5% de tu sueldo.' },
+      improve: { icon: '💰', bg: 'var(--orange-bg)', title: 'Ahorro: necesita estructura',
+        text: 'Tenés algo ahorrado pero sin plan. Definí un objetivo claro con monto y fecha. Apuntá a tener 3-6 meses de gastos como fondo de emergencia.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Ahorro: bien encaminado',
+        text: 'Tu hábito de ahorro es sólido. Ahora enfocate en optimizar dónde guardás ese dinero para que no pierda valor con la inflación.' }
+    },
+    deudas: {
+      critical: { icon: '🔴', bg: 'var(--red-bg)', title: 'Deudas: situación crítica',
+        text: 'Mapeá todas tus deudas (monto, tasa, cuota mínima). Priorizá las de mayor tasa. Contactá al banco para renegociar antes de que escale a cobranzas.' },
+      improve: { icon: '⚠️', bg: 'var(--orange-bg)', title: 'Deudas: cuidado con el mínimo',
+        text: 'Pagar solo el mínimo de la tarjeta es una trampa: los intereses se acumulan. Intentá pagar siempre el total del resumen o usá el método avalancha.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Deudas: bajo control',
+        text: 'Tu manejo de deudas es bueno. Mantené el hábito de no endeudarte por encima de tu capacidad de pago.' }
+    },
+    presupuesto: {
+      critical: { icon: '📋', bg: 'var(--red-bg)', title: 'Presupuesto: sin visibilidad',
+        text: 'No sabés a dónde va tu plata y eso te está costando caro. Empezá con la regla 50/30/20: 50% necesidades, 30% deseos, 20% ahorro.' },
+      improve: { icon: '📋', bg: 'var(--orange-bg)', title: 'Presupuesto: falta consistencia',
+        text: 'Sabés más o menos cuánto gastás pero no lo controlás. Usá una app o planilla para trackear gastos durante 1 mes — te vas a sorprender.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Presupuesto: excelente control',
+        text: 'Tu disciplina presupuestaria es admirable. Seguí así y buscá formas de optimizar gastos fijos para liberar más dinero para inversión.' }
+    },
+    inversiones: {
+      critical: { icon: '📈', bg: 'var(--red-bg)', title: 'Inversiones: estás perdiendo dinero',
+        text: 'Cada día que tu plata no está invertida, la inflación te la come. Empezá con algo simple: un FCI money market o dólares en un instrumento que rinda.' },
+      improve: { icon: '📈', bg: 'var(--orange-bg)', title: 'Inversiones: hay que diversificar',
+        text: 'Ya diste el primer paso pero necesitás más estructura. Diversificá entre renta fija y variable, y pensá en el largo plazo.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Inversiones: gran trabajo',
+        text: 'Tu portafolio de inversión está bien armado. Revisá la asignación de activos periódicamente y asegurate de tener exposición internacional.' }
+    },
+    ingresos: {
+      critical: { icon: '💼', bg: 'var(--red-bg)', title: 'Ingresos: muy vulnerable',
+        text: 'Depender de una sola fuente de ingreso es riesgoso. Pensá qué habilidad podés monetizar como segunda fuente: freelance, contenido, consultoría.' },
+      improve: { icon: '💼', bg: 'var(--orange-bg)', title: 'Ingresos: hay potencial',
+        text: 'Tenés una base estable pero sin crecimiento real. Invertí en tu educación financiera y profesional para desbloquear mejores oportunidades.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Ingresos: bien diversificado',
+        text: 'Múltiples fuentes de ingreso te dan seguridad y libertad. Seguí escalando y buscá que al menos una fuente sea pasiva.' }
+    },
+    mentalidad: {
+      critical: { icon: '🧠', bg: 'var(--red-bg)', title: 'Mentalidad: el mayor obstáculo',
+        text: 'Las compras impulsivas y la ansiedad financiera te están frenando. Implementá la regla de las 48hs: antes de comprar algo no esencial, esperá 2 días.' },
+      improve: { icon: '🧠', bg: 'var(--orange-bg)', title: 'Mentalidad: en proceso de cambio',
+        text: 'Tu relación con el dinero está mejorando pero todavía hay impulsos. Cada vez que evites una compra impulsiva, transferí ese monto a tu ahorro.' },
+      good: { icon: '✅', bg: 'var(--green-bg)', title: 'Mentalidad: mente financiera fuerte',
+        text: 'Tu disciplina y tranquilidad financiera son tu mayor activo. Compartí tu experiencia con otros y seguí educándote.' }
+    }
+  };
+  return map[area]?.[level];
+}
+
+// ====== SHARE CARD - Native Canvas API ======
+let shareData = {};
+
+function setupShareCard(score, level, areaScores) {
+  shareData = { score, level, areaScores };
+}
+
+function drawShareImage() {
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const { score, level, areaScores } = shareData;
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, W * 0.3, H);
+  bgGrad.addColorStop(0, '#0d1b2e');
+  bgGrad.addColorStop(0.4, '#132640');
+  bgGrad.addColorStop(1, '#0d1b2e');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // === TOP: Brand ===
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e4eaf2';
+  ctx.font = '300 28px Georgia, serif';
+  ctx.fillText('N I C O   P A S S I N I', W / 2, 100);
+
+  // Brand line gradient
+  const lineGrad = ctx.createLinearGradient(W/2 - 120, 0, W/2 + 120, 0);
+  lineGrad.addColorStop(0, 'transparent');
+  lineGrad.addColorStop(0.3, '#0b80e1');
+  lineGrad.addColorStop(0.7, '#11b3b7');
+  lineGrad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = lineGrad;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 120, 118);
+  ctx.lineTo(W/2 + 120, 118);
+  ctx.stroke();
+
+  // Test label
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '600 18px sans-serif';
+  ctx.fillText('T E S T   D E   S A L U D   F I N A N C I E R A', W / 2, 175);
+
+  // === SCORE RING ===
+  const cx = W / 2, cy = 420, r = 130;
+
+  // Ring background
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = '#1c3a5a';
+  ctx.lineWidth = 14;
+  ctx.stroke();
+
+  // Ring fill
+  const levelColorHex = getLevelColorHex(level);
+  const startAngle = -Math.PI / 2;
+  const endAngle = startAngle + (score / 100) * Math.PI * 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startAngle, endAngle);
+  ctx.strokeStyle = levelColorHex;
+  ctx.lineWidth = 14;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // Score number
+  ctx.fillStyle = '#e4eaf2';
+  ctx.font = '700 72px sans-serif';
+  ctx.fillText(score.toString(), cx, cy + 20);
+
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 22px sans-serif';
+  ctx.fillText('de 100', cx, cy + 52);
+
+  // Level badge
+  ctx.fillStyle = levelColorHex;
+  ctx.font = '700 36px sans-serif';
+  ctx.fillText(level.emoji + '  ' + level.name.toUpperCase(), cx, cy + 200);
+
+  // Level description (word wrap)
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 20px sans-serif';
+  wrapText(ctx, level.desc, cx, cy + 245, 700, 28);
+
+  // === AREA BOXES ===
+  const areas = Object.entries(areaConfig);
+  const boxW = 155, boxH = 100, gap = 16;
+  const totalW = 3 * boxW + 2 * gap;
+  const startX = (W - totalW) / 2;
+  let areaY = 870;
+
+  areas.forEach(([key, cfg], i) => {
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    const bx = startX + col * (boxW + gap);
+    const by = areaY + row * (boxH + gap);
+
+    // Box background
+    ctx.fillStyle = 'rgba(23, 48, 77, 0.8)';
+    roundRect(ctx, bx, by, boxW, boxH, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = '#1f4672';
+    ctx.lineWidth = 1;
+    roundRect(ctx, bx, by, boxW, boxH, 14);
+    ctx.stroke();
+
+    // Icon
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#e4eaf2';
+    ctx.fillText(cfg.icon, bx + boxW / 2, by + 34);
+
+    // Name
+    ctx.font = '400 13px sans-serif';
+    ctx.fillStyle = '#8da4bf';
+    ctx.fillText(cfg.name, bx + boxW / 2, by + 56);
+
+    // Score %
+    const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
+    const aColor = pct >= 70 ? '#11b3b7' : pct >= 40 ? '#f0a030' : '#e85454';
+    ctx.font = '700 26px sans-serif';
+    ctx.fillStyle = aColor;
+    ctx.fillText(pct + '%', bx + boxW / 2, by + 86);
+  });
+
+  // === BOTTOM ===
+  ctx.strokeStyle = '#1f4672';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, H - 280);
+  ctx.lineTo(W - 80, H - 280);
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#e4eaf2';
+  ctx.font = '600 26px sans-serif';
+  ctx.fillText('Como esta tu salud financiera?', W / 2, H - 220);
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '500 22px sans-serif';
+  ctx.fillText('Hace el test gratis en nicolaspassini.com', W / 2, H - 170);
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '700 26px sans-serif';
+  ctx.fillText('@nicopassini_', W / 2, H - 120);
+
+  return canvas;
+}
+
+function getLevelColorHex(level) {
+  if (level.name === 'Critico') return '#e85454';
+  if (level.name === 'Fragil') return '#f0a030';
+  if (level.name === 'En camino') return '#f0c040';
+  if (level.name === 'Solido') return '#11b3b7';
+  return '#11b3b7';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, y);
+}
+
+async function downloadImage() {
+  const canvas = drawShareImage();
+  canvas.toBlob(async (blob) => {
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], 'salud-financiera.png', { type: 'image/png' });
+      try {
+        await navigator.share({ title: 'Mi Salud Financiera - Nico Passini', files: [file] });
+        return;
+      } catch(e) {}
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'salud-financiera.png';
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Imagen descargada');
+  }, 'image/png');
+}
+
+
+function shareWhatsApp() {
+  const score = document.getElementById('scoreNumber').textContent;
+  const text = `🩺 Mi salud financiera: ${score}/100\n\n¿Querés saber cómo está la tuya?\n👉 nicolaspassini.com`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareTwitter() {
+  const score = document.getElementById('scoreNumber').textContent;
+  const text = `🩺 Mi salud financiera es ${score}/100\n\n¿Querés saber la tuya? Hacé el test gratis 👇\nnicolaspassini.com\n\nvía @nicopassini_`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareFacebook() {
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/test-salud-financiera.html'), '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText('https://nicolaspassini.com/test-salud-financiera.html').then(() => {
+    showToast('✅ Link copiado');
+  }).catch(() => {
+    showToast('❌ No se pudo copiar');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function retake() {
+  document.getElementById('resultsScreen').classList.remove('show');
+  document.getElementById('introScreen').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

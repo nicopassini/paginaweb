@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Gastos Hormiga | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@font-face {
+  font-family: 'Century Gothic Fallback';
+  src: local('Century Gothic'), local('CenturyGothic');
+}
+
+:root {
+  --navy: #1a3753;
+  --blue: #0b80e1;
+  --black: #141414;
+  --white: #ffffff;
+  --teal: #11b3b7;
+  --bg: #0d1b2e;
+  --surface: #132640;
+  --surface-2: #17304d;
+  --surface-3: #1c3a5a;
+  --border: #1f4672;
+  --text: #e4eaf2;
+  --text-muted: #8da4bf;
+  --accent: var(--teal);
+  --accent-glow: rgba(17, 179, 183, 0.15);
+  --green: #11b3b7;
+  --green-bg: rgba(17, 179, 183, 0.12);
+  --orange: #f0a030;
+  --orange-bg: rgba(240, 160, 48, 0.12);
+  --red: #e85454;
+  --red-bg: rgba(232, 84, 84, 0.12);
+  --purple: #a374f5;
+  --purple-bg: rgba(163, 116, 245, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-main: 'Century Gothic Fallback', 'Questrial', 'Futura', 'Trebuchet MS', Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.glow-orb {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  filter: blur(130px);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-orb-1 { top: -200px; right: -100px; background: var(--blue); }
+.glow-orb-2 { bottom: -200px; left: -100px; background: var(--teal); }
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeInUp 0.7s ease;
+}
+
+.brand-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.brand-wordmark {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--white);
+  display: inline-block;
+}
+
+.brand-wordmark-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  margin-top: 6px;
+}
+
+.brand-line {
+  height: 2px;
+  width: 200px;
+  margin: 0 auto 28px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  border-radius: 2px;
+}
+
+.header h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--white), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header .subtitle {
+  color: var(--text-muted);
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* IMPACT BANNER */
+.impact-banner {
+  background: linear-gradient(135deg, var(--red-bg), var(--orange-bg));
+  border: 1px solid rgba(232, 84, 84, 0.25);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  text-align: center;
+  margin-bottom: 36px;
+  animation: fadeInUp 0.7s ease 0.1s both;
+}
+
+.impact-banner .emoji { font-size: 28px; margin-bottom: 8px; }
+.impact-banner p {
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.impact-banner strong { color: var(--orange); }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.7s ease 0.2s both;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* CURRENCY SELECTOR */
+.currency-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.currency-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.currency-btn:hover {
+  border-color: var(--teal);
+  color: var(--text);
+}
+
+.currency-btn.active {
+  background: var(--accent-glow);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.currency-btn .symbol {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+/* PRESET GASTOS */
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.preset-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.preset-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-2px);
+}
+
+.preset-card.selected {
+  border-color: var(--teal);
+  background: var(--accent-glow);
+}
+
+.preset-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.preset-emoji { font-size: 24px; margin-bottom: 6px; }
+.preset-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.preset-desc { font-size: 12px; color: var(--text-muted); }
+
+/* GASTO ITEMS */
+.gastos-list { margin-bottom: 16px; }
+
+.gasto-item {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 10px;
+  animation: fadeInUp 0.3s ease;
+  display: grid;
+  grid-template-columns: 1fr 120px 120px 36px;
+  gap: 12px;
+  align-items: end;
+}
+
+@media (max-width: 600px) {
+  .gasto-item {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .gasto-item .field:first-child {
+    grid-column: 1 / -1;
+  }
+  .gasto-item .btn-remove {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.field input, .field select {
+  width: 100%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--font-main);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.field input::placeholder {
+  color: rgba(141, 164, 191, 0.5);
+}
+
+.btn-remove {
+  width: 36px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--red);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: end;
+}
+
+.btn-remove:hover {
+  background: var(--red-bg);
+  border-color: var(--red);
+}
+
+.btn-add {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* CONFIG ROW */
+.config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+@media (max-width: 500px) {
+  .config-row { grid-template-columns: 1fr; }
+}
+
+/* CALCULATE BUTTON */
+.btn-calculate {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.7s ease 0.3s both;
+}
+
+.btn-calculate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(11, 128, 225, 0.3);
+}
+
+/* RESULTS */
+.results { display: none; }
+.results.show { display: block; animation: fadeInUp 0.6s ease; }
+
+/* SHOCK VALUE */
+.shock-section {
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.shock-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--red), var(--orange), var(--teal));
+}
+
+.shock-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.shock-amount {
+  font-size: clamp(36px, 8vw, 60px);
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.shock-period {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.shock-breakdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .shock-breakdown { grid-template-columns: repeat(2, 1fr); }
+}
+
+.shock-box {
+  background: var(--surface-3);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+}
+
+.shock-box .period { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.shock-box .value { font-size: 20px; font-weight: 700; color: var(--white); margin-top: 4px; }
+
+/* OPPORTUNITY COST */
+.opportunity-section {
+  background: var(--surface);
+  border: 1px solid var(--teal);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.opportunity-section .section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--teal);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opportunity-section .section-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .opp-grid { grid-template-columns: 1fr; }
+}
+
+.opp-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.opp-card .years { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.opp-card .invested { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.opp-card .total {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 8px 0 4px;
+}
+.opp-card .gain {
+  font-size: 13px;
+  color: var(--green);
+}
+
+/* RANKING */
+.ranking-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ranking-item:last-child { border-bottom: none; }
+
+.ranking-pos {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ranking-pos.p1 { background: var(--red-bg); color: var(--red); }
+.ranking-pos.p2 { background: var(--orange-bg); color: var(--orange); }
+.ranking-pos.p3 { background: rgba(255,215,0,0.12); color: #f0c040; }
+.ranking-pos.pn { background: var(--surface-3); color: var(--text-muted); }
+
+.ranking-info { flex: 1; }
+.ranking-name { font-size: 15px; font-weight: 600; color: var(--white); }
+.ranking-detail { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.ranking-amount { font-size: 17px; font-weight: 700; color: var(--red); text-align: right; }
+
+/* CHART */
+.chart-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.chart-container canvas {
+  max-height: 350px;
+}
+
+/* EQUIVALENCIAS */
+.equiv-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.equiv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.equiv-card {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 18px 14px;
+  text-align: center;
+}
+
+.equiv-emoji { font-size: 28px; margin-bottom: 6px; }
+.equiv-value { font-size: 20px; font-weight: 700; color: var(--white); }
+.equiv-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* SHARE */
+.share-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border: 2px solid var(--teal);
+  border-radius: var(--radius);
+  background: var(--accent-glow);
+  color: var(--teal);
+  font-family: var(--font-main);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-share:hover {
+  background: var(--teal);
+  color: var(--bg);
+}
+
+.btn-share svg {
+  width: 20px; height: 20px;
+}
+
+/* SHAREABLE IMAGE (hidden, for html2canvas) */
+.share-card {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 1080px;
+  background: linear-gradient(160deg, #0d1b2e 0%, #132640 50%, #0d1b2e 100%);
+  padding: 60px;
+  font-family: var(--font-main);
+  color: var(--text);
+}
+
+.share-card .sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 50px;
+}
+
+.share-card .sc-brand {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.share-card .sc-tool {
+  font-size: 16px;
+  color: var(--teal);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.share-card .sc-main-label {
+  font-size: 20px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+
+.share-card .sc-main-amount {
+  font-size: 80px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.share-card .sc-main-period {
+  font-size: 22px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.share-card .sc-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.share-card .sc-item {
+  background: rgba(23, 48, 77, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.share-card .sc-item-name {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.share-card .sc-item-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.share-card .sc-opp {
+  background: rgba(17, 179, 183, 0.08);
+  border: 1px solid rgba(17, 179, 183, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.share-card .sc-opp-label {
+  font-size: 16px;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.share-card .sc-opp-amount {
+  font-size: 50px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.share-card .sc-opp-desc {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.share-card .sc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+
+.share-card .sc-footer-text {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.share-card .sc-footer-ig {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--teal);
+}
+
+/* CTA */
+.cta-card {
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border: 1px solid var(--teal);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.cta-card h3 {
+  font-size: 20px;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+
+.cta-card p {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+
+.btn-cta {
+  display: inline-block;
+  padding: 14px 36px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+
+.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(11, 128, 225, 0.3);
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.footer a {
+  color: var(--teal);
+  text-decoration: none;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+  animation: fadeInUp 0.5s ease;
+}
+
+.back-link:hover { color: var(--teal); }
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--teal);
+  color: var(--bg);
+  padding: 14px 28px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 100;
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* SCROLL */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<div class="container">
+  <a href="index.html" class="back-link">← Volver a herramientas</a>
+
+  <div class="header">
+    <div class="brand-logo">
+      <span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span>
+    </div>
+    <div class="brand-line"></div>
+    <h1>Calculadora de Gastos Hormiga 🐜</h1>
+    <p class="subtitle">Descubrí cuánto te cuestan esos "gastitos" que parecen inofensivos. Spoiler: te vas a sorprender.</p>
+  </div>
+
+  <div class="impact-banner">
+    <div class="emoji">🔥</div>
+    <p>Un gasto chiquito de <strong>$3.000 por día</strong> son <strong>$1.095.000 al año</strong>.<br>Si ese dinero lo invirtieras, en 20 años podrías tener millones.</p>
+  </div>
+
+  <!-- MONEDA -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background: var(--purple-bg); color: var(--purple);">$</div>
+      ¿En qué moneda querés calcular?
+    </div>
+    <div class="currency-row">
+      <button class="currency-btn active" onclick="setCurrency('ARS')">
+        <span class="symbol">🇦🇷</span> ARS
+      </button>
+      <button class="currency-btn" onclick="setCurrency('USD')">
+        <span class="symbol">🇺🇸</span> USD
+      </button>
+      <button class="currency-btn" onclick="setCurrency('EUR')">
+        <span class="symbol">🇪🇺</span> EUR
+      </button>
+      <button class="currency-btn" onclick="setCurrency('MXN')">
+        <span class="symbol">🇲🇽</span> MXN
+      </button>
+      <button class="currency-btn" onclick="setCurrency('CLP')">
+        <span class="symbol">🇨🇱</span> CLP
+      </button>
+      <button class="currency-btn" onclick="setCurrency('COP')">
+        <span class="symbol">🇨🇴</span> COP
+      </button>
+    </div>
+  </div>
+
+  <!-- GASTOS PRESETS -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background: var(--orange-bg); color: var(--orange);">📋</div>
+      Elegí tus gastos hormiga
+    </div>
+    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Tocá los que apliquen a tu vida — se agregan automáticamente abajo:</p>
+
+    <div class="presets-grid">
+      <div class="preset-card" onclick="togglePreset(this, 'cafe')" data-preset="cafe">
+        <div class="preset-emoji">☕</div>
+        <div class="preset-name">Café diario</div>
+        <div class="preset-desc">El cortado de cada mañana</div>
+      </div>
+      <div class="preset-card" onclick="togglePreset(this, 'delivery')" data-preset="delivery">
+        <div class="preset-emoji">🛵</div>
+        <div class="preset-name">Delivery / comida afuera</div>
+        <div class="preset-desc">PedidosYa, Rappi, salidas</div>
+      </div>
+      <div class="preset-card" onclick="togglePreset(this, 'suscripciones')" data-preset="suscripciones">
+        <div class="preset-emoji">📺</div>
+        <div class="preset-name">Suscripciones</div>
+        <div class="preset-desc">Netflix, Spotify, Disney+, etc</div>
+      </div>
+      <div class="preset-card" onclick="togglePreset(this, 'cigarrillos')" data-preset="cigarrillos">
+        <div class="preset-emoji">🚬</div>
+        <div class="preset-name">Cigarrillos</div>
+        <div class="preset-desc">Paquete diario o semanal</div>
+      </div>
+      <div class="preset-card" onclick="togglePreset(this, 'snacks')" data-preset="snacks">
+        <div class="preset-emoji">🍫</div>
+        <div class="preset-name">Snacks / kiosco</div>
+        <div class="preset-desc">Galletitas, golosinas, gaseosas</div>
+      </div>
+      <div class="preset-card" onclick="togglePreset(this, 'transporte')" data-preset="transporte">
+        <div class="preset-emoji">🚕</div>
+        <div class="preset-name">Taxis / viajes cortos</div>
+        <div class="preset-desc">Uber, taxi, remís innecesario</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GASTOS LIST -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon" style="background: var(--red-bg); color: var(--red);">💸</div>
+      Tus gastos hormiga
+    </div>
+    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Completá el monto y la frecuencia de cada uno. Podés agregar los que quieras.</p>
+
+    <div class="gastos-list" id="gastosList"></div>
+
+    <button class="btn-add" onclick="addGasto()">+ Agregar gasto personalizado</button>
+
+    <div class="config-row">
+      <div class="field">
+        <label>Horizonte de cálculo (años)</label>
+        <select id="horizonte">
+          <option value="1">1 año</option>
+          <option value="3">3 años</option>
+          <option value="5">5 años</option>
+          <option value="10" selected>10 años</option>
+          <option value="20">20 años</option>
+          <option value="30">30 años</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Rendimiento anual si invirtieras (%)</label>
+        <input type="number" id="rendimiento" value="8" min="0" max="50" step="0.5" placeholder="8">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calculate" onclick="calcular()">🐜 Calcular el impacto real</button>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="shock-section" id="shockSection">
+      <div class="shock-label">Total que gastás en gastos hormiga</div>
+      <div class="shock-amount" id="shockAmount"></div>
+      <div class="shock-period" id="shockPeriod"></div>
+
+      <div class="shock-breakdown">
+        <div class="shock-box">
+          <div class="period">Por día</div>
+          <div class="value" id="perDay"></div>
+        </div>
+        <div class="shock-box">
+          <div class="period">Por mes</div>
+          <div class="value" id="perMonth"></div>
+        </div>
+        <div class="shock-box">
+          <div class="period">Por año</div>
+          <div class="value" id="perYear"></div>
+        </div>
+        <div class="shock-box">
+          <div class="period" id="perHorizonLabel">En 10 años</div>
+          <div class="value" id="perHorizon"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPPORTUNITY COST -->
+    <div class="opportunity-section" id="oppSection">
+      <div class="section-title">📈 Y si lo invirtieras...</div>
+      <div class="section-desc" id="oppDesc"></div>
+      <div class="opp-grid" id="oppGrid"></div>
+    </div>
+
+    <!-- RANKING -->
+    <div class="ranking-section">
+      <div class="card-title">
+        <div class="icon" style="background: var(--red-bg); color: var(--red);">🏆</div>
+        Ranking: ¿qué gasto te sale más caro?
+      </div>
+      <div id="rankingList"></div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-container">
+      <div class="card-title">
+        <div class="icon" style="background: var(--green-bg); color: var(--green);">📊</div>
+        Tu dinero: gastado vs. invertido
+      </div>
+      <canvas id="growthChart"></canvas>
+    </div>
+
+    <!-- EQUIVALENCIAS -->
+    <div class="equiv-section">
+      <div class="card-title">
+        <div class="icon" style="background: var(--orange-bg); color: var(--orange);">🤯</div>
+        En ese tiempo podrías haberte comprado...
+      </div>
+      <div class="equiv-grid" id="equivGrid"></div>
+    </div>
+
+    <!-- SHARE -->
+    <div class="share-section" style="text-align:center;margin-bottom:24px;">
+      <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu resultado</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="shareResult()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+        <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+        <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+        <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+        <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-card">
+      <h3>¿Querés recuperar el control de tu plata?</h3>
+      <p>En el Método FBC aprenderás a armar un presupuesto inteligente, eliminar gastos innecesarios y hacer crecer tu dinero con inversiones reales.</p>
+      <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+    <p style="margin-top: 6px;">Esta calculadora es con fines educativos. Los rendimientos de inversión son estimaciones y no garantizan resultados futuros.</p>
+  </div>
+</div>
+
+<!-- SHAREABLE CARD (hidden) -->
+<div class="toast" id="toast">✅ Imagen descargada</div>
+
+<script>
+// STATE
+let currency = 'ARS';
+let gastos = [];
+let gastoId = 0;
+let chartInstance = null;
+
+const currencyConfig = {
+  ARS: { symbol: '$', locale: 'es-AR', decimals: 0 },
+  USD: { symbol: 'US$', locale: 'en-US', decimals: 2 },
+  EUR: { symbol: '€', locale: 'de-DE', decimals: 2 },
+  MXN: { symbol: 'MX$', locale: 'es-MX', decimals: 0 },
+  CLP: { symbol: 'CL$', locale: 'es-CL', decimals: 0 },
+  COP: { symbol: 'CO$', locale: 'es-CO', decimals: 0 }
+};
+
+const presetDefaults = {
+  ARS: {
+    cafe: { name: 'Café diario', amount: 2500, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 12000, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 15000, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 3500, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 1500, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 5000, freq: 'semanal' }
+  },
+  USD: {
+    cafe: { name: 'Café diario', amount: 5, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 30, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 40, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 10, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 5, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 15, freq: 'semanal' }
+  },
+  EUR: {
+    cafe: { name: 'Café diario', amount: 4, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 25, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 35, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 9, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 4, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 12, freq: 'semanal' }
+  },
+  MXN: {
+    cafe: { name: 'Café diario', amount: 80, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 400, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 600, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 100, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 50, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 200, freq: 'semanal' }
+  },
+  CLP: {
+    cafe: { name: 'Café diario', amount: 3000, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 15000, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 18000, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 5000, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 2000, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 8000, freq: 'semanal' }
+  },
+  COP: {
+    cafe: { name: 'Café diario', amount: 8000, freq: 'diario' },
+    delivery: { name: 'Delivery / comida afuera', amount: 50000, freq: 'semanal' },
+    suscripciones: { name: 'Suscripciones (streaming, apps)', amount: 60000, freq: 'mensual' },
+    cigarrillos: { name: 'Cigarrillos', amount: 15000, freq: 'diario' },
+    snacks: { name: 'Snacks / kiosco', amount: 5000, freq: 'diario' },
+    transporte: { name: 'Taxis / viajes cortos', amount: 20000, freq: 'semanal' }
+  }
+};
+
+function fmt(n) {
+  const c = currencyConfig[currency];
+  return c.symbol + ' ' + n.toLocaleString(c.locale, {
+    minimumFractionDigits: c.decimals,
+    maximumFractionDigits: c.decimals
+  });
+}
+
+function fmtShort(n) {
+  const c = currencyConfig[currency];
+  if (n >= 1e9) return c.symbol + ' ' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return c.symbol + ' ' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return c.symbol + ' ' + (n / 1e3).toFixed(0) + 'K';
+  return fmt(n);
+}
+
+// CURRENCY
+function setCurrency(c) {
+  currency = c;
+  document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  // Update preset amounts for active presets
+  updatePresetAmounts();
+}
+
+function updatePresetAmounts() {
+  gastos.forEach(g => {
+    if (g.presetKey && presetDefaults[currency][g.presetKey]) {
+      const def = presetDefaults[currency][g.presetKey];
+      const input = document.querySelector(`[data-gasto-id="${g.id}"] .amount-input`);
+      if (input) input.value = def.amount;
+    }
+  });
+}
+
+// PRESETS
+function togglePreset(el, key) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    const def = presetDefaults[currency][key];
+    addGasto(def.name, def.amount, def.freq, key);
+  } else {
+    // Remove gasto with this preset key
+    const g = gastos.find(x => x.presetKey === key);
+    if (g) removeGasto(g.id);
+  }
+}
+
+// GASTOS
+function addGasto(name = '', amount = '', freq = 'diario', presetKey = null) {
+  const id = ++gastoId;
+  gastos.push({ id, presetKey });
+
+  const div = document.createElement('div');
+  div.className = 'gasto-item';
+  div.setAttribute('data-gasto-id', id);
+  div.innerHTML = `
+    <div class="field">
+      <label>Nombre del gasto</label>
+      <input type="text" value="${name}" placeholder="Ej: café, uber, cigarrillos...">
+    </div>
+    <div class="field">
+      <label>Monto</label>
+      <input type="number" class="amount-input" value="${amount}" placeholder="0" min="0">
+    </div>
+    <div class="field">
+      <label>Frecuencia</label>
+      <select class="freq-select">
+        <option value="diario" ${freq === 'diario' ? 'selected' : ''}>Diario</option>
+        <option value="semanal" ${freq === 'semanal' ? 'selected' : ''}>Semanal</option>
+        <option value="mensual" ${freq === 'mensual' ? 'selected' : ''}>Mensual</option>
+      </select>
+    </div>
+    <button class="btn-remove" onclick="removeGasto(${id})">×</button>
+  `;
+  document.getElementById('gastosList').appendChild(div);
+}
+
+function removeGasto(id) {
+  const g = gastos.find(x => x.id === id);
+  if (g && g.presetKey) {
+    const presetCard = document.querySelector(`[data-preset="${g.presetKey}"]`);
+    if (presetCard) presetCard.classList.remove('selected');
+  }
+  gastos = gastos.filter(x => x.id !== id);
+  const el = document.querySelector(`[data-gasto-id="${id}"]`);
+  if (el) el.remove();
+}
+
+// CALCULATIONS
+function toMonthly(amount, freq) {
+  if (freq === 'diario') return amount * 30;
+  if (freq === 'semanal') return amount * 4.33;
+  return amount;
+}
+
+function toDaily(amount, freq) {
+  if (freq === 'diario') return amount;
+  if (freq === 'semanal') return amount / 7;
+  return amount / 30;
+}
+
+function toYearly(amount, freq) {
+  if (freq === 'diario') return amount * 365;
+  if (freq === 'semanal') return amount * 52;
+  return amount * 12;
+}
+
+function getGastoData() {
+  const items = [];
+  document.querySelectorAll('.gasto-item').forEach(el => {
+    const name = el.querySelector('input[type="text"]').value || 'Sin nombre';
+    const amount = parseFloat(el.querySelector('.amount-input').value) || 0;
+    const freq = el.querySelector('.freq-select').value;
+    if (amount > 0) {
+      items.push({
+        name,
+        amount,
+        freq,
+        monthly: toMonthly(amount, freq),
+        daily: toDaily(amount, freq),
+        yearly: toYearly(amount, freq)
+      });
+    }
+  });
+  return items;
+}
+
+function futureValue(monthlyContrib, annualRate, years) {
+  if (annualRate === 0) return monthlyContrib * 12 * years;
+  const r = annualRate / 100 / 12;
+  const n = years * 12;
+  return monthlyContrib * ((Math.pow(1 + r, n) - 1) / r);
+}
+
+function calcular() {
+  const items = getGastoData();
+  if (items.length === 0) {
+    alert('Agregá al menos un gasto hormiga con monto mayor a 0.');
+    return;
+  }
+
+  const years = parseInt(document.getElementById('horizonte').value);
+  const rate = parseFloat(document.getElementById('rendimiento').value) || 0;
+
+  const totalMonthly = items.reduce((s, i) => s + i.monthly, 0);
+  const totalDaily = items.reduce((s, i) => s + i.daily, 0);
+  const totalYearly = items.reduce((s, i) => s + i.yearly, 0);
+  const totalHorizon = totalYearly * years;
+
+  // SHOCK
+  document.getElementById('shockAmount').textContent = fmt(totalHorizon);
+  document.getElementById('shockPeriod').textContent = `en ${years} año${years > 1 ? 's' : ''} de gastos hormiga`;
+  document.getElementById('perDay').textContent = fmt(totalDaily);
+  document.getElementById('perMonth').textContent = fmt(totalMonthly);
+  document.getElementById('perYear').textContent = fmt(totalYearly);
+  document.getElementById('perHorizonLabel').textContent = `En ${years} año${years > 1 ? 's' : ''}`;
+  document.getElementById('perHorizon').textContent = fmt(totalHorizon);
+
+  // OPPORTUNITY COST
+  const periods = [
+    { y: 5, label: '5 años' },
+    { y: 10, label: '10 años' },
+    { y: 20, label: '20 años' }
+  ];
+
+  const oppGrid = document.getElementById('oppGrid');
+  oppGrid.innerHTML = '';
+  document.getElementById('oppDesc').textContent = `Si en vez de gastar ${fmt(totalMonthly)}/mes los invirtieras al ${rate}% anual...`;
+
+  periods.forEach(p => {
+    const fv = futureValue(totalMonthly, rate, p.y);
+    const invested = totalMonthly * 12 * p.y;
+    const gain = fv - invested;
+    const card = document.createElement('div');
+    card.className = 'opp-card';
+    card.innerHTML = `
+      <div class="years">${p.label}</div>
+      <div class="total">${fmt(fv)}</div>
+      <div class="invested">Invertido: ${fmt(invested)}</div>
+      <div class="gain">+${fmt(gain)} de rendimiento</div>
+    `;
+    oppGrid.appendChild(card);
+  });
+
+  // RANKING
+  const sorted = [...items].sort((a, b) => b.yearly - a.yearly);
+  const rankingList = document.getElementById('rankingList');
+  rankingList.innerHTML = '';
+  sorted.forEach((item, i) => {
+    const posClass = i === 0 ? 'p1' : i === 1 ? 'p2' : i === 2 ? 'p3' : 'pn';
+    const freqLabel = item.freq === 'diario' ? '/día' : item.freq === 'semanal' ? '/semana' : '/mes';
+    const div = document.createElement('div');
+    div.className = 'ranking-item';
+    div.innerHTML = `
+      <div class="ranking-pos ${posClass}">${i + 1}</div>
+      <div class="ranking-info">
+        <div class="ranking-name">${item.name}</div>
+        <div class="ranking-detail">${fmt(item.amount)}${freqLabel} → ${fmt(item.monthly)}/mes</div>
+      </div>
+      <div class="ranking-amount">${fmt(item.yearly)}/año</div>
+    `;
+    rankingList.appendChild(div);
+  });
+
+  // CHART
+  renderChart(totalMonthly, rate, years);
+
+  // EQUIVALENCIAS
+  renderEquivalencias(totalHorizon);
+
+  // SHARE DATA
+  const fvMax = futureValue(totalMonthly, rate, years);
+  window._shareData = {
+    totalHorizon: fmt(totalHorizon),
+    period: `en ${years} año${years > 1 ? 's' : ''}`,
+    items: sorted.slice(0, 4).map(i => ({ name: i.name, amount: fmt(i.yearly) + '/año' })),
+    opp: fmt(fvMax),
+    oppDesc: `invirtiendo al ${rate}% anual durante ${years} años`
+  };
+
+  // Show results
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderChart(monthly, rate, years) {
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  const labels = [];
+  const gastado = [];
+  const invertido = [];
+
+  for (let y = 0; y <= years; y++) {
+    labels.push(`Año ${y}`);
+    gastado.push(monthly * 12 * y);
+    invertido.push(futureValue(monthly, rate, y));
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Dinero gastado (perdido)',
+          data: gastado,
+          borderColor: '#e85454',
+          backgroundColor: 'rgba(232, 84, 84, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2.5
+        },
+        {
+          label: 'Si lo hubieras invertido',
+          data: invertido,
+          borderColor: '#11b3b7',
+          backgroundColor: 'rgba(17, 179, 183, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2.5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#8da4bf', font: { size: 13 }, usePointStyle: true, padding: 20 }
+        },
+        tooltip: {
+          backgroundColor: '#132640',
+          titleColor: '#e4eaf2',
+          bodyColor: '#8da4bf',
+          borderColor: '#1f4672',
+          borderWidth: 1,
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#8da4bf', maxTicksLimit: 10 },
+          grid: { color: 'rgba(31, 70, 114, 0.3)' }
+        },
+        y: {
+          ticks: {
+            color: '#8da4bf',
+            callback: v => fmtShort(v)
+          },
+          grid: { color: 'rgba(31, 70, 114, 0.3)' }
+        }
+      }
+    }
+  });
+}
+
+function renderEquivalencias(totalAmount) {
+  const grid = document.getElementById('equivGrid');
+  grid.innerHTML = '';
+
+  // Equivalencias en USD base
+  let usdEquiv = totalAmount;
+  if (currency === 'ARS') usdEquiv = totalAmount / 1200;
+  else if (currency === 'EUR') usdEquiv = totalAmount * 1.08;
+  else if (currency === 'MXN') usdEquiv = totalAmount / 17;
+  else if (currency === 'CLP') usdEquiv = totalAmount / 950;
+  else if (currency === 'COP') usdEquiv = totalAmount / 4200;
+
+  const equivs = [];
+
+  if (usdEquiv >= 500) equivs.push({ emoji: '📱', value: Math.floor(usdEquiv / 500), label: 'iPhones' });
+  if (usdEquiv >= 100) equivs.push({ emoji: '🍕', value: Math.floor(usdEquiv / 8), label: 'pizzas' });
+  if (usdEquiv >= 1500) equivs.push({ emoji: '✈️', value: Math.floor(usdEquiv / 1500), label: 'viajes internacionales' });
+  if (usdEquiv >= 30) equivs.push({ emoji: '📚', value: Math.floor(usdEquiv / 15), label: 'libros' });
+  if (usdEquiv >= 50) equivs.push({ emoji: '🎬', value: Math.floor(usdEquiv / 12), label: 'entradas de cine' });
+  if (usdEquiv >= 20000) equivs.push({ emoji: '🚗', value: Math.floor(usdEquiv / 20000), label: 'autos usados' });
+
+  equivs.slice(0, 6).forEach(eq => {
+    if (eq.value > 0) {
+      grid.innerHTML += `
+        <div class="equiv-card">
+          <div class="equiv-emoji">${eq.emoji}</div>
+          <div class="equiv-value">${eq.value.toLocaleString()}</div>
+          <div class="equiv-label">${eq.label}</div>
+        </div>
+      `;
+    }
+  });
+}
+
+// SHARE - Native Canvas API
+function drawGastosImage() {
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const d = window._shareData;
+
+  // Background
+  const bg = ctx.createLinearGradient(0, 0, W * 0.3, H);
+  bg.addColorStop(0, '#0d1b2e');
+  bg.addColorStop(0.4, '#132640');
+  bg.addColorStop(1, '#0d1b2e');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+
+  // Brand
+  ctx.fillStyle = '#e4eaf2';
+  ctx.font = '300 28px Georgia, serif';
+  ctx.fillText('N I C O   P A S S I N I', W/2, 100);
+
+  const lineGrad = ctx.createLinearGradient(W/2-120, 0, W/2+120, 0);
+  lineGrad.addColorStop(0, 'transparent');
+  lineGrad.addColorStop(0.3, '#0b80e1');
+  lineGrad.addColorStop(0.7, '#11b3b7');
+  lineGrad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = lineGrad;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2-120, 118); ctx.lineTo(W/2+120, 118); ctx.stroke();
+
+  // Tool label
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '600 18px sans-serif';
+  ctx.fillText('G A S T O S   H O R M I G A', W/2, 175);
+
+  // Main label
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 22px sans-serif';
+  ctx.fillText('MIS GASTOS HORMIGA ME CUESTAN', W/2, 280);
+
+  // Big amount
+  ctx.fillStyle = '#e85454';
+  ctx.font = '700 64px sans-serif';
+  ctx.fillText(d.totalHorizon, W/2, 370);
+
+  // Period
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 24px sans-serif';
+  ctx.fillText(d.period, W/2, 410);
+
+  // Items
+  let itemY = 500;
+  const itemW = 420, itemH = 80, itemGap = 14;
+  const cols = 2, totalItemW = cols * itemW + itemGap;
+  const itemStartX = (W - totalItemW) / 2;
+
+  d.items.forEach((item, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const ix = itemStartX + col * (itemW + itemGap);
+    const iy = itemY + row * (itemH + itemGap);
+
+    ctx.fillStyle = 'rgba(23, 48, 77, 0.8)';
+    roundRect2(ctx, ix, iy, itemW, itemH, 12); ctx.fill();
+    ctx.strokeStyle = '#1f4672'; ctx.lineWidth = 1;
+    roundRect2(ctx, ix, iy, itemW, itemH, 12); ctx.stroke();
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8da4bf';
+    ctx.font = '400 16px sans-serif';
+    ctx.fillText(item.name, ix + 20, iy + 32);
+
+    ctx.fillStyle = '#e4eaf2';
+    ctx.font = '700 22px sans-serif';
+    ctx.fillText(item.amount, ix + 20, iy + 60);
+    ctx.textAlign = 'center';
+  });
+
+  // Opportunity box
+  const oppY = itemY + Math.ceil(d.items.length / 2) * (itemH + itemGap) + 40;
+  ctx.fillStyle = 'rgba(17, 179, 183, 0.08)';
+  roundRect2(ctx, 80, oppY, W - 160, 180, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(17, 179, 183, 0.3)'; ctx.lineWidth = 1;
+  roundRect2(ctx, 80, oppY, W - 160, 180, 16); ctx.stroke();
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '600 16px sans-serif';
+  ctx.fillText('SI LO INVIRTIERA TENDRIA', W/2, oppY + 45);
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '700 48px sans-serif';
+  ctx.fillText(d.opp, W/2, oppY + 105);
+
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 16px sans-serif';
+  ctx.fillText(d.oppDesc, W/2, oppY + 140);
+
+  // Bottom
+  ctx.strokeStyle = '#1f4672'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(80, H-280); ctx.lineTo(W-80, H-280); ctx.stroke();
+
+  ctx.fillStyle = '#e4eaf2';
+  ctx.font = '600 24px sans-serif';
+  ctx.fillText('Calcula los tuyos gratis', W/2, H-220);
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '500 22px sans-serif';
+  ctx.fillText('nicolaspassini.com', W/2, H-170);
+
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '700 26px sans-serif';
+  ctx.fillText('@nicopassini_', W/2, H-120);
+
+  return canvas;
+}
+
+function roundRect2(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+async function shareResult() {
+  const canvas = drawGastosImage();
+  canvas.toBlob(async (blob) => {
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], 'gastos-hormiga.png', { type: 'image/png' });
+      try {
+        await navigator.share({ title: 'Mis gastos hormiga - Nico Passini', files: [file] });
+        return;
+      } catch (e) {}
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'gastos-hormiga.png';
+    a.click(); URL.revokeObjectURL(url);
+    showToast();
+  }, 'image/png');
+}
+
+function shareWhatsApp() {
+  const total = document.getElementById('shockAmount').textContent;
+  const years = document.getElementById('horizonte').value;
+  const text = `🐜 Mis gastos hormiga me cuestan ${total} en ${years} años!\n\n¿Querés saber cuánto te cuestan los tuyos?\n👉 nicolaspassini.com/gastos-hormiga.html`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareTwitter() {
+  const total = document.getElementById('shockAmount').textContent;
+  const text = `🐜 Mis gastos hormiga me cuestan ${total}...\n\nDescubrí cuánto te cuestan los tuyos 👇\nnicolaspassini.com/gastos-hormiga.html\n\nvía @nicopassini_`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareFacebook() {
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/gastos-hormiga.html'), '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText('https://nicolaspassini.com/gastos-hormiga.html').then(() => showToast()).catch(() => {});
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador DCA | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face{font-family:'Century Gothic Fallback';src:local('Century Gothic'),local('CenturyGothic');}
+:root{--navy:#1a3753;--blue:#0b80e1;--white:#fff;--teal:#11b3b7;--bg:#0d1b2e;--surface:#132640;--surface-2:#17304d;--surface-3:#1c3a5a;--border:#1f4672;--text:#e4eaf2;--text-muted:#8da4bf;--accent:var(--teal);--accent-glow:rgba(17,179,183,.15);--green:#11b3b7;--green-bg:rgba(17,179,183,.12);--orange:#f0a030;--orange-bg:rgba(240,160,48,.12);--red:#e85454;--red-bg:rgba(232,84,84,.12);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--radius:16px;--radius-sm:10px;--font-main:'Century Gothic Fallback','Questrial','Futura','Trebuchet MS',Arial,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.noise-overlay{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
+.glow-orb-1{top:-200px;right:-100px;background:var(--blue);}.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
+.container{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:40px 20px 60px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}.back-link:hover{color:var(--teal);}
+.header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
+.brand-logo{text-align:center;margin-bottom:28px;}
+.brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
+.brand-wordmark-line{display:block;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);margin-top:6px;}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:600px;margin:0 auto;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .15s both;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.input-wrap{position:relative;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix{left:16px;}.input-wrap .suffix{right:16px;}
+input[type="number"],select{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238da4bf'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
+.input-with-prefix{padding-left:36px!important;}.input-with-suffix{padding-right:60px!important;}
+.ars-equiv{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.ars-config{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:20px;}
+.ars-config label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.fields-row{grid-template-columns:1fr;}}
+
+/* MODE TOGGLE */
+.mode-toggle{display:flex;gap:0;margin-bottom:24px;background:var(--surface-2);border-radius:var(--radius-sm);padding:4px;border:1px solid var(--border);}
+.mode-btn{flex:1;padding:14px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
+.mode-btn.active{background:linear-gradient(135deg,var(--blue),var(--teal));color:var(--white);}
+
+/* ASSET SELECTOR */
+.asset-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:600px){.asset-grid{grid-template-columns:repeat(2,1fr);}}
+.asset-btn{padding:16px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
+.asset-btn:hover{border-color:var(--text-muted);}
+.asset-btn.active{border-color:var(--teal);background:var(--accent-glow);color:var(--teal);}
+.asset-btn .a-icon{font-size:24px;display:block;margin-bottom:4px;}
+.asset-btn .a-name{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+
+.calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;margin-top:8px;}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,128,225,.3);}
+
+/* RESULTS */
+.results{display:none;}.results.show{display:block;animation:fadeInUp .6s ease;}
+.result-hero{text-align:center;padding:36px 28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;position:relative;overflow:hidden;}
+.result-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--teal));}
+.rh-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.rh-amount{font-size:clamp(36px,7vw,52px);font-weight:700;color:var(--teal);line-height:1.1;}
+.rh-ars{font-size:16px;color:var(--text-muted);margin-top:4px;opacity:.7;}
+.rh-change{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:100px;font-size:15px;font-weight:700;margin-top:12px;}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 16px;text-align:center;}
+.metric .m-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+.metric .m-value{font-size:22px;font-weight:700;margin-top:4px;}
+.metric .m-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.chart-container canvas{max-height:340px;}
+
+/* COMPARISON TABLE */
+.comp-table{width:100%;border-collapse:collapse;margin-top:16px;}
+.comp-table th{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:12px;text-align:left;border-bottom:1px solid var(--border);}
+.comp-table td{padding:12px;font-size:14px;border-bottom:1px solid rgba(31,70,114,.3);}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table .positive{color:var(--green);}.comp-table .negative{color:var(--red);}
+
+/* DCA INSIGHT */
+.insight-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;border-left:3px solid var(--teal);}
+.insight-box h3{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--white);display:flex;align-items:center;gap:8px;}
+.insight-box p{font-size:14px;color:var(--text-muted);line-height:1.65;margin-bottom:8px;}
+
+/* COLLAPSE TABLE */
+.table-wrap{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.table-wrap.open{max-height:9999px;}
+.toggle-table{width:100%;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;margin-bottom:16px;}
+.toggle-table:hover{border-color:var(--teal);color:var(--teal);}
+.detail-table{width:100%;border-collapse:collapse;}
+.detail-table th{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:10px 8px;text-align:right;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);}
+.detail-table th:first-child{text-align:left;}
+.detail-table td{padding:8px;font-size:13px;text-align:right;border-bottom:1px solid rgba(31,70,114,.2);}
+.detail-table td:first-child{text-align:left;color:var(--text-muted);}
+.table-scroll{max-height:400px;overflow-y:auto;}
+
+.cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
+.cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
+.cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
+.btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer a{color:var(--teal);text-decoration:none;}
+
+/* SHARE */
+.share-card{position:absolute;left:-9999px;top:0;width:1080px;background:linear-gradient(160deg,#0d1b2e 0%,#132640 50%,#0d1b2e 100%);padding:60px;font-family:var(--font-main);color:var(--text);}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:50px;}
+.sc-brand{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
+.sc-tool{font-size:16px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;}
+.sc-main{text-align:center;margin-bottom:40px;}
+.sc-main-label{font-size:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;}
+.sc-main-amount{font-size:72px;font-weight:700;line-height:1;color:var(--teal);}
+.sc-main-sub{font-size:22px;color:var(--text-muted);margin-top:8px;}
+.sc-stats{display:flex;gap:16px;margin-bottom:40px;}
+.sc-stat{background:rgba(23,48,77,.8);border:1px solid var(--border);border-radius:12px;padding:24px;flex:1;text-align:center;}
+.sc-stat-label{font-size:14px;color:var(--text-muted);margin-bottom:6px;}
+.sc-stat-val{font-size:28px;font-weight:700;}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:24px;}
+.sc-footer-text{font-size:16px;color:var(--text-muted);}
+.sc-footer-ig{font-size:20px;font-weight:600;color:var(--teal);}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+<div class="container">
+<a href="index.html" class="back-link">← Volver a herramientas</a>
+<div class="header">
+  <div class="brand-logo"><span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span></div>
+  <h1>Simulador DCA 📈</h1>
+  <p class="subtitle">Dollar Cost Averaging: la estrategia de invertir un monto fijo de forma periódica. Probá con datos históricos reales o proyectá a futuro.</p>
+</div>
+
+<!-- MODE -->
+<div class="card">
+  <div class="card-title"><div class="icon">🔄</div> Modo de simulación</div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('backtest',this)">📊 ¿Qué hubiera pasado?</button>
+    <button class="mode-btn" onclick="setMode('projection',this)">🔮 Proyección a futuro</button>
+  </div>
+  <p id="modeDesc" style="font-size:13px;color:var(--text-muted);line-height:1.5;">Usá datos reales del pasado para ver qué hubiera pasado si hacías DCA en ese activo.</p>
+</div>
+
+<!-- COTIZACIÓN -->
+<div class="card">
+  <div class="card-title"><div class="icon">🇦🇷</div> Cotización</div>
+  <div class="ars-config">
+    <label>USD/ARS:</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="arsRate" value="1200" min="1" style="width:120px;padding-left:28px;"></div>
+    <span id="arsSource" style="font-size:11px;color:var(--text-muted);opacity:.6;"></span>
+  </div>
+</div>
+
+<!-- ASSET -->
+<div class="card">
+  <div class="card-title"><div class="icon">💎</div> Activo</div>
+  <div class="asset-grid">
+    <button class="asset-btn active" onclick="setAsset('BTC',this)"><span class="a-icon">₿</span><span class="a-name">Bitcoin</span></button>
+    <button class="asset-btn" onclick="setAsset('ETH',this)"><span class="a-icon">⟠</span><span class="a-name">Ethereum</span></button>
+    <button class="asset-btn" onclick="setAsset('SPY',this)"><span class="a-icon">📊</span><span class="a-name">S&P 500</span></button>
+    <button class="asset-btn" onclick="setAsset('CUSTOM',this)"><span class="a-icon">⚙️</span><span class="a-name">Personalizado</span></button>
+  </div>
+  <div id="customRateField" class="field hidden">
+    <label>Rendimiento anual estimado (%)</label>
+    <div class="input-wrap"><input type="number" id="customRate" value="10" min="-50" max="200" class="input-with-suffix"><span class="suffix">%</span></div>
+  </div>
+</div>
+
+<!-- PARAMS -->
+<div class="card">
+  <div class="card-title"><div class="icon">⚙️</div> Parámetros</div>
+  <div class="field">
+    <label>Monto de cada aporte</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="amount" value="100" min="1" class="input-with-prefix input-with-suffix"><span class="suffix">USD</span></div>
+    <div class="ars-equiv" id="amountARS"></div>
+  </div>
+  <div class="field">
+    <label>Frecuencia</label>
+    <select id="frequency">
+      <option value="monthly" selected>Mensual</option>
+      <option value="weekly">Semanal</option>
+      <option value="biweekly">Quincenal</option>
+    </select>
+  </div>
+  <!-- BACKTEST FIELDS -->
+  <div id="backtestFields">
+    <div class="fields-row">
+      <div class="field">
+        <label>Desde</label>
+        <select id="startDate"></select>
+      </div>
+      <div class="field">
+        <label>Hasta</label>
+        <select id="endDate"></select>
+      </div>
+    </div>
+  </div>
+  <!-- PROJECTION FIELDS -->
+  <div id="projectionFields" class="hidden">
+    <div class="field">
+      <label>Horizonte de inversión</label>
+      <div class="input-wrap"><input type="number" id="years" value="10" min="1" max="50" class="input-with-suffix"><span class="suffix">años</span></div>
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calculate()">Simular DCA →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+  <div class="result-hero" id="resultHero">
+    <div class="rh-label" id="rhLabel">Valor de tu portafolio</div>
+    <div class="rh-amount" id="rhAmount"></div>
+    <div class="rh-ars" id="rhARS"></div>
+    <div class="rh-change" id="rhChange"></div>
+  </div>
+
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <div class="chart-container">
+    <div class="card-title"><div class="icon">📊</div> <span id="chartTitle">Evolución del portafolio</span></div>
+    <canvas id="dcaChart"></canvas>
+  </div>
+
+  <!-- COMPARISON (backtest only) -->
+  <div id="compSection" class="chart-container">
+    <div class="card-title"><div class="icon">⚔️</div> DCA vs Invertir todo de una</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">¿Qué convenía más: aportar de a poco o meter todo junto al principio?</p>
+    <table class="comp-table" id="compTable"></table>
+  </div>
+
+  <!-- DETAIL TABLE -->
+  <button class="toggle-table" onclick="toggleTable()">📋 Ver tabla detallada mes a mes</button>
+  <div class="table-wrap" id="tableWrap">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button onclick="downloadCSV()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--teal);font-family:var(--font-main);font-size:13px;cursor:pointer;">📥 Descargar CSV</button>
+    </div>
+    <div class="table-scroll"><table class="detail-table" id="detailTable"></table></div>
+  </div>
+
+  <!-- INSIGHT -->
+  <div class="insight-box" id="insightBox"></div>
+
+  <!-- SHARE -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu simulación</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="downloadImage()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+    </div>
+  </div>
+
+  <div class="cta-card">
+    <h3>¿Querés aprender a invertir con criterio?</h3>
+    <p>En el Método FBC te enseñamos a armar tu cartera de inversión, diversificar con estrategia y tomar decisiones informadas para hacer crecer tu patrimonio.</p>
+    <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+  <p style="margin-top:6px;">Los rendimientos pasados no garantizan resultados futuros. Con fines educativos. No constituye asesoramiento financiero ni recomendación de compra o venta de activos.</p>
+</div>
+</div>
+
+<!-- SHARE CARD -->
+<div class="share-card" id="shareCard">
+  <div class="sc-header"><div class="sc-brand">NICO PASSINI</div><div class="sc-tool">SIMULADOR DCA</div></div>
+  <div class="sc-main">
+    <div class="sc-main-label" id="scLabel"></div>
+    <div class="sc-main-amount" id="scAmount"></div>
+    <div class="sc-main-sub" id="scSub"></div>
+  </div>
+  <div class="sc-stats">
+    <div class="sc-stat"><div class="sc-stat-label">Invertido</div><div class="sc-stat-val" id="scInvested"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">Ganancia</div><div class="sc-stat-val" id="scGain"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">ROI</div><div class="sc-stat-val" id="scROI"></div></div>
+  </div>
+  <div class="sc-footer"><div class="sc-footer-text">Simulá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== HISTORICAL DATA (monthly prices, 1st of each month) ==========
+// Sources: in2013dollars.com, CoinMarketCap, Yahoo Finance
+const PRICES = {
+BTC: {
+// format: 'YYYY-MM': price USD
+'2014-01':754,'2014-02':850,'2014-03':630,'2014-04':460,'2014-05':450,'2014-06':630,'2014-07':620,'2014-08':510,'2014-09':475,'2014-10':380,'2014-11':330,'2014-12':379,
+'2015-01':314,'2015-02':220,'2015-03':270,'2015-04':245,'2015-05':237,'2015-06':225,'2015-07':285,'2015-08':280,'2015-09':230,'2015-10':240,'2015-11':325,'2015-12':363,
+'2016-01':434,'2016-02':380,'2016-03':420,'2016-04':416,'2016-05':450,'2016-06':530,'2016-07':675,'2016-08':575,'2016-09':605,'2016-10':615,'2016-11':710,'2016-12':760,
+'2017-01':998,'2017-02':970,'2017-03':1190,'2017-04':1080,'2017-05':1450,'2017-06':2500,'2017-07':2480,'2017-08':4400,'2017-09':4700,'2017-10':4400,'2017-11':6750,'2017-12':14000,
+'2018-01':13657,'2018-02':10200,'2018-03':11500,'2018-04':7000,'2018-05':9300,'2018-06':7500,'2018-07':6400,'2018-08':7600,'2018-09':7000,'2018-10':6600,'2018-11':6400,'2018-12':3800,
+'2019-01':3844,'2019-02':3400,'2019-03':3800,'2019-04':4100,'2019-05':5350,'2019-06':8550,'2019-07':10800,'2019-08':10100,'2019-09':9600,'2019-10':8300,'2019-11':9200,'2019-12':7200,
+'2020-01':7200,'2020-02':8600,'2020-03':9200,'2020-04':6400,'2020-05':8700,'2020-06':9500,'2020-07':9200,'2020-08':11500,'2020-09':10800,'2020-10':10600,'2020-11':13700,'2020-12':19700,
+'2021-01':29374,'2021-02':33500,'2021-03':45200,'2021-04':58800,'2021-05':57700,'2021-06':35600,'2021-07':34200,'2021-08':39800,'2021-09':47100,'2021-10':43800,'2021-11':61300,'2021-12':57000,
+'2022-01':47687,'2022-02':38500,'2022-03':43200,'2022-04':46300,'2022-05':38500,'2022-06':29800,'2022-07':19270,'2022-08':23300,'2022-09':20100,'2022-10':19300,'2022-11':20500,'2022-12':17000,
+'2023-01':16625,'2023-02':23000,'2023-03':23700,'2023-04':28400,'2023-05':28100,'2023-06':26800,'2023-07':30600,'2023-08':29700,'2023-09':25800,'2023-10':28000,'2023-11':35400,'2023-12':38700,
+'2024-01':44167,'2024-02':43100,'2024-03':62400,'2024-04':69700,'2024-05':58300,'2024-06':67700,'2024-07':62900,'2024-08':65400,'2024-09':57300,'2024-10':60800,'2024-11':69500,'2024-12':97300,
+'2025-01':94420,'2025-02':100650
+},
+ETH: {
+'2016-01':1,'2016-02':2.5,'2016-03':11,'2016-04':8,'2016-05':10,'2016-06':14,'2016-07':12,'2016-08':11.5,'2016-09':12,'2016-10':11,'2016-11':10,'2016-12':8,
+'2017-01':8,'2017-02':11,'2017-03':16,'2017-04':50,'2017-05':85,'2017-06':250,'2017-07':280,'2017-08':220,'2017-09':300,'2017-10':305,'2017-11':300,'2017-12':750,
+'2018-01':880,'2018-02':1020,'2018-03':860,'2018-04':400,'2018-05':670,'2018-06':530,'2018-07':440,'2018-08':430,'2018-09':290,'2018-10':230,'2018-11':200,'2018-12':130,
+'2019-01':130,'2019-02':107,'2019-03':137,'2019-04':142,'2019-05':165,'2019-06':270,'2019-07':290,'2019-08':215,'2019-09':175,'2019-10':180,'2019-11':183,'2019-12':130,
+'2020-01':130,'2020-02':190,'2020-03':225,'2020-04':135,'2020-05':210,'2020-06':230,'2020-07':230,'2020-08':400,'2020-09':370,'2020-10':355,'2020-11':390,'2020-12':590,
+'2021-01':740,'2021-02':1370,'2021-03':1470,'2021-04':1920,'2021-05':2700,'2021-06':2550,'2021-07':2280,'2021-08':2530,'2021-09':3400,'2021-10':3000,'2021-11':4300,'2021-12':4600,
+'2022-01':3770,'2022-02':2680,'2022-03':2920,'2022-04':3500,'2022-05':2830,'2022-06':1950,'2022-07':1050,'2022-08':1600,'2022-09':1560,'2022-10':1340,'2022-11':1570,'2022-12':1200,
+'2023-01':1200,'2023-02':1570,'2023-03':1600,'2023-04':1830,'2023-05':1870,'2023-06':1870,'2023-07':1930,'2023-08':1850,'2023-09':1630,'2023-10':1660,'2023-11':1800,'2023-12':2280,
+'2024-01':2280,'2024-02':2300,'2024-03':3400,'2024-04':3600,'2024-05':3050,'2024-06':3800,'2024-07':3400,'2024-08':3200,'2024-09':2500,'2024-10':2450,'2024-11':2520,'2024-12':3650,
+'2025-01':3320,'2025-02':2750
+},
+SPY: {
+// S&P 500 approximate monthly (ETF SPY price)
+'2010-01':112,'2010-02':105,'2010-03':110,'2010-04':118,'2010-05':118,'2010-06':106,'2010-07':105,'2010-08':111,'2010-09':105,'2010-10':113,'2010-11':118,'2010-12':121,
+'2011-01':127,'2011-02':130,'2011-03':131,'2011-04':133,'2011-05':136,'2011-06':134,'2011-07':131,'2011-08':131,'2011-09':121,'2011-10':112,'2011-11':125,'2011-12':126,
+'2012-01':126,'2012-02':134,'2012-03':138,'2012-04':141,'2012-05':140,'2012-06':132,'2012-07':136,'2012-08':139,'2012-09':143,'2012-10':145,'2012-11':143,'2012-12':141,
+'2013-01':146,'2013-02':150,'2013-03':154,'2013-04':157,'2013-05':159,'2013-06':163,'2013-07':160,'2013-08':168,'2013-09':166,'2013-10':169,'2013-11':177,'2013-12':181,
+'2014-01':184,'2014-02':178,'2014-03':185,'2014-04':188,'2014-05':188,'2014-06':192,'2014-07':196,'2014-08':198,'2014-09':201,'2014-10':198,'2014-11':196,'2014-12':206,
+'2015-01':206,'2015-02':200,'2015-03':210,'2015-04':209,'2015-05':211,'2015-06':211,'2015-07':210,'2015-08':211,'2015-09':207,'2015-10':192,'2015-11':208,'2015-12':210,
+'2016-01':205,'2016-02':193,'2016-03':195,'2016-04':206,'2016-05':210,'2016-06':210,'2016-07':210,'2016-08':218,'2016-09':218,'2016-10':215,'2016-11':213,'2016-12':218,
+'2017-01':228,'2017-02':230,'2017-03':238,'2017-04':237,'2017-05':240,'2017-06':244,'2017-07':244,'2017-08':247,'2017-09':249,'2017-10':253,'2017-11':258,'2017-12':265,
+'2018-01':269,'2018-02':280,'2018-03':265,'2018-04':264,'2018-05':267,'2018-06':272,'2018-07':274,'2018-08':281,'2018-09':289,'2018-10':290,'2018-11':273,'2018-12':275,
+'2019-01':249,'2019-02':272,'2019-03':280,'2019-04':288,'2019-05':294,'2019-06':276,'2019-07':296,'2019-08':301,'2019-09':294,'2019-10':296,'2019-11':306,'2019-12':312,
+'2020-01':324,'2020-02':330,'2020-03':338,'2020-04':260,'2020-05':293,'2020-06':305,'2020-07':312,'2020-08':336,'2020-09':350,'2020-10':338,'2020-11':335,'2020-12':364,
+'2021-01':375,'2021-02':381,'2021-03':391,'2021-04':397,'2021-05':420,'2021-06':422,'2021-07':428,'2021-08':441,'2021-09':452,'2021-10':443,'2021-11':460,'2021-12':470,
+'2022-01':477,'2022-02':452,'2022-03':447,'2022-04':452,'2022-05':449,'2022-06':415,'2022-07':383,'2022-08':412,'2022-09':408,'2022-10':374,'2022-11':386,'2022-12':407,
+'2023-01':395,'2023-02':408,'2023-03':407,'2023-04':396,'2023-05':415,'2023-06':419,'2023-07':440,'2023-08':457,'2023-09':452,'2023-10':440,'2023-11':427,'2023-12':455,
+'2024-01':472,'2024-02':482,'2024-03':507,'2024-04':524,'2024-05':509,'2024-06':527,'2024-07':540,'2024-08':552,'2024-09':543,'2024-10':569,'2024-11':573,'2024-12':596,
+'2025-01':598,'2025-02':604
+}
+};
+
+// ========== STATE ==========
+let mode = 'backtest';
+let asset = 'BTC';
+let chartInstance = null;
+let csvData = [];
+let lastResult = {};
+
+// ========== INIT ==========
+function init() {
+  fetchARS();
+  populateDates();
+  document.getElementById('amount').addEventListener('input', function(){showARS(this,'amountARS');});
+  showARS(document.getElementById('amount'), 'amountARS');
+}
+
+// ========== ARS ==========
+async function fetchARS() {
+  const el=document.getElementById('arsSource');const input=document.getElementById('arsRate');
+  const apis=[{url:'https://dolarapi.com/v1/dolares/oficial',parse:d=>d.venta,name:'DolarAPI'},{url:'https://api.bluelytics.com.ar/v2/latest',parse:d=>d.oficial?.value_sell,name:'Bluelytics'}];
+  for(const api of apis){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);const r=await fetch(api.url,{signal:c.signal});clearTimeout(t);if(!r.ok)continue;const d=await r.json();const rate=api.parse(d);if(rate&&rate>0){input.value=Math.round(rate);el.textContent='(auto · '+api.name+')';updateAllARS();return;}}catch(e){continue;}}
+  el.textContent='(manual)';updateAllARS();
+}
+function getARS(){return parseFloat(document.getElementById('arsRate').value)||1200;}
+function fmt(n){return n>=1000000?'US$ '+(n/1000000).toFixed(2)+'M':n>=10000?'US$ '+Math.round(n).toLocaleString('en-US'):'US$ '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function fmtARS(n){return n>=1000000?'ARS $ '+(n/1000000).toFixed(1)+'M':'ARS $ '+Math.round(n).toLocaleString('es-AR');}
+function fmtPct(n){return (n>=0?'+':'')+n.toFixed(1)+'%';}
+function showARS(input,id){const el=document.getElementById(id);if(el)el.textContent='≈ '+fmtARS((parseFloat(input.value)||0)*getARS());}
+function updateAllARS(){showARS(document.getElementById('amount'),'amountARS');}
+
+// ========== MODE ==========
+function setMode(m, el) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('backtestFields').classList.toggle('hidden', m!=='backtest');
+  document.getElementById('projectionFields').classList.toggle('hidden', m!=='projection');
+  document.getElementById('modeDesc').textContent = m==='backtest'
+    ? 'Usá datos reales del pasado para ver qué hubiera pasado si hacías DCA en ese activo.'
+    : 'Proyectá a futuro cuánto podrías acumular con aportes periódicos a una tasa estimada.';
+  // Show/hide custom rate based on mode
+  toggleCustomRate();
+}
+
+// ========== ASSET ==========
+function setAsset(a, el) {
+  asset = a;
+  document.querySelectorAll('.asset-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  toggleCustomRate();
+  if(a !== 'CUSTOM') populateDates();
+}
+function toggleCustomRate() {
+  const show = asset==='CUSTOM' || mode==='projection';
+  document.getElementById('customRateField').classList.toggle('hidden', !show);
+}
+
+// ========== DATES ==========
+function populateDates() {
+  const prices = PRICES[asset];
+  if(!prices) return;
+  const keys = Object.keys(prices).sort();
+  const startSel = document.getElementById('startDate');
+  const endSel = document.getElementById('endDate');
+  startSel.innerHTML = '';
+  endSel.innerHTML = '';
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  keys.forEach(k => {
+    const [y,m] = k.split('-');
+    const label = months[parseInt(m)-1]+' '+y;
+    startSel.innerHTML += `<option value="${k}">${label}</option>`;
+    endSel.innerHTML += `<option value="${k}">${label}</option>`;
+  });
+  endSel.value = keys[keys.length-1];
+  // Default start: ~3 years back or first available
+  const idx3y = Math.max(0, keys.length-37);
+  startSel.value = keys[idx3y];
+}
+
+// ========== CALCULATE ==========
+function calculate() {
+  if(mode === 'backtest') calcBacktest();
+  else calcProjection();
+}
+
+function calcBacktest() {
+  const prices = asset==='CUSTOM' ? null : PRICES[asset];
+  if(!prices && asset!=='CUSTOM'){alert('Seleccioná un activo.');return;}
+  if(asset==='CUSTOM'){calcProjection();return;} // Custom always uses projection
+
+  const startKey = document.getElementById('startDate').value;
+  const endKey = document.getElementById('endDate').value;
+  const amountPerPeriod = parseFloat(document.getElementById('amount').value)||100;
+  const freq = document.getElementById('frequency').value;
+
+  const keys = Object.keys(prices).sort().filter(k => k>=startKey && k<=endKey);
+  if(keys.length < 2){alert('Seleccioná un rango de al menos 2 meses.');return;}
+
+  // For weekly/biweekly, we still use monthly prices but adjust amount
+  let monthlyAmount = amountPerPeriod;
+  if(freq==='weekly') monthlyAmount = amountPerPeriod * 4.33;
+  else if(freq==='biweekly') monthlyAmount = amountPerPeriod * 2.17;
+
+  let totalInvested = 0;
+  let totalUnits = 0;
+  const timeline = [];
+  csvData = [];
+
+  keys.forEach((k,i) => {
+    const price = prices[k];
+    const units = monthlyAmount / price;
+    totalInvested += monthlyAmount;
+    totalUnits += units;
+    const value = totalUnits * price;
+    const gain = value - totalInvested;
+    const roi = totalInvested>0 ? ((value/totalInvested)-1)*100 : 0;
+    timeline.push({date:k, price, invested:totalInvested, value, units:totalUnits, gain, roi});
+    csvData.push({date:k, price:price.toFixed(2), invested:totalInvested.toFixed(2), units:totalUnits.toFixed(6), value:value.toFixed(2), gain:gain.toFixed(2), roi:roi.toFixed(1)+'%'});
+  });
+
+  const last = timeline[timeline.length-1];
+  const first = timeline[0];
+  const avgPrice = totalInvested / totalUnits;
+
+  // Lump sum comparison
+  const lumpUnits = totalInvested / first.price;
+  const lumpValue = lumpUnits * last.price;
+  const lumpROI = ((lumpValue/totalInvested)-1)*100;
+
+  lastResult = {
+    asset, mode:'backtest',
+    finalValue: last.value,
+    totalInvested: last.invested,
+    gain: last.gain,
+    roi: last.roi,
+    avgPrice,
+    totalUnits,
+    months: keys.length,
+    startDate: startKey,
+    endDate: endKey,
+    lumpValue, lumpROI,
+    amountPerPeriod, freq
+  };
+
+  renderResults(timeline, lastResult);
+}
+
+function calcProjection() {
+  const amountPerPeriod = parseFloat(document.getElementById('amount').value)||100;
+  const freq = document.getElementById('frequency').value;
+  const years = parseInt(document.getElementById('years').value)||10;
+  const annualRate = parseFloat(document.getElementById('customRate').value)||10;
+
+  let monthlyAmount = amountPerPeriod;
+  if(freq==='weekly') monthlyAmount = amountPerPeriod * 4.33;
+  else if(freq==='biweekly') monthlyAmount = amountPerPeriod * 2.17;
+
+  const monthlyRate = Math.pow(1 + annualRate/100, 1/12) - 1;
+  const totalMonths = years * 12;
+  let totalInvested = 0;
+  let value = 0;
+  const timeline = [];
+  csvData = [];
+
+  for(let m=1; m<=totalMonths; m++) {
+    totalInvested += monthlyAmount;
+    value = (value + monthlyAmount) * (1 + monthlyRate);
+    const gain = value - totalInvested;
+    const roi = totalInvested>0 ? ((value/totalInvested)-1)*100 : 0;
+    const yr = Math.ceil(m/12);
+    const mo = ((m-1)%12)+1;
+    const dateStr = `Año ${yr} - Mes ${mo}`;
+    timeline.push({date:dateStr, invested:totalInvested, value, gain, roi, month:m});
+    if(m%12===0 || m===totalMonths) {
+      csvData.push({date:`Año ${yr}`, invested:totalInvested.toFixed(2), value:value.toFixed(2), gain:gain.toFixed(2), roi:roi.toFixed(1)+'%'});
+    }
+  }
+
+  const last = timeline[timeline.length-1];
+
+  lastResult = {
+    asset: asset==='CUSTOM'?'Personalizado':asset,
+    mode:'projection',
+    finalValue: last.value,
+    totalInvested: last.invested,
+    gain: last.gain,
+    roi: last.roi,
+    years,
+    annualRate,
+    months: totalMonths,
+    amountPerPeriod, freq
+  };
+
+  renderResults(timeline, lastResult);
+}
+
+// ========== RENDER ==========
+function renderResults(timeline, r) {
+  // Hero
+  document.getElementById('rhLabel').textContent = r.mode==='backtest'
+    ? `Portafolio ${r.asset} (${fmtDate(r.startDate)} → ${fmtDate(r.endDate)})`
+    : `Proyección ${r.asset} a ${r.years} años (${r.annualRate}% anual)`;
+  document.getElementById('rhAmount').textContent = fmt(r.finalValue);
+  document.getElementById('rhARS').textContent = '≈ ' + fmtARS(r.finalValue * getARS());
+
+  const change = document.getElementById('rhChange');
+  const isPositive = r.gain >= 0;
+  change.textContent = (isPositive?'▲ +':'▼ ') + fmt(Math.abs(r.gain)) + ' (' + fmtPct(r.roi) + ')';
+  change.style.background = isPositive ? 'var(--green-bg)' : 'var(--red-bg)';
+  change.style.color = isPositive ? 'var(--green)' : 'var(--red)';
+
+  // Metrics
+  const freqLabel = r.freq==='weekly'?'semanal':r.freq==='biweekly'?'quincenal':'mensual';
+  const metricsHTML = `
+    <div class="metric"><div class="m-label">Total invertido</div><div class="m-value">${fmt(r.totalInvested)}</div><div class="m-sub">≈ ${fmtARS(r.totalInvested*getARS())}</div></div>
+    <div class="metric"><div class="m-label">Ganancia</div><div class="m-value" style="color:${r.gain>=0?'var(--green)':'var(--red)'}">${fmt(Math.abs(r.gain))}</div><div class="m-sub">${fmtPct(r.roi)}</div></div>
+    <div class="metric"><div class="m-label">Multiplicador</div><div class="m-value" style="color:var(--teal)">${(r.finalValue/r.totalInvested).toFixed(2)}x</div><div class="m-sub">tu dinero se multiplicó</div></div>
+    <div class="metric"><div class="m-label">Aportes</div><div class="m-value">${r.months}</div><div class="m-sub">${fmt(r.amountPerPeriod)} ${freqLabel}</div></div>
+  `;
+  document.getElementById('metricsGrid').innerHTML = metricsHTML;
+
+  // Chart
+  renderChart(timeline, r);
+
+  // Comparison (backtest only)
+  const compSec = document.getElementById('compSection');
+  if(r.mode==='backtest') {
+    compSec.classList.remove('hidden');
+    const dcaROI = r.roi;
+    const lsROI = r.lumpROI;
+    const winner = dcaROI > lsROI ? 'DCA' : 'Todo de una';
+    document.getElementById('compTable').innerHTML = `
+      <tr><th>Estrategia</th><th>Valor final</th><th>ROI</th><th>Resultado</th></tr>
+      <tr><td>📊 DCA (${freqLabel})</td><td>${fmt(r.finalValue)}</td><td class="${dcaROI>=0?'positive':'negative'}">${fmtPct(dcaROI)}</td><td>${winner==='DCA'?'🏆':''}</td></tr>
+      <tr><td>💰 Todo de una (inversión única)</td><td>${fmt(r.lumpValue)}</td><td class="${lsROI>=0?'positive':'negative'}">${fmtPct(lsROI)}</td><td>${winner==='Todo de una'?'🏆':''}</td></tr>
+    `;
+  } else {
+    compSec.classList.add('hidden');
+  }
+
+  // Detail table
+  renderDetailTable(timeline, r);
+
+  // Insight
+  renderInsight(r);
+
+  // Share card
+  document.getElementById('scLabel').textContent = `DCA ${r.asset} · ${r.mode==='backtest'?fmtDate(r.startDate)+' → '+fmtDate(r.endDate):r.years+' años'}`;
+  document.getElementById('scAmount').textContent = fmt(r.finalValue);
+  document.getElementById('scSub').textContent = fmtPct(r.roi)+' de retorno';
+  document.getElementById('scInvested').textContent = fmt(r.totalInvested);
+  document.getElementById('scGain').textContent = fmt(Math.abs(r.gain));
+  document.getElementById('scGain').style.color = r.gain>=0?'var(--green)':'var(--red)';
+  document.getElementById('scROI').textContent = fmtPct(r.roi);
+  document.getElementById('scROI').style.color = r.roi>=0?'var(--green)':'var(--red)';
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderChart(timeline, r) {
+  const ctx = document.getElementById('dcaChart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+
+  // Sample if too many points
+  let data = timeline;
+  if(data.length > 60) {
+    const step = Math.ceil(data.length/60);
+    data = data.filter((_,i)=>i%step===0||i===timeline.length-1);
+  }
+
+  const labels = data.map(d=>d.date.length>7?d.date:fmtDate(d.date));
+  const values = data.map(d=>d.value);
+  const invested = data.map(d=>d.invested);
+
+  document.getElementById('chartTitle').textContent = r.mode==='backtest'
+    ? `Evolución DCA ${r.asset}` : `Proyección DCA ${r.asset}`;
+
+  chartInstance = new Chart(ctx, {
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Valor portafolio',data:values,borderColor:'#11b3b7',backgroundColor:'rgba(17,179,183,.1)',fill:true,tension:.3,pointRadius:1.5,borderWidth:2.5},
+      {label:'Total invertido',data:invested,borderColor:'#f0a030',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#8da4bf',font:{size:13},usePointStyle:true,padding:20}},tooltip:{backgroundColor:'#132640',titleColor:'#e4eaf2',bodyColor:'#8da4bf',borderColor:'#1f4672',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#8da4bf',maxTicksLimit:8,maxRotation:45},grid:{color:'rgba(31,70,114,.3)'}},y:{ticks:{color:'#8da4bf',callback:v=>fmt(v)},grid:{color:'rgba(31,70,114,.3)'}}}}
+  });
+}
+
+function renderDetailTable(timeline, r) {
+  const table = document.getElementById('detailTable');
+  let yearlyData;
+
+  if(r.mode === 'backtest') {
+    // Group by year
+    const byYear = {};
+    timeline.forEach(d => {
+      const yr = d.date.split('-')[0];
+      byYear[yr] = d; // Take last month of each year
+    });
+    yearlyData = Object.entries(byYear);
+    table.innerHTML = `<thead><tr><th style="text-align:left">Período</th><th>Precio ${r.asset}</th><th>Invertido</th><th>Unidades</th><th>Valor</th><th>Ganancia</th><th>ROI</th></tr></thead><tbody>` +
+      yearlyData.map(([yr,d]) => `<tr><td>${yr}</td><td>$${d.price?.toLocaleString('en-US')??'—'}</td><td>${fmt(d.invested)}</td><td>${d.units?.toFixed(4)??'—'}</td><td>${fmt(d.value)}</td><td style="color:${d.gain>=0?'var(--green)':'var(--red)'}">${fmt(Math.abs(d.gain))}</td><td style="color:${d.roi>=0?'var(--green)':'var(--red)'}">${fmtPct(d.roi)}</td></tr>`).join('') +
+      '</tbody>';
+  } else {
+    // Show yearly for projection
+    const yearly = timeline.filter(d=>d.month%12===0||d.month===r.months);
+    table.innerHTML = `<thead><tr><th style="text-align:left">Año</th><th>Invertido</th><th>Valor</th><th>Ganancia</th><th>ROI</th></tr></thead><tbody>` +
+      yearly.map(d => `<tr><td>Año ${Math.ceil(d.month/12)}</td><td>${fmt(d.invested)}</td><td>${fmt(d.value)}</td><td style="color:${d.gain>=0?'var(--green)':'var(--red)'}">${fmt(Math.abs(d.gain))}</td><td style="color:${d.roi>=0?'var(--green)':'var(--red)'}">${fmtPct(d.roi)}</td></tr>`).join('') +
+      '</tbody>';
+  }
+}
+
+function renderInsight(r) {
+  const box = document.getElementById('insightBox');
+  let html;
+  if(r.mode === 'backtest') {
+    const winner = r.roi > r.lumpROI ? 'DCA' : 'invertir todo de una';
+    html = `<h3>💡 ¿Qué aprendemos de esta simulación?</h3>`;
+    if(r.roi > 0) {
+      html += `<p>Invirtiendo ${fmt(r.amountPerPeriod)} ${r.freq==='weekly'?'por semana':r.freq==='biweekly'?'quincenal':'por mes'} en ${r.asset} durante ${r.months} meses, tu capital se multiplicó <strong>${(r.finalValue/r.totalInvested).toFixed(1)}x</strong>.</p>`;
+    } else {
+      html += `<p>En este período específico, DCA en ${r.asset} tuvo retorno negativo. Esto demuestra que <strong>no todo período es ganador</strong>, pero históricamente DCA a largo plazo ha sido consistente.</p>`;
+    }
+    html += `<p>En este caso, <strong>${winner}</strong> fue la mejor estrategia. ${winner==='DCA'?'DCA promedió mejor el precio de compra en un mercado volátil.':'Invertir todo junto aprovechó el crecimiento temprano. Pero DCA reduce el riesgo de entrar en el peor momento.'}</p>`;
+    html += `<p style="opacity:.7;font-size:13px;">⚠️ Rendimientos pasados no garantizan resultados futuros. DCA no elimina el riesgo, lo gestiona.</p>`;
+  } else {
+    html = `<h3>💡 El poder del DCA con interés compuesto</h3>`;
+    html += `<p>Con aportes de ${fmt(r.amountPerPeriod)} ${r.freq==='weekly'?'semanales':r.freq==='biweekly'?'quincenales':'mensuales'} durante ${r.years} años al ${r.annualRate}% anual, tu capital puede crecer a <strong>${fmt(r.finalValue)}</strong>.</p>`;
+    html += `<p>De ese total, ${fmt(r.totalInvested)} es lo que aportaste y <strong>${fmt(r.gain)}</strong> lo generó el interés compuesto. Tu dinero trabajó por vos.</p>`;
+    html += `<p style="opacity:.7;font-size:13px;">⚠️ Proyección estimada con fines educativos. Los rendimientos reales pueden variar.</p>`;
+  }
+  box.innerHTML = html;
+}
+
+// ========== HELPERS ==========
+function fmtDate(key) {
+  if(!key || !key.includes('-')) return key;
+  const [y,m] = key.split('-');
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return months[parseInt(m)-1]+' '+y;
+}
+
+function toggleTable() {
+  document.getElementById('tableWrap').classList.toggle('open');
+}
+
+function downloadCSV() {
+  if(!csvData.length) return;
+  const headers = Object.keys(csvData[0]);
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  csvData.forEach(row => { csv += headers.map(h=>row[h]).join(',') + '\n'; });
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url;a.download=`dca-${lastResult.asset||'simulacion'}.csv`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ CSV descargado');
+}
+
+// ========== SHARE ==========
+async function downloadImage(){
+  const card=document.getElementById('shareCard');card.style.left='0';card.style.position='fixed';card.style.top='0';card.style.zIndex='9999';
+  try{const canvas=await html2canvas(card,{backgroundColor:'#0d1b2e',scale:2,width:1080,useCORS:true,logging:false});card.style.left='-9999px';card.style.position='absolute';card.style.zIndex='auto';
+  canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'simulador-dca.png',{type:'image/png'});try{await navigator.share({title:'Simulador DCA - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='simulador-dca.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
+  }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
+}
+function shareWhatsApp(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 Invertido: ${fmt(r.totalInvested)}\n📊 Valor final: ${fmt(r.finalValue)}\n🚀 ROI: ${fmtPct(r.roi)}\n\nSimulá el tuyo gratis 👇\nnicolaspassini.com/simulador-dca.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 ${fmt(r.totalInvested)} invertido → ${fmt(r.finalValue)} (${fmtPct(r.roi)})\n\nProbalo gratis 👇\nnicolaspassini.com/simulador-dca.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/simulador-dca.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/simulador-dca.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+document.querySelectorAll('input,select').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));
+init();
+</script>
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

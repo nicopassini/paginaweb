@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Interés Compuesto | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face { font-family:'Century Gothic Fallback'; src:local('Century Gothic'),local('CenturyGothic'); }
+:root {
+  --navy:#1a3753;--blue:#0b80e1;--black:#141414;--white:#fff;--teal:#11b3b7;
+  --bg:#0d1b2e;--surface:#132640;--surface-2:#17304d;--surface-3:#1c3a5a;
+  --border:#1f4672;--text:#e4eaf2;--text-muted:#8da4bf;
+  --accent:var(--teal);--accent-glow:rgba(17,179,183,0.15);
+  --green:#11b3b7;--green-bg:rgba(17,179,183,0.12);
+  --orange:#f0a030;--orange-bg:rgba(240,160,48,0.12);
+  --red:#e85454;--red-bg:rgba(232,84,84,0.12);
+  --purple:#a374f5;--purple-bg:rgba(163,116,245,0.12);
+  --gold:#f0c040;
+  --radius:16px;--radius-sm:10px;
+  --font-main:'Century Gothic Fallback','Questrial','Futura','Trebuchet MS',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.noise-overlay{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
+.glow-orb-1{top:-200px;right:-100px;background:var(--blue);}
+.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px 60px;}
+
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}
+.back-link:hover{color:var(--teal);}
+
+.header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
+.brand-logo{text-align:center;margin-bottom:28px;}
+.brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
+.brand-wordmark-line{display:block;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);margin-top:6px;}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:580px;margin:0 auto;}
+
+/* IMPACT */
+.impact-banner{background:linear-gradient(135deg,var(--green-bg),var(--accent-glow));border:1px solid rgba(17,179,183,.25);border-radius:var(--radius);padding:24px 28px;text-align:center;margin-bottom:32px;animation:fadeInUp .7s ease .1s both;}
+.impact-banner .big-text{font-size:clamp(22px,4vw,32px);font-weight:700;color:var(--teal);margin-bottom:6px;}
+.impact-banner p{font-size:14px;color:var(--text-muted);}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .2s both;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+
+/* FORM */
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.input-wrap{position:relative;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix{left:16px;} .input-wrap .suffix{right:16px;}
+input[type="number"]{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
+.input-with-prefix{padding-left:36px!important;} .input-with-suffix{padding-right:60px!important;}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.fields-row{grid-template-columns:1fr;}}
+.ars-equiv{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.ars-config{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:20px;}
+.ars-config label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+.ars-config input{width:120px;padding:8px 12px;font-size:14px;}
+#arsSource{font-size:11px;color:var(--text-muted);opacity:.6;}
+
+/* SCENARIOS */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:500px){.scenario-grid{grid-template-columns:1fr;}}
+.scenario-btn{padding:14px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);cursor:pointer;transition:all .25s;text-align:center;}
+.scenario-btn:hover{border-color:var(--text-muted);transform:translateY(-1px);}
+.scenario-btn.active{border-color:var(--blue);background:rgba(11,128,225,.1);box-shadow:0 0 0 3px rgba(11,128,225,.15);}
+.scenario-btn .sname{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.scenario-btn .srate{font-size:22px;font-weight:700;color:var(--blue);}
+.scenario-btn.active .srate{color:var(--teal);}
+.scenario-btn .sdesc{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+.custom-field{margin-top:10px;display:none;}
+.custom-field.visible{display:block;}
+
+/* BUTTON */
+.calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;letter-spacing:.5px;margin-top:8px;}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,128,225,.3);}
+
+/* ====== RESULTS ====== */
+.results{display:none;}
+.results.show{display:block;animation:fadeInUp .6s ease;}
+
+/* HERO */
+.result-hero{text-align:center;padding:36px 28px;background:linear-gradient(135deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;position:relative;overflow:hidden;}
+.result-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--teal));}
+.rh-label{font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+.rh-amount{font-size:clamp(36px,8vw,56px);font-weight:700;color:var(--teal);line-height:1.1;}
+.rh-ars{font-size:18px;color:var(--text-muted);margin-top:4px;opacity:.7;}
+.rh-sub{font-size:15px;color:var(--text-muted);margin-top:12px;}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;}
+.mc-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.mc-value{font-size:22px;font-weight:700;color:var(--white);}
+.mc-sub{font-size:12px;color:var(--text-muted);margin-top:3px;}
+
+/* BREAKDOWN BAR */
+.breakdown{margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+.bd-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
+.bd-bar{height:20px;border-radius:100px;overflow:hidden;display:flex;background:var(--surface-3);}
+.bd-bar .seg{height:100%;transition:width .6s ease;}
+.seg-initial{background:var(--navy);}
+.seg-contrib{background:var(--blue);}
+.seg-interest{background:linear-gradient(90deg,var(--teal),var(--green));}
+.bd-legend{display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;}
+.bd-legend .leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+.leg .dot{width:10px;height:10px;border-radius:50%;}
+
+/* CHART */
+.chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.chart-container canvas{max-height:350px;}
+
+/* SCENARIOS COMPARISON */
+.scenarios-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;}
+@media(max-width:500px){.sc-grid{grid-template-columns:1fr;}}
+.sc-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 16px;text-align:center;position:relative;overflow:hidden;}
+.sc-card.highlight{border-color:var(--teal);background:var(--accent-glow);}
+.sc-card.highlight::before{content:'TU SELECCIÓN';position:absolute;top:0;left:0;right:0;background:var(--teal);color:var(--bg);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 0;}
+.sc-rate{font-size:28px;font-weight:700;margin-bottom:4px;}
+.sc-name{font-size:12px;color:var(--text-muted);margin-bottom:10px;}
+.sc-total{font-size:22px;font-weight:700;color:var(--white);}
+.sc-interest{font-size:13px;color:var(--teal);margin-top:4px;}
+.sc-diff{font-size:12px;color:var(--orange);margin-top:6px;}
+
+/* TABLE */
+.table-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;overflow-x:auto;}
+.table-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.table-toggle h3{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:10px;}
+.table-toggle .arrow{font-size:16px;color:var(--text-muted);transition:transform .3s;}
+.table-toggle .arrow.open{transform:rotate(180deg);}
+.table-body{display:none;margin-top:16px;}
+.table-body.show{display:block;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
+td{padding:10px 12px;border-bottom:1px solid rgba(31,70,114,.3);color:var(--text);}
+tr:hover td{background:rgba(17,179,183,.04);}
+td.highlight{color:var(--teal);font-weight:700;}
+
+/* EQUIVALENCIAS */
+.equiv-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+.equiv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:16px;}
+.equiv-card{background:var(--surface-2);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;}
+.eq-emoji{font-size:28px;margin-bottom:6px;}
+.eq-value{font-size:22px;font-weight:700;color:var(--white);}
+.eq-label{font-size:12px;color:var(--text-muted);margin-top:4px;}
+
+/* SHARE */
+.share-section{text-align:center;margin-bottom:24px;}
+.btn-share{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border:2px solid var(--teal);border-radius:var(--radius);background:var(--accent-glow);color:var(--teal);font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-share:hover{background:var(--teal);color:var(--bg);}
+
+/* CTA */
+.cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
+.cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
+.cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
+.btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
+
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer a{color:var(--teal);text-decoration:none;}
+
+/* SHARE CARD (hidden) */
+.share-card{position:absolute;left:-9999px;top:0;width:1080px;background:linear-gradient(160deg,#0d1b2e 0%,#132640 50%,#0d1b2e 100%);padding:60px;font-family:var(--font-main);color:var(--text);}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:50px;}
+.sc-brand{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
+.sc-tool{font-size:16px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;}
+.sc-main-label{font-size:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;text-align:center;}
+.sc-main-amount{font-size:80px;font-weight:700;color:var(--teal);line-height:1;text-align:center;}
+.sc-main-sub{font-size:22px;color:var(--text-muted);margin-top:8px;text-align:center;margin-bottom:40px;}
+.sc-stats{display:flex;gap:16px;margin-bottom:40px;}
+.sc-stat-box{background:rgba(23,48,77,.8);border:1px solid var(--border);border-radius:12px;padding:20px;flex:1;text-align:center;}
+.sc-stat-label{font-size:14px;color:var(--text-muted);margin-bottom:6px;}
+.sc-stat-val{font-size:28px;font-weight:700;color:var(--white);}
+.sc-highlight{background:rgba(17,179,183,.08);border:1px solid rgba(17,179,183,.3);border-radius:16px;padding:30px;text-align:center;margin-bottom:40px;}
+.sc-hl-label{font-size:16px;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+.sc-hl-val{font-size:48px;font-weight:700;color:var(--teal);}
+.sc-hl-sub{font-size:16px;color:var(--text-muted);margin-top:6px;}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:24px;}
+.sc-footer-text{font-size:16px;color:var(--text-muted);}
+.sc-footer-ig{font-size:20px;font-weight:600;color:var(--teal);}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:8px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<div class="container">
+<a href="index.html" class="back-link">← Volver a herramientas</a>
+
+<div class="header">
+  <div class="brand-logo"><span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span></div>
+  <h1>Calculadora de Interés Compuesto 📈</h1>
+  <p class="subtitle">La fuerza más poderosa del universo financiero. Descubrí cómo tu dinero puede crecer exponencialmente con el tiempo.</p>
+</div>
+
+<div class="impact-banner">
+  <div class="big-text">$300/mes × 30 años al 8% = $447.107</div>
+  <p>De esos, solo $108.000 son tu aporte. El resto ($339.107) lo genera el interés compuesto por vos.</p>
+</div>
+
+<!-- INPUTS -->
+<div class="card">
+  <div class="card-title"><div class="icon">💰</div> Tu inversión</div>
+
+  <div class="ars-config">
+    <label>🇦🇷 USD/ARS:</label>
+    <div class="input-wrap">
+      <span class="prefix">$</span>
+      <input type="number" id="arsRate" value="1200" min="1" style="width:120px;padding-left:28px;" oninput="updateAllARS()">
+    </div>
+    <span id="arsSource"></span>
+  </div>
+
+  <div class="field">
+    <label>Capital inicial</label>
+    <div class="input-wrap">
+      <span class="prefix">$</span>
+      <input type="number" id="initial" value="1000" min="0" class="input-with-prefix input-with-suffix" oninput="showARS(this,'initialARS')">
+      <span class="suffix">USD</span>
+    </div>
+    <div class="ars-equiv" id="initialARS"></div>
+  </div>
+
+  <div class="field">
+    <label>Aporte mensual</label>
+    <div class="input-wrap">
+      <span class="prefix">$</span>
+      <input type="number" id="monthly" value="300" min="0" class="input-with-prefix input-with-suffix" oninput="showARS(this,'monthlyARS')">
+      <span class="suffix">USD</span>
+    </div>
+    <div class="ars-equiv" id="monthlyARS"></div>
+  </div>
+
+  <div class="field">
+    <label>Plazo</label>
+    <div class="input-wrap">
+      <input type="number" id="years" value="20" min="1" max="50" class="input-with-suffix">
+      <span class="suffix">años</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><div class="icon">📊</div> Rendimiento anual</div>
+  <div class="scenario-grid">
+    <div class="scenario-btn" data-rate="5" onclick="selectRate(this)">
+      <div class="sname">Conservador</div><div class="srate">5%</div><div class="sdesc">Bonos, renta fija</div>
+    </div>
+    <div class="scenario-btn active" data-rate="8" onclick="selectRate(this)">
+      <div class="sname">Moderado</div><div class="srate">8%</div><div class="sdesc">Mix equilibrado</div>
+    </div>
+    <div class="scenario-btn" data-rate="12" onclick="selectRate(this)">
+      <div class="sname">Agresivo</div><div class="srate">12%</div><div class="sdesc">Acciones, cripto</div>
+    </div>
+  </div>
+  <div class="custom-field" id="customField">
+    <div class="field" style="margin-bottom:0;">
+      <label>Tasa personalizada</label>
+      <div class="input-wrap">
+        <input type="number" id="customRate" value="8" min="0" max="50" step="0.5" class="input-with-suffix">
+        <span class="suffix">%</span>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:10px;">
+    <button onclick="toggleCustom()" style="background:none;border:none;color:var(--text-muted);font-family:var(--font-main);font-size:13px;cursor:pointer;text-decoration:underline;">Usar tasa personalizada</button>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()" style="margin-top:20px;">Calcular interés compuesto →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+  <div class="result-hero">
+    <div class="rh-label">Capital final</div>
+    <div class="rh-amount" id="rTotal"></div>
+    <div class="rh-ars" id="rTotalARS"></div>
+    <div class="rh-sub" id="rSub"></div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="mc-label">Total aportado</div>
+      <div class="mc-value" id="mContrib"></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Interés ganado</div>
+      <div class="mc-value" id="mInterest" style="color:var(--teal)"></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Multiplicador</div>
+      <div class="mc-value" id="mMulti"></div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">% del interés</div>
+      <div class="mc-value" id="mPct" style="color:var(--teal)"></div>
+    </div>
+  </div>
+
+  <div class="breakdown">
+    <div class="bd-title">Composición del capital</div>
+    <div class="bd-bar">
+      <div class="seg seg-initial" id="segInitial"></div>
+      <div class="seg seg-contrib" id="segContrib"></div>
+      <div class="seg seg-interest" id="segInterest"></div>
+    </div>
+    <div class="bd-legend">
+      <div class="leg"><div class="dot" style="background:var(--navy)"></div> Capital inicial</div>
+      <div class="leg"><div class="dot" style="background:var(--blue)"></div> Aportes mensuales</div>
+      <div class="leg"><div class="dot" style="background:linear-gradient(90deg,var(--teal),var(--green))"></div> Interés compuesto</div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="card-title"><div class="icon">📊</div> Tu dinero vs. sin invertir</div>
+    <canvas id="growthChart"></canvas>
+  </div>
+
+  <!-- SCENARIOS COMPARISON -->
+  <div class="scenarios-section">
+    <div class="card-title"><div class="icon">🔄</div> Comparación de escenarios</div>
+    <div class="sc-grid" id="scenariosGrid"></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-toggle" onclick="toggleTable()">
+      <h3><div class="icon" style="width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">📋</div> Tabla año por año</h3>
+      <span class="arrow" id="tableArrow">▼</span>
+    </div>
+    <div class="table-body" id="tableBody">
+      <table>
+        <thead><tr><th>Año</th><th>Aportado</th><th>Interés</th><th>Total</th></tr></thead>
+        <tbody id="tableRows"></tbody>
+      </table>
+      <button onclick="downloadCSV()" style="margin-top:16px;padding:10px 20px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:6px;">📥 Descargar CSV</button>
+    </div>
+  </div>
+
+  <!-- EQUIVALENCIAS -->
+  <div class="equiv-section">
+    <div class="card-title"><div class="icon">🤯</div> Tu interés compuesto equivale a...</div>
+    <div class="equiv-grid" id="equivGrid"></div>
+  </div>
+
+  <!-- SHARE -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu resultado</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="shareResult()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <h3>¿Querés aprender a invertir de verdad?</h3>
+    <p>En el Método FBC te enseño a poner tu dinero a trabajar con estrategias reales de inversión. Sin humo, sin promesas, con educación.</p>
+    <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+  <p style="margin-top:6px;">Los rendimientos son estimaciones con fines educativos. No garantizan resultados futuros. Esta herramienta no constituye asesoramiento financiero, de inversión ni recomendación de compra o venta de activos.</p>
+</div>
+</div>
+
+<!-- SHARE CARD -->
+<div class="share-card" id="shareCard">
+  <div class="sc-header">
+    <div class="sc-brand">NICO PASSINI</div>
+    <div class="sc-tool">INTERÉS COMPUESTO</div>
+  </div>
+  <div class="sc-main-label">CAPITAL FINAL</div>
+  <div class="sc-main-amount" id="scTotal"></div>
+  <div class="sc-main-sub" id="scSub"></div>
+  <div class="sc-stats">
+    <div class="sc-stat-box"><div class="sc-stat-label">Aportado</div><div class="sc-stat-val" id="scContrib"></div></div>
+    <div class="sc-stat-box"><div class="sc-stat-label">Interés ganado</div><div class="sc-stat-val" id="scInterest" style="color:#11b3b7"></div></div>
+    <div class="sc-stat-box"><div class="sc-stat-label">Multiplicador</div><div class="sc-stat-val" id="scMulti"></div></div>
+  </div>
+  <div class="sc-highlight">
+    <div class="sc-hl-label">El interés compuesto genera</div>
+    <div class="sc-hl-val" id="scPct"></div>
+    <div class="sc-hl-sub">de tu capital final</div>
+  </div>
+  <div class="sc-footer">
+    <div class="sc-footer-text">Calculá el tuyo gratis en nicolaspassini.com</div>
+    <div class="sc-footer-ig">@nicopassini_</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedRate = 8;
+let chartInstance = null;
+let useCustom = false;
+
+// ====== ARS ======
+async function fetchARS() {
+  const el = document.getElementById('arsSource');
+  const input = document.getElementById('arsRate');
+  const apis = [
+    { url:'https://dolarapi.com/v1/dolares/oficial', parse:d=>d.venta, name:'DolarAPI' },
+    { url:'https://api.bluelytics.com.ar/v2/latest', parse:d=>d.oficial?.value_sell, name:'Bluelytics' }
+  ];
+  for (const api of apis) {
+    try {
+      const c = new AbortController();
+      const t = setTimeout(()=>c.abort(),4000);
+      const r = await fetch(api.url,{signal:c.signal});
+      clearTimeout(t);
+      if(!r.ok) continue;
+      const d = await r.json();
+      const rate = api.parse(d);
+      if(rate && rate > 0) { input.value=Math.round(rate); el.textContent='(auto · '+api.name+')'; updateAllARS(); return; }
+    } catch(e) { continue; }
+  }
+  el.textContent='(manual)'; updateAllARS();
+}
+
+function getARS() { return parseFloat(document.getElementById('arsRate').value)||1200; }
+function fmt(n) { return 'US$ '+Math.round(n).toLocaleString('en-US'); }
+function fmtARS(n) { return 'ARS $ '+Math.round(n).toLocaleString('es-AR'); }
+function showARS(input,id) { const el=document.getElementById(id); if(el) el.textContent='≈ '+fmtARS((parseFloat(input.value)||0)*getARS()); }
+function updateAllARS() { [['initial','initialARS'],['monthly','monthlyARS']].forEach(([a,b])=>{const i=document.getElementById(a);if(i)showARS(i,b);}); }
+
+// ====== RATE ======
+function selectRate(el) {
+  document.querySelectorAll('.scenario-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  selectedRate = parseFloat(el.dataset.rate);
+  useCustom = false;
+  document.getElementById('customField').classList.remove('visible');
+}
+
+function toggleCustom() {
+  useCustom = !useCustom;
+  document.getElementById('customField').classList.toggle('visible', useCustom);
+  if(useCustom) {
+    document.querySelectorAll('.scenario-btn').forEach(b=>b.classList.remove('active'));
+    selectedRate = parseFloat(document.getElementById('customRate').value)||8;
+  }
+}
+
+document.getElementById('customRate').addEventListener('input', function(){ selectedRate=parseFloat(this.value)||0; });
+
+// ====== CALC ======
+function futureValue(initial, monthly, rate, years) {
+  const r=rate/100/12; let b=initial;
+  for(let m=0;m<years*12;m++) b=b*(1+r)+monthly;
+  return b;
+}
+
+function calculate() {
+  if(useCustom) selectedRate = parseFloat(document.getElementById('customRate').value)||0;
+  const initial = parseFloat(document.getElementById('initial').value)||0;
+  const monthly = parseFloat(document.getElementById('monthly').value)||0;
+  const years = parseInt(document.getElementById('years').value)||1;
+
+  const total = futureValue(initial, monthly, selectedRate, years);
+  const totalContrib = initial + monthly * years * 12;
+  const interest = total - totalContrib;
+  const multi = totalContrib > 0 ? (total/totalContrib).toFixed(1) : '∞';
+  const interestPct = total > 0 ? ((interest/total)*100).toFixed(0) : 0;
+
+  // Hero
+  document.getElementById('rTotal').textContent = fmt(total);
+  document.getElementById('rTotalARS').textContent = '≈ '+fmtARS(total*getARS());
+  document.getElementById('rSub').textContent = `Invirtiendo ${fmt(monthly)}/mes durante ${years} años al ${selectedRate}% anual`;
+
+  // Metrics
+  document.getElementById('mContrib').textContent = fmt(totalContrib);
+  document.getElementById('mInterest').textContent = fmt(interest);
+  document.getElementById('mMulti').textContent = multi+'x';
+  document.getElementById('mPct').textContent = interestPct+'%';
+
+  // Breakdown
+  const iPct = total>0?(initial/total*100):0;
+  const cPct = total>0?((monthly*years*12)/total*100):0;
+  const intPct = total>0?(interest/total*100):0;
+  document.getElementById('segInitial').style.width = iPct+'%';
+  document.getElementById('segContrib').style.width = cPct+'%';
+  document.getElementById('segInterest').style.width = intPct+'%';
+
+  // Chart
+  renderChart(initial, monthly, selectedRate, years);
+
+  // Scenarios
+  renderScenarios(initial, monthly, years);
+
+  // Table
+  renderTable(initial, monthly, selectedRate, years);
+
+  // Equivalencias
+  renderEquiv(interest);
+
+  // Share card
+  document.getElementById('scTotal').textContent = fmt(total);
+  document.getElementById('scSub').textContent = `${fmt(monthly)}/mes · ${years} años · ${selectedRate}% anual`;
+  document.getElementById('scContrib').textContent = fmt(totalContrib);
+  document.getElementById('scInterest').textContent = fmt(interest);
+  document.getElementById('scMulti').textContent = multi+'x';
+  document.getElementById('scPct').textContent = interestPct+'%';
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderChart(initial, monthly, rate, years) {
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+
+  const labels=[], invested=[], compound=[];
+  for(let y=0;y<=years;y++) {
+    labels.push('Año '+y);
+    invested.push(initial + monthly*y*12);
+    compound.push(futureValue(initial, monthly, rate, y));
+  }
+
+  chartInstance = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        { label:'Sin invertir (colchón)', data:invested, borderColor:'#8da4bf', backgroundColor:'rgba(141,164,191,.08)', fill:true, tension:.3, pointRadius:0, borderWidth:2, borderDash:[6,4] },
+        { label:'Con interés compuesto', data:compound, borderColor:'#11b3b7', backgroundColor:'rgba(17,179,183,.12)', fill:true, tension:.3, pointRadius:0, borderWidth:2.5 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#8da4bf',font:{size:13},usePointStyle:true,padding:20}},
+        tooltip:{backgroundColor:'#132640',titleColor:'#e4eaf2',bodyColor:'#8da4bf',borderColor:'#1f4672',borderWidth:1,
+          callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}
+      },
+      scales:{
+        x:{ticks:{color:'#8da4bf',maxTicksLimit:10},grid:{color:'rgba(31,70,114,.3)'}},
+        y:{ticks:{color:'#8da4bf',callback:v=>{if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+v;}},grid:{color:'rgba(31,70,114,.3)'}}
+      }
+    }
+  });
+}
+
+function renderScenarios(initial, monthly, years) {
+  const rates = [5, 8, 12];
+  const grid = document.getElementById('scenariosGrid');
+  grid.innerHTML = '';
+
+  const results = rates.map(r => {
+    const total = futureValue(initial, monthly, r, years);
+    const contrib = initial + monthly*years*12;
+    return { rate:r, total, interest:total-contrib, contrib };
+  });
+
+  const colors = ['var(--blue)','var(--teal)','var(--purple)'];
+  const names = ['Conservador','Moderado','Agresivo'];
+
+  results.forEach((r,i) => {
+    const isSelected = r.rate === selectedRate;
+    grid.innerHTML += `
+      <div class="sc-card ${isSelected?'highlight':''}" style="${isSelected?'padding-top:28px;':''}">
+        <div class="sc-rate" style="color:${colors[i]}">${r.rate}%</div>
+        <div class="sc-name">${names[i]}</div>
+        <div class="sc-total">${fmt(r.total)}</div>
+        <div class="sc-interest">+${fmt(r.interest)} interés</div>
+        ${i>0?`<div class="sc-diff">+${fmt(r.total-results[0].total)} vs ${rates[0]}%</div>`:''}
+      </div>`;
+  });
+}
+
+let ripteUSD = null;
+
+async function fetchRIPTE() {
+  try {
+    const c = new AbortController();
+    const t = setTimeout(()=>c.abort(), 4000);
+    const r = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/ripte/ultimo', {signal:c.signal});
+    clearTimeout(t);
+    if(r.ok) { const d = await r.json(); if(d && d.valor) { ripteUSD = d.valor / getARS(); return; } }
+  } catch(e) {}
+  ripteUSD = 1184;
+}
+
+let csvTableData = [];
+
+function renderTable(initial, monthly, rate, years) {
+  const tbody = document.getElementById('tableRows');
+  tbody.innerHTML = '';
+  csvTableData = [['Año','Aportado (USD)','Interés (USD)','Total (USD)']];
+  for(let y=1;y<=years;y++) {
+    const total = futureValue(initial, monthly, rate, y);
+    const contrib = initial + monthly*y*12;
+    const interest = total - contrib;
+    csvTableData.push([y, Math.round(contrib), Math.round(interest), Math.round(total)]);
+    tbody.innerHTML += `<tr>
+      <td>${y}</td>
+      <td>${fmt(contrib)}</td>
+      <td class="highlight">${fmt(interest)}</td>
+      <td style="font-weight:700">${fmt(total)}</td>
+    </tr>`;
+  }
+}
+
+function downloadCSV() {
+  if(!csvTableData.length) return;
+  const csv = csvTableData.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'interes-compuesto.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ CSV descargado');
+}
+
+function toggleTable() {
+  const body = document.getElementById('tableBody');
+  const arrow = document.getElementById('tableArrow');
+  body.classList.toggle('show');
+  arrow.classList.toggle('open');
+}
+
+function renderEquiv(interest) {
+  const grid = document.getElementById('equivGrid');
+  grid.innerHTML = '';
+  const equivs = [];
+
+  const salaryUSD = ripteUSD || 1184;
+  const salaries = Math.floor(interest / salaryUSD);
+  if(salaries >= 1) equivs.push({emoji:'💼',value:salaries,label:'sueldos RIPTE (' + fmt(salaryUSD) + ')'});
+  if(interest >= 500) equivs.push({emoji:'📱',value:Math.floor(interest/1000),label:'iPhones'});
+  if(interest >= 1500) equivs.push({emoji:'✈️',value:Math.floor(interest/1500),label:'viajes internacionales'});
+  if(interest >= 20000) equivs.push({emoji:'🚗',value:Math.floor(interest/20000),label:'autos'});
+  if(interest >= 100) equivs.push({emoji:'🍕',value:Math.floor(interest/10),label:'cenas afuera'});
+  if(interest >= 15) equivs.push({emoji:'📚',value:Math.floor(interest/15),label:'libros'});
+
+  equivs.slice(0,6).forEach(eq => {
+    if(eq.value > 0) grid.innerHTML += `
+      <div class="equiv-card">
+        <div class="eq-emoji">${eq.emoji}</div>
+        <div class="eq-value">${eq.value.toLocaleString()}</div>
+        <div class="eq-label">${eq.label}</div>
+      </div>`;
+  });
+}
+
+// ====== SHARE ======
+async function shareResult() {
+  const card = document.getElementById('shareCard');
+  card.style.left='0'; card.style.position='fixed'; card.style.top='0'; card.style.zIndex='9999';
+  try {
+    const canvas = await html2canvas(card,{backgroundColor:'#0d1b2e',scale:2,width:1080,useCORS:true,logging:false});
+    card.style.left='-9999px'; card.style.position='absolute'; card.style.zIndex='auto';
+    canvas.toBlob(async blob=>{
+      if(navigator.share&&navigator.canShare){
+        const file=new File([blob],'interes-compuesto.png',{type:'image/png'});
+        try{await navigator.share({title:'Interés Compuesto - Nico Passini',files:[file]});return;}catch(e){}
+      }
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='interes-compuesto.png';a.click();URL.revokeObjectURL(url);
+      showToast('✅ Imagen descargada');
+    },'image/png');
+  } catch(e) { card.style.left='-9999px'; card.style.position='absolute'; showToast('❌ Error al generar imagen'); }
+}
+
+function showToast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500); }
+
+function shareWhatsApp() {
+  const total = document.getElementById('rTotal').textContent;
+  const text = `📈 Con interés compuesto, mi dinero llegaría a ${total}\n\nCalculá el tuyo gratis 👇\nnicolaspassini.com/interes-compuesto.html`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareTwitter() {
+  const total = document.getElementById('rTotal').textContent;
+  const pct = document.getElementById('mPct').textContent;
+  const text = `📈 El interés compuesto genera el ${pct} de mi capital final (${total})\n\nCalculá el tuyo 👇\nnicolaspassini.com/interes-compuesto.html\n\nvía @nicopassini_`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareFacebook() {
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/interes-compuesto.html'), '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText('https://nicolaspassini.com/interes-compuesto.html').then(() => showToast('✅ Link copiado')).catch(() => showToast('❌ No se pudo copiar'));
+}
+
+// ====== ENTER ======
+document.querySelectorAll('input').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));
+
+// Init
+fetchARS();
+fetchRIPTE();
+</script>
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

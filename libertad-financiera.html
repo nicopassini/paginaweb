@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libertad Financiera | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face{font-family:'Century Gothic Fallback';src:local('Century Gothic'),local('CenturyGothic');}
+:root{--navy:#1a3753;--blue:#0b80e1;--white:#fff;--teal:#11b3b7;--bg:#0d1b2e;--surface:#132640;--surface-2:#17304d;--surface-3:#1c3a5a;--border:#1f4672;--text:#e4eaf2;--text-muted:#8da4bf;--accent:var(--teal);--accent-glow:rgba(17,179,183,.15);--green:#11b3b7;--green-bg:rgba(17,179,183,.12);--orange:#f0a030;--orange-bg:rgba(240,160,48,.12);--red:#e85454;--red-bg:rgba(232,84,84,.12);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--radius:16px;--radius-sm:10px;--font-main:'Century Gothic Fallback','Questrial','Futura','Trebuchet MS',Arial,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.noise-overlay{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
+.glow-orb-1{top:-200px;right:-100px;background:var(--blue);}.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
+.container{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:40px 20px 60px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}.back-link:hover{color:var(--teal);}
+.header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
+.brand-logo{text-align:center;margin-bottom:28px;}
+.brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
+.brand-wordmark-line{display:block;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);margin-top:6px;}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:600px;margin:0 auto;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .15s both;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.field .hint{font-size:12px;color:var(--text-muted);opacity:.6;margin-top:4px;}
+.input-wrap{position:relative;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix{left:16px;}.input-wrap .suffix{right:16px;}
+input[type="number"],select{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238da4bf'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
+.input-with-prefix{padding-left:36px!important;}.input-with-suffix{padding-right:60px!important;}
+.ars-equiv{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.ars-config{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:20px;}
+.ars-config label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.fields-row{grid-template-columns:1fr;}}
+
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:500px){.profile-grid{grid-template-columns:1fr;}}
+.profile-btn{padding:16px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
+.profile-btn:hover{border-color:var(--text-muted);}
+.profile-btn.active{border-color:var(--teal);background:var(--accent-glow);color:var(--teal);}
+.profile-btn .p-icon{font-size:22px;display:block;margin-bottom:4px;}
+.profile-btn .p-name{display:block;font-size:12px;}
+.profile-btn .p-rate{display:block;font-size:11px;opacity:.7;margin-top:2px;}
+
+.calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;margin-top:8px;}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,128,225,.3);}
+
+/* RESULTS */
+.results{display:none;}.results.show{display:block;animation:fadeInUp .6s ease;}
+.hero-result{text-align:center;padding:40px 28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;position:relative;overflow:hidden;}
+.hero-result::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--teal));}
+.hr-emoji{font-size:48px;margin-bottom:12px;}
+.hr-label{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.hr-number{font-size:clamp(32px,7vw,52px);font-weight:700;line-height:1.1;}
+.hr-ars{font-size:16px;color:var(--text-muted);margin-top:4px;opacity:.7;}
+.hr-sub{font-size:15px;color:var(--text-muted);margin-top:12px;line-height:1.5;}
+
+/* APPROACHES COMPARISON */
+.approach-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+@media(max-width:600px){.approach-grid{grid-template-columns:1fr;}}
+.approach-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:relative;overflow:hidden;}
+.approach-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.approach-card.ap-4::before{background:var(--teal);}.approach-card.ap-rend::before{background:var(--purple);}
+.ap-badge{display:inline-block;padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.ap-4 .ap-badge{background:var(--green-bg);color:var(--green);border:1px solid rgba(17,179,183,.3);}
+.ap-rend .ap-badge{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.ap-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.ap-desc{font-size:12px;color:var(--text-muted);line-height:1.4;margin-bottom:16px;}
+.ap-amount{font-size:28px;font-weight:700;margin-bottom:2px;}
+.ap-4 .ap-amount{color:var(--teal);}.ap-rend .ap-amount{color:var(--purple);}
+.ap-ars{font-size:12px;color:var(--text-muted);opacity:.7;}
+.ap-detail{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.ap-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+.ap-row .ap-k{color:var(--text-muted);}.ap-row .ap-v{font-weight:600;}
+
+/* STATUS */
+.status-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+.progress-bar-wrap{background:var(--surface-3);border-radius:100px;height:20px;overflow:hidden;margin:16px 0 10px;position:relative;}
+.progress-bar-fill{height:100%;border-radius:100px;transition:width 1.2s ease;position:relative;}
+.progress-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.4);border-radius:100px;}
+.progress-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 16px;text-align:center;}
+.metric .m-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+.metric .m-value{font-size:22px;font-weight:700;margin-top:4px;}
+.metric .m-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+.chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.chart-container canvas{max-height:340px;}
+
+/* PLAN */
+.plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+@media(max-width:500px){.plan-cards{grid-template-columns:1fr;}}
+.plan-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 16px;text-align:center;}
+.plan-card .pc-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+.plan-card .pc-value{font-size:24px;font-weight:700;color:var(--teal);margin:6px 0 2px;}
+.plan-card .pc-sub{font-size:12px;color:var(--text-muted);}
+
+/* RECO */
+.reco-box{background:var(--surface-2);border-radius:var(--radius-sm);padding:24px;border-left:3px solid var(--teal);margin-bottom:16px;}
+.reco-box h4{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;color:var(--white);}
+.reco-box p{font-size:14px;color:var(--text-muted);line-height:1.65;}
+.reco-box ul{margin-top:10px;padding-left:0;list-style:none;}
+.reco-box li{font-size:13px;color:var(--text-muted);line-height:1.6;padding:4px 0 4px 20px;position:relative;}
+.reco-box li::before{content:'→';position:absolute;left:0;color:var(--teal);font-weight:700;}
+
+/* TABLE */
+.toggle-table{width:100%;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;margin-bottom:16px;}
+.toggle-table:hover{border-color:var(--teal);color:var(--teal);}
+.table-wrap{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.table-wrap.open{max-height:9999px;}
+.detail-table{width:100%;border-collapse:collapse;}
+.detail-table th{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:10px 8px;text-align:right;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);}
+.detail-table th:first-child{text-align:left;}
+.detail-table td{padding:8px;font-size:13px;text-align:right;border-bottom:1px solid rgba(31,70,114,.2);}
+.detail-table td:first-child{text-align:left;color:var(--text-muted);}
+.table-scroll{max-height:400px;overflow-y:auto;}
+
+.cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
+.cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
+.cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
+.btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer a{color:var(--teal);text-decoration:none;}
+
+/* SHARE */
+.share-card{position:absolute;left:-9999px;top:0;width:1080px;background:linear-gradient(160deg,#0d1b2e 0%,#132640 50%,#0d1b2e 100%);padding:60px;font-family:var(--font-main);color:var(--text);}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:50px;}
+.sc-brand{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
+.sc-tool{font-size:16px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;}
+.sc-main{text-align:center;margin-bottom:40px;}
+.sc-main-label{font-size:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;}
+.sc-main-amount{font-size:64px;font-weight:700;line-height:1;color:var(--teal);}
+.sc-main-sub{font-size:22px;color:var(--text-muted);margin-top:8px;}
+.sc-stats{display:flex;gap:16px;margin-bottom:40px;}
+.sc-stat{background:rgba(23,48,77,.8);border:1px solid var(--border);border-radius:12px;padding:24px;flex:1;text-align:center;}
+.sc-stat-label{font-size:14px;color:var(--text-muted);margin-bottom:6px;}
+.sc-stat-val{font-size:26px;font-weight:700;}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:24px;}
+.sc-footer-text{font-size:16px;color:var(--text-muted);}
+.sc-footer-ig{font-size:20px;font-weight:600;color:var(--teal);}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+<div class="container">
+<a href="index.html" class="back-link">← Volver a herramientas</a>
+<div class="header">
+  <div class="brand-logo"><span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span></div>
+  <h1>Libertad Financiera 🏝️</h1>
+  <p class="subtitle">¿Cuánto necesitás para vivir sin depender de un sueldo? Calculá tu número, cuánto te falta y armá un plan para llegar.</p>
+</div>
+
+<!-- COTIZACIÓN -->
+<div class="card">
+  <div class="card-title"><div class="icon">🇦🇷</div> Cotización</div>
+  <div class="ars-config">
+    <label>USD/ARS:</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="arsRate" value="1200" min="1" style="width:120px;padding-left:28px;" oninput="updateAllARS()"></div>
+    <span id="arsSource" style="font-size:11px;color:var(--text-muted);opacity:.6;"></span>
+  </div>
+</div>
+
+<!-- GASTOS -->
+<div class="card">
+  <div class="card-title"><div class="icon">💸</div> Tu estilo de vida</div>
+  <div class="field">
+    <label>¿Cuánto necesitás por mes para vivir como querés?</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="monthlyExpenses" value="2000" min="100" class="input-with-prefix input-with-suffix" oninput="showARS(this,'expARS')"><span class="suffix">USD</span></div>
+    <div class="ars-equiv" id="expARS"></div>
+    <div class="hint">Incluí todo: alquiler, comida, servicios, ocio, viajes, salud, etc.</div>
+  </div>
+</div>
+
+<!-- SITUACIÓN ACTUAL -->
+<div class="card">
+  <div class="card-title"><div class="icon">💰</div> Tu situación actual</div>
+  <div class="field">
+    <label>Capital invertido actual (patrimonio productivo)</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="currentCapital" value="10000" min="0" class="input-with-prefix input-with-suffix" oninput="showARS(this,'capARS')"><span class="suffix">USD</span></div>
+    <div class="ars-equiv" id="capARS"></div>
+    <div class="hint">Solo lo que ya tenés invertido o generando rendimiento, no tu casa ni tu auto.</div>
+  </div>
+  <div class="field">
+    <label>¿Cuánto podés invertir por mes?</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="monthlyInvestment" value="500" min="0" class="input-with-prefix input-with-suffix" oninput="showARS(this,'invARS')"><span class="suffix">USD</span></div>
+    <div class="ars-equiv" id="invARS"></div>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div class="card">
+  <div class="card-title"><div class="icon">📊</div> Perfil de inversión</div>
+  <div class="profile-grid">
+    <button class="profile-btn" onclick="setProfile(5,this)"><span class="p-icon">🛡️</span><span class="p-name">Conservador</span><span class="p-rate">5% anual</span></button>
+    <button class="profile-btn active" onclick="setProfile(8,this)"><span class="p-icon">⚖️</span><span class="p-name">Moderado</span><span class="p-rate">8% anual</span></button>
+    <button class="profile-btn" onclick="setProfile(12,this)"><span class="p-icon">🚀</span><span class="p-name">Agresivo</span><span class="p-rate">12% anual</span></button>
+  </div>
+  <div class="field">
+    <label>Tasa de rendimiento anual (%)</label>
+    <div class="input-wrap"><input type="number" id="annualRate" value="8" min="1" max="30" class="input-with-suffix"><span class="suffix">%</span></div>
+    <div class="hint">Rendimiento real (después de inflación) esperado de tus inversiones.</div>
+  </div>
+  <button class="calc-btn" onclick="calculate()">Calcular mi libertad financiera →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+
+  <!-- HERO: TU NÚMERO -->
+  <div class="hero-result" id="heroResult">
+    <div class="hr-emoji">🏝️</div>
+    <div class="hr-label">Tu número de libertad financiera</div>
+    <div class="hr-number" id="hrNumber" style="color:var(--teal);"></div>
+    <div class="hr-ars" id="hrARS"></div>
+    <div class="hr-sub" id="hrSub"></div>
+  </div>
+
+  <!-- DOS ENFOQUES -->
+  <div class="approach-grid">
+    <div class="approach-card ap-4">
+      <div class="ap-badge">Regla del 4%</div>
+      <div class="ap-title">Retiro seguro</div>
+      <div class="ap-desc">Retirás el 4% de tu capital por año. Tu dinero dura +30 años, ajustando por inflación.</div>
+      <div class="ap-amount" id="ap4Amount"></div>
+      <div class="ap-ars" id="ap4ARS"></div>
+      <div class="ap-detail">
+        <div class="ap-row"><span class="ap-k">Retiro anual</span><span class="ap-v" id="ap4Annual"></span></div>
+        <div class="ap-row"><span class="ap-k">Retiro mensual</span><span class="ap-v" id="ap4Monthly"></span></div>
+        <div class="ap-row"><span class="ap-k">Duración estimada</span><span class="ap-v">+30 años</span></div>
+      </div>
+    </div>
+    <div class="approach-card ap-rend">
+      <div class="ap-badge">Vivir de rendimientos</div>
+      <div class="ap-title">Capital eterno</div>
+      <div class="ap-desc">Solo gastás lo que generan tus inversiones. El capital nunca se toca.</div>
+      <div class="ap-amount" id="apRendAmount"></div>
+      <div class="ap-ars" id="apRendARS"></div>
+      <div class="ap-detail">
+        <div class="ap-row"><span class="ap-k">Rendimiento anual</span><span class="ap-v" id="apRendAnnual"></span></div>
+        <div class="ap-row"><span class="ap-k">Ingreso mensual</span><span class="ap-v" id="apRendMonthly"></span></div>
+        <div class="ap-row"><span class="ap-k">Duración estimada</span><span class="ap-v">∞ Infinita</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO ACTUAL -->
+  <div class="status-section">
+    <div class="card-title"><div class="icon">📍</div> ¿Dónde estás hoy?</div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <span style="font-size:14px;color:var(--text-muted);">Progreso hacia tu libertad financiera</span>
+      <span style="font-size:20px;font-weight:700;" id="progressPct"></span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="progHave"></span>
+      <span id="progGoal"></span>
+    </div>
+    <div style="margin-top:16px;padding:16px;background:var(--surface-2);border-radius:var(--radius-sm);text-align:center;">
+      <span style="font-size:13px;color:var(--text-muted);">Te falta</span>
+      <div style="font-size:28px;font-weight:700;color:var(--orange);margin-top:4px;" id="needAmount"></div>
+      <div style="font-size:12px;color:var(--text-muted);opacity:.7;" id="needARS"></div>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <!-- GRÁFICO -->
+  <div class="chart-container">
+    <div class="card-title"><div class="icon">📊</div> Camino hacia la libertad financiera</div>
+    <canvas id="lfChart"></canvas>
+  </div>
+
+  <!-- PLAN -->
+  <div class="card" style="animation:none;">
+    <div class="card-title"><div class="icon">📅</div> Plan para llegar</div>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:4px;" id="planDesc"></p>
+    <div class="plan-cards" id="planCards"></div>
+  </div>
+
+  <!-- TABLE -->
+  <button class="toggle-table" onclick="toggleTable()">📋 Ver tabla año por año</button>
+  <div class="table-wrap" id="tableWrap">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button onclick="downloadCSV()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--teal);font-family:var(--font-main);font-size:13px;cursor:pointer;">📥 Descargar CSV</button>
+    </div>
+    <div class="table-scroll"><table class="detail-table" id="detailTable"></table></div>
+  </div>
+
+  <!-- RECOMENDACIONES -->
+  <div id="recoContainer"></div>
+
+  <!-- SHARE -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu resultado</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="downloadImage()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+    </div>
+  </div>
+
+  <div class="cta-card">
+    <h3>¿Querés armar tu camino hacia la libertad financiera?</h3>
+    <p>En el Método FBC te enseñamos a ordenar tus finanzas, eliminar deudas, ahorrar con sistema, invertir con criterio y armar una cartera que trabaje por vos.</p>
+    <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+  <p style="margin-top:6px;">Los rendimientos son estimaciones con fines educativos. No garantizan resultados futuros. No constituye asesoramiento financiero ni recomendación de inversión.</p>
+</div>
+</div>
+
+<!-- SHARE CARD -->
+<div class="share-card" id="shareCard">
+  <div class="sc-header"><div class="sc-brand">NICO PASSINI</div><div class="sc-tool">LIBERTAD FINANCIERA</div></div>
+  <div class="sc-main">
+    <div class="sc-main-label">MI NÚMERO DE LIBERTAD FINANCIERA</div>
+    <div class="sc-main-amount" id="scAmount"></div>
+    <div class="sc-main-sub" id="scSub"></div>
+  </div>
+  <div class="sc-stats">
+    <div class="sc-stat"><div class="sc-stat-label">Tengo hoy</div><div class="sc-stat-val" id="scHave"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">Me falta</div><div class="sc-stat-val" id="scNeed" style="color:var(--orange);"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">Años restantes</div><div class="sc-stat-val" id="scYears" style="color:var(--teal);"></div></div>
+  </div>
+  <div class="sc-footer"><div class="sc-footer-text">Calculá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let annualRate = 8;
+let chartInstance = null;
+let csvTableData = [];
+
+function init(){fetchARS();updateAllARS();}
+
+// ====== ARS ======
+async function fetchARS(){
+  const el=document.getElementById('arsSource');const input=document.getElementById('arsRate');
+  const apis=[{url:'https://dolarapi.com/v1/dolares/oficial',parse:d=>d.venta,name:'DolarAPI'},{url:'https://api.bluelytics.com.ar/v2/latest',parse:d=>d.oficial?.value_sell,name:'Bluelytics'}];
+  for(const api of apis){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);const r=await fetch(api.url,{signal:c.signal});clearTimeout(t);if(!r.ok)continue;const d=await r.json();const rate=api.parse(d);if(rate&&rate>0){input.value=Math.round(rate);el.textContent='(auto · '+api.name+')';updateAllARS();return;}}catch(e){continue;}}
+  el.textContent='(manual)';updateAllARS();
+}
+function getARS(){return parseFloat(document.getElementById('arsRate').value)||1200;}
+function fmt(n){return n>=1000000?'US$ '+(n/1000000).toFixed(2)+'M':'US$ '+Math.round(n).toLocaleString('en-US');}
+function fmtARS(n){return n>=1000000?'ARS $ '+(n/1000000).toFixed(1)+'M':'ARS $ '+Math.round(n).toLocaleString('es-AR');}
+function showARS(input,id){const el=document.getElementById(id);if(el)el.textContent='≈ '+fmtARS((parseFloat(input.value)||0)*getARS());}
+function updateAllARS(){showARS(document.getElementById('monthlyExpenses'),'expARS');showARS(document.getElementById('currentCapital'),'capARS');showARS(document.getElementById('monthlyInvestment'),'invARS');}
+
+function setProfile(rate, el){
+  annualRate = rate;
+  document.getElementById('annualRate').value = rate;
+  document.querySelectorAll('.profile-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ====== CALCULATE ======
+function calculate(){
+  const monthlyExp = parseFloat(document.getElementById('monthlyExpenses').value)||2000;
+  const annualExp = monthlyExp * 12;
+  const capital = parseFloat(document.getElementById('currentCapital').value)||0;
+  const monthlyInv = parseFloat(document.getElementById('monthlyInvestment').value)||0;
+  const rate = parseFloat(document.getElementById('annualRate').value)||8;
+  annualRate = rate;
+
+  // === TWO APPROACHES ===
+  // 1) Regla del 4%: need = annualExp / 0.04 = annualExp * 25
+  const goal4 = annualExp * 25;
+  // 2) Vivir de rendimientos: need = annualExp / (rate/100)
+  const goalRend = annualExp / (rate/100);
+
+  // We'll use the 4% rule as the primary goal (more conservative/universal)
+  const primaryGoal = goal4;
+  const need = Math.max(0, primaryGoal - capital);
+  const pct = Math.min(100, Math.round((capital / primaryGoal) * 100));
+
+  // Years to reach goal
+  let yearsToGoal = Infinity;
+  if(monthlyInv > 0){
+    const monthlyRate = Math.pow(1+rate/100, 1/12)-1;
+    let bal = capital;
+    let months = 0;
+    while(bal < primaryGoal && months < 600){
+      bal = bal*(1+monthlyRate) + monthlyInv;
+      months++;
+    }
+    if(months < 600) yearsToGoal = months/12;
+  } else if(capital > 0){
+    // Only compound growth, no new investment
+    yearsToGoal = Math.log(primaryGoal/capital)/Math.log(1+rate/100);
+  }
+
+  // === HERO ===
+  document.getElementById('hrNumber').textContent = fmt(primaryGoal);
+  document.getElementById('hrARS').textContent = '≈ '+fmtARS(primaryGoal*getARS());
+  document.getElementById('hrSub').textContent = `Necesitás ${fmt(monthlyExp)}/mes × 25 años de gastos cubiertos`;
+
+  // === APPROACHES ===
+  document.getElementById('ap4Amount').textContent = fmt(goal4);
+  document.getElementById('ap4ARS').textContent = '≈ '+fmtARS(goal4*getARS());
+  document.getElementById('ap4Annual').textContent = fmt(annualExp);
+  document.getElementById('ap4Monthly').textContent = fmt(monthlyExp);
+
+  document.getElementById('apRendAmount').textContent = fmt(goalRend);
+  document.getElementById('apRendARS').textContent = '≈ '+fmtARS(goalRend*getARS());
+  document.getElementById('apRendAnnual').textContent = fmt(annualExp);
+  document.getElementById('apRendMonthly').textContent = fmt(monthlyExp);
+
+  // === PROGRESS ===
+  const barColor = pct>=75?'var(--green)':pct>=30?'var(--orange)':'var(--red)';
+  document.getElementById('progressPct').textContent = pct+'%';
+  document.getElementById('progressPct').style.color = barColor;
+  const bar = document.getElementById('progressBar');
+  bar.style.width = '0%';
+  bar.style.background = `linear-gradient(90deg, ${barColor}, ${barColor})`;
+  setTimeout(()=>{bar.style.width = Math.max(2,pct)+'%';},100);
+  document.getElementById('progHave').textContent = fmt(capital)+' (hoy)';
+  document.getElementById('progGoal').textContent = fmt(primaryGoal)+' (meta)';
+  document.getElementById('needAmount').textContent = need>0?fmt(need):'✅ ¡Llegaste!';
+  document.getElementById('needARS').textContent = need>0?'≈ '+fmtARS(need*getARS()):'';
+
+  // === METRICS ===
+  const yearsText = yearsToGoal===Infinity?'—':yearsToGoal<1?'< 1 año':yearsToGoal.toFixed(1)+' años';
+  const metricsHTML = `
+    <div class="metric"><div class="m-label">Años restantes</div><div class="m-value" style="color:var(--teal)">${yearsText}</div><div class="m-sub">a tu ritmo actual</div></div>
+    <div class="metric"><div class="m-label">Aporte mensual</div><div class="m-value">${fmt(monthlyInv)}</div><div class="m-sub">≈ ${fmtARS(monthlyInv*getARS())}</div></div>
+    <div class="metric"><div class="m-label">Rendimiento</div><div class="m-value">${rate}%</div><div class="m-sub">anual estimado</div></div>
+    <div class="metric"><div class="m-label">Ingreso pasivo meta</div><div class="m-value" style="color:var(--green)">${fmt(monthlyExp)}/mes</div><div class="m-sub">para cubrir tu vida</div></div>
+  `;
+  document.getElementById('metricsGrid').innerHTML = metricsHTML;
+
+  // === CHART ===
+  renderChart(capital, monthlyInv, rate, primaryGoal);
+
+  // === PLAN: different monthly amounts ===
+  renderPlan(capital, need, rate, primaryGoal, monthlyInv);
+
+  // === TABLE ===
+  renderTable(capital, monthlyInv, rate, primaryGoal);
+
+  // === RECOS ===
+  renderRecos(pct, yearsToGoal, monthlyInv, monthlyExp, capital, primaryGoal, rate);
+
+  // === SHARE CARD ===
+  document.getElementById('scAmount').textContent = fmt(primaryGoal);
+  document.getElementById('scSub').textContent = `Para vivir con ${fmt(monthlyExp)}/mes sin trabajar`;
+  document.getElementById('scHave').textContent = fmt(capital);
+  document.getElementById('scNeed').textContent = need>0?fmt(need):'✅';
+  document.getElementById('scYears').textContent = yearsToGoal===Infinity?'—':yearsToGoal.toFixed(1);
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderChart(capital, monthlyInv, rate, goal){
+  const ctx = document.getElementById('lfChart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+
+  const monthlyRate = Math.pow(1+rate/100,1/12)-1;
+  let bal = capital;
+  const labels = ['Hoy'];
+  const values = [capital];
+  const goalLine = [goal];
+  const maxYears = Math.min(50, Math.max(10, Math.ceil(Math.log(goal/Math.max(capital,1))/Math.log(1+rate/100)*1.3)));
+
+  for(let y=1; y<=maxYears; y++){
+    for(let m=0; m<12; m++){
+      bal = bal*(1+monthlyRate)+monthlyInv;
+    }
+    labels.push('Año '+y);
+    values.push(Math.min(bal, goal*3));
+    goalLine.push(goal);
+    if(bal >= goal*2.5) break;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Tu patrimonio',data:values,borderColor:'#11b3b7',backgroundColor:'rgba(17,179,183,.1)',fill:true,tension:.3,pointRadius:2,borderWidth:2.5},
+      {label:'Meta libertad financiera',data:goalLine,borderColor:'#f0a030',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{labels:{color:'#8da4bf',font:{size:13},usePointStyle:true,padding:20}},tooltip:{backgroundColor:'#132640',titleColor:'#e4eaf2',bodyColor:'#8da4bf',borderColor:'#1f4672',borderWidth:1,callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#8da4bf',maxTicksLimit:10},grid:{color:'rgba(31,70,114,.3)'}},y:{ticks:{color:'#8da4bf',callback:v=>fmt(v)},grid:{color:'rgba(31,70,114,.3)'}}}}
+  });
+}
+
+function renderPlan(capital, need, rate, goal, currentInv){
+  const container = document.getElementById('planCards');
+  container.innerHTML = '';
+
+  if(need <= 0){
+    document.getElementById('planDesc').textContent = '🎉 ¡Ya alcanzaste tu número de libertad financiera!';
+    return;
+  }
+
+  document.getElementById('planDesc').textContent = 'Si invertís un monto fijo cada mes, así llegarías a tu meta:';
+
+  // Calculate years for different monthly amounts
+  const amounts = [currentInv*0.5, currentInv, currentInv*2].map(a=>Math.max(100,Math.round(a)));
+  // Ensure unique and sorted
+  const unique = [...new Set(amounts)].sort((a,b)=>b-a);
+
+  unique.forEach(amt => {
+    const monthlyRate = Math.pow(1+rate/100,1/12)-1;
+    let bal = capital;
+    let months = 0;
+    while(bal < goal && months < 600){
+      bal = bal*(1+monthlyRate)+amt;
+      months++;
+    }
+    const yrs = months>=600?'—':(months/12).toFixed(1);
+    const label = amt===currentInv?'Tu ritmo actual':amt>currentInv?'Ritmo acelerado':'Ritmo relajado';
+    container.innerHTML += `<div class="plan-card">
+      <div class="pc-label">${label}</div>
+      <div class="pc-value">${yrs==='—'?'—':yrs+' años'}</div>
+      <div class="pc-sub">${fmt(amt)}/mes</div>
+    </div>`;
+  });
+}
+
+function renderTable(capital, monthlyInv, rate, goal){
+  csvTableData = [];
+  const monthlyRate = Math.pow(1+rate/100,1/12)-1;
+  let bal = capital;
+  let totalInvested = capital;
+  const rows = [];
+
+  const maxYears = 50;
+  let reachedYear = 0;
+
+  for(let y=1; y<=maxYears; y++){
+    for(let m=0;m<12;m++){
+      bal = bal*(1+monthlyRate)+monthlyInv;
+      totalInvested += monthlyInv;
+    }
+    const interest = bal-totalInvested;
+    const pctGoal = Math.min(100,Math.round(bal/goal*100));
+    rows.push({year:y, invested:totalInvested, interest, total:bal, pctGoal});
+    csvTableData.push({Año:y, Invertido:totalInvested.toFixed(2), Interés:interest.toFixed(2), Total:bal.toFixed(2), '% Meta':pctGoal+'%'});
+    if(bal >= goal && reachedYear === 0) reachedYear = y;
+    // Show at least 5 years after reaching goal, or up to 50
+    if(reachedYear > 0 && y >= reachedYear + 2) break;
+  }
+
+  const table = document.getElementById('detailTable');
+  table.innerHTML = `<thead><tr><th style="text-align:left">Año</th><th>Invertido</th><th>Interés ganado</th><th>Total</th><th>% Meta</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>Año ${r.year}</td><td>${fmt(r.invested)}</td><td style="color:var(--green)">${fmt(r.interest)}</td><td>${fmt(r.total)}</td><td style="color:${r.pctGoal>=100?'var(--green)':r.pctGoal>=50?'var(--orange)':'var(--text-muted)'}">${r.pctGoal}%</td></tr>`).join('')+
+    '</tbody>';
+}
+
+function renderRecos(pct, years, monthlyInv, monthlyExp, capital, goal, rate){
+  const c = document.getElementById('recoContainer');
+  let html = '';
+
+  if(pct >= 100){
+    html = `<div class="reco-box"><h4>🎉 ¡Felicitaciones! Alcanzaste tu libertad financiera</h4>
+      <p>Tu capital de ${fmt(capital)} es suficiente para cubrir tus gastos de ${fmt(monthlyExp)}/mes. Ahora la clave es mantenerlo y optimizar.</p>
+      <ul><li>Diversificá tus inversiones para reducir riesgo</li><li>Revisá tu número cada año por si cambia tu estilo de vida</li><li>Considerá reinvertir parte de los rendimientos para seguir creciendo</li></ul></div>`;
+  } else if(pct >= 50){
+    html = `<div class="reco-box"><h4>🔄 Vas por la mitad del camino</h4>
+      <p>Ya tenés el ${pct}% de tu meta. ${years!==Infinity?`A tu ritmo actual llegarías en ${years.toFixed(1)} años.`:'Necesitás empezar a invertir mensualmente para llegar.'}</p>
+      <ul><li>Mantené la disciplina: la constancia es más importante que el monto</li><li>Cada aumento de sueldo, destiná al menos el 50% a inversión</li><li>Revisá si podés optimizar gastos para invertir más</li></ul></div>`;
+  } else if(pct >= 10){
+    html = `<div class="reco-box"><h4>🚀 Empezaste, ahora hay que acelerar</h4>
+      <p>Tenés el ${pct}% de tu meta. El interés compuesto necesita tiempo para hacer magia: cuanto antes aumentes tus aportes, más rápido llegás.</p>
+      <ul><li>Priorizá eliminar deudas de alto interés que frenan tu avance</li><li>Buscá formas de generar ingresos extra para invertir más</li><li>Automatizá tus inversiones el día que cobrás</li></ul></div>`;
+  } else {
+    html = `<div class="reco-box"><h4>🏁 El primer paso es empezar</h4>
+      <p>Estás al ${pct}% de tu meta, pero todos empezaron de cero. La libertad financiera se construye con hábitos consistentes.</p>
+      <ul><li>Empezá con lo que puedas, aunque sean ${fmt(100)}/mes</li><li>Primero armá tu fondo de emergencia (3-6 meses de gastos)</li><li>Después empezá a invertir de forma constante y diversificada</li><li>La clave no es cuánto invertís hoy, sino que no pares nunca</li></ul></div>`;
+  }
+
+  c.innerHTML = html;
+}
+
+// ====== HELPERS ======
+function toggleTable(){document.getElementById('tableWrap').classList.toggle('open');}
+
+function downloadCSV(){
+  if(!csvTableData.length) return;
+  const headers = Object.keys(csvTableData[0]);
+  let csv = '\uFEFF'+headers.join(',')+'\n';
+  csvTableData.forEach(row=>{csv+=headers.map(h=>row[h]).join(',')+'\n';});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='libertad-financiera.csv';a.click();
+  URL.revokeObjectURL(url);showToast('✅ CSV descargado');
+}
+
+// ====== SHARE ======
+async function downloadImage(){
+  const card=document.getElementById('shareCard');card.style.left='0';card.style.position='fixed';card.style.top='0';card.style.zIndex='9999';
+  try{const canvas=await html2canvas(card,{backgroundColor:'#0d1b2e',scale:2,width:1080,useCORS:true,logging:false});card.style.left='-9999px';card.style.position='absolute';card.style.zIndex='auto';
+  canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'libertad-financiera.png',{type:'image/png'});try{await navigator.share({title:'Libertad Financiera - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='libertad-financiera.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
+  }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
+}
+function shareWhatsApp(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Mi número de libertad financiera: ${amt}\n\n¿Cuál es el tuyo? Calculalo gratis 👇\nnicolaspassini.com/libertad-financiera.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Calculé mi número de libertad financiera: ${amt}\n\n¿Cuánto necesitás vos para vivir sin trabajar?\n👇 nicolaspassini.com/libertad-financiera.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/libertad-financiera.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/libertad-financiera.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+document.querySelectorAll('input,select').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));
+init();
+</script>
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

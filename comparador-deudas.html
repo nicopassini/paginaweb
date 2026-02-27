@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de Deudas | Nico Passini</title>
+<link href="https://fonts.googleapis.com/css2?family=Questrial&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Century Gothic Fallback';
+  src: local('Century Gothic'), local('CenturyGothic');
+}
+
+:root {
+  --navy: #1a3753;
+  --blue: #0b80e1;
+  --black: #141414;
+  --white: #ffffff;
+  --teal: #11b3b7;
+  --bg: #0a1628;
+  --bg-2: #0d1b2e;
+  --surface: #132640;
+  --surface-2: #17304d;
+  --surface-3: #1c3a5a;
+  --border: #1f4672;
+  --border-subtle: #162d4a;
+  --text: #e4eaf2;
+  --text-muted: #8da4bf;
+  --text-dim: #5a7a9b;
+  --green: #11b3b7;
+  --green-bg: rgba(17, 179, 183, 0.12);
+  --orange: #f0a030;
+  --orange-bg: rgba(240, 160, 48, 0.12);
+  --red: #e85454;
+  --red-bg: rgba(232, 84, 84, 0.12);
+  --purple: #8b5cf6;
+  --purple-bg: rgba(139, 92, 246, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-logo: 'Cormorant Garamond', 'Georgia', serif;
+  --font-main: 'Century Gothic Fallback', 'Questrial', 'Futura', 'Trebuchet MS', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --max-w: 1140px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.noise {
+  position: fixed; inset: 0;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 16px 0;
+  background: rgba(10, 22, 40, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nav-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand { text-decoration: none; }
+
+.nav-wordmark {
+  font-family: var(--font-logo);
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--white);
+  display: inline-block;
+}
+
+.nav-wordmark-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  margin-top: 3px;
+}
+
+.nav-back {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-back:hover { color: var(--white); }
+
+/* HEADER */
+.page-header {
+  text-align: center;
+  padding: 120px 0 60px;
+}
+
+.page-header .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(11, 128, 225, 0.12);
+  border: 1px solid rgba(11, 128, 225, 0.25);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-family: var(--font-main);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--white), var(--blue), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-header p {
+  color: var(--text-muted);
+  font-size: 16px;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* GLOW */
+.glow-1 {
+  position: fixed;
+  top: -200px; right: -100px;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: var(--blue);
+  filter: blur(150px);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+/* SECTION LABEL */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+
+.section-label .sl-line {
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+}
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--teal), transparent);
+  opacity: 0.5;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .icon {
+  width: 32px; height: 32px;
+  background: rgba(11, 128, 225, 0.12);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* FORM */
+.field { margin-bottom: 18px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+
+.input-wrap { position: relative; }
+
+.input-wrap .prefix,
+.input-wrap .suffix {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.input-wrap .prefix { left: 16px; }
+.input-wrap .suffix { right: 16px; }
+
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.25s;
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(11, 128, 225, 0.2);
+}
+
+.input-with-prefix { padding-left: 36px !important; }
+.input-with-suffix { padding-right: 60px !important; }
+
+/* DEBT LIST */
+.debt-item {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin-bottom: 14px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.debt-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.debt-item-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.debt-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.debt-remove:hover {
+  color: var(--red);
+  background: var(--red-bg);
+}
+
+.debt-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 500px) {
+  .debt-fields { grid-template-columns: 1fr; }
+}
+
+.debt-fields .field { margin-bottom: 0; }
+
+.debt-name-field { grid-column: 1 / -1; }
+
+/* BUTTONS */
+.btn-add {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s;
+  margin-bottom: 20px;
+}
+
+.btn-add:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(11, 128, 225, 0.05);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(11, 128, 225, 0.3);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+/* EXTRA PAYMENT */
+.extra-payment-section {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.extra-payment-section .ep-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.extra-payment-section .ep-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* MAIN LAYOUT */
+.main-layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 28px;
+  padding-bottom: 80px;
+}
+
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
+
+/* RESULTS */
+.results-panel { display: none; }
+.results-panel.visible { display: block; animation: fadeIn 0.5s ease; }
+
+#placeholder {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 20px;
+}
+
+/* COMPARISON CARDS */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .comparison-grid { grid-template-columns: 1fr; }
+}
+
+.method-card {
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.method-card.winner {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 1px var(--teal), 0 8px 32px rgba(17, 179, 183, 0.1);
+}
+
+.method-card .winner-tag {
+  display: none;
+  position: absolute;
+  top: -1px; right: 20px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 0 0 8px 8px;
+}
+
+.method-card.winner .winner-tag { display: block; }
+
+.method-card .mc-name {
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.method-card .mc-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.method-card .mc-stat {
+  margin-bottom: 16px;
+}
+
+.method-card .mc-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.method-card .mc-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.method-card .mc-stat-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.savings-highlight {
+  background: var(--green-bg);
+  border: 1px solid rgba(17, 179, 183, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.savings-highlight .sh-label {
+  font-size: 12px;
+  color: var(--teal);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.savings-highlight .sh-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.savings-highlight .sh-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* PAYMENT ORDER */
+.order-section {
+  margin-bottom: 24px;
+}
+
+.order-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.order-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.order-tab {
+  padding: 8px 20px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.order-tab.active {
+  border-color: var(--blue);
+  background: rgba(11, 128, 225, 0.1);
+  color: var(--blue);
+}
+
+.order-list { list-style: none; }
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.order-item .oi-rank {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(11, 128, 225, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.order-item .oi-info { flex: 1; }
+
+.order-item .oi-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.order-item .oi-detail {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.order-item .oi-amount {
+  text-align: right;
+}
+
+.order-item .oi-balance {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.order-item .oi-rate {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* TIMELINE CHART */
+.chart-container {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 16px;
+}
+
+canvas#timelineChart {
+  width: 100% !important;
+  height: 240px !important;
+}
+
+/* RECO BOX */
+.reco-box {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  border-left: 3px solid var(--teal);
+  margin-bottom: 16px;
+}
+
+.reco-box h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reco-box p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.reco-box ul {
+  margin-top: 10px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.reco-box li {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: 4px 0 4px 20px;
+  position: relative;
+}
+
+.reco-box li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--teal);
+  font-weight: 700;
+}
+
+/* CAPACITY ALERT */
+.capacity-alert {
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid;
+}
+
+.capacity-alert.ca-green {
+  background: var(--green-bg);
+  border-color: rgba(17, 179, 183, 0.3);
+}
+
+.capacity-alert.ca-orange {
+  background: var(--orange-bg);
+  border-color: rgba(240, 160, 48, 0.3);
+}
+
+.capacity-alert.ca-red {
+  background: var(--red-bg);
+  border-color: rgba(232, 84, 84, 0.3);
+}
+
+.capacity-alert .ca-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.capacity-alert .ca-header .ca-icon { font-size: 20px; }
+
+.capacity-alert .ca-header .ca-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ca-green .ca-title { color: var(--green); }
+.ca-orange .ca-title { color: var(--orange); }
+.ca-red .ca-title { color: var(--red); }
+
+.capacity-alert .ca-body {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.capacity-alert .ca-numbers {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.ca-numbers .ca-num {
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.ca-num .cn-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.ca-num .cn-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* SCENARIO SECTION */
+.scenario-box {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+
+.scenario-box h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scenario-box .debt-action-list { list-style: none; }
+
+.debt-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  border-left: 3px solid;
+}
+
+.debt-action-item.action-pay { border-color: var(--green); }
+.debt-action-item.action-renegotiate { border-color: var(--orange); }
+.debt-action-item.action-abandon { border-color: var(--red); }
+
+.debt-action-item .dai-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.debt-action-item .dai-content { flex: 1; }
+
+.debt-action-item .dai-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+
+.debt-action-item .dai-action {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.action-pay .dai-action { color: var(--green); }
+.action-renegotiate .dai-action { color: var(--orange); }
+.action-abandon .dai-action { color: var(--red); }
+
+.debt-action-item .dai-detail {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.debt-action-item .dai-timeline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.action-abandon .dai-timeline {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.action-renegotiate .dai-timeline {
+  background: var(--orange-bg);
+  color: var(--orange);
+}
+
+/* CTA */
+.cta-section {
+  text-align: center;
+  margin: 60px auto;
+  max-width: 800px;
+  padding: 44px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--teal), var(--blue));
+}
+
+.cta-section h3 {
+  font-family: var(--font-main);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.cta-section p {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 28px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(11, 128, 225, 0.3);
+}
+
+/* DISCLAIMER */
+.disclaimer {
+  text-align: center;
+  padding: 20px 20px 60px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.disclaimer a {
+  color: var(--teal);
+  text-decoration: none;
+}
+
+/* DEBT TYPE SELECTOR */
+.debt-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.debt-type-btn {
+  padding: 12px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+
+.debt-type-btn:hover {
+  border-color: var(--text-muted);
+}
+
+.debt-type-btn.active {
+  border-color: var(--blue);
+  background: rgba(11, 128, 225, 0.1);
+  box-shadow: 0 0 0 2px rgba(11, 128, 225, 0.15);
+}
+
+.debt-type-btn .dt-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.debt-type-btn .dt-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.debt-type-btn.active .dt-name {
+  color: var(--blue);
+}
+
+.debt-conditional-fields {
+  display: none;
+}
+
+.debt-conditional-fields.visible {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  animation: fadeIn 0.25s ease;
+}
+
+@media (max-width: 500px) {
+  .debt-conditional-fields.visible { grid-template-columns: 1fr; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="glow-1"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <span class="nav-wordmark">NICO PASSINI<span class="nav-wordmark-line"></span></span>
+    </a>
+    <a href="index.html#herramientas" class="nav-back">← Volver a herramientas</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="badge">💳 Herramienta gratuita</div>
+  <h1>Comparador de Deudas</h1>
+  <p>Cargá tus deudas y compará los métodos <strong>Bola de Nieve</strong> vs <strong>Avalancha</strong> para descubrir cuál te conviene más para salir de las deudas lo antes posible.</p>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+  <div class="main-layout">
+    <!-- LEFT: INPUTS -->
+    <div>
+      <div class="card">
+        <div class="card-title"><div class="icon">💳</div> Tus deudas</div>
+
+        <div id="debtList"></div>
+
+        <button class="btn-add" onclick="addDebt()">+ Agregar otra deuda</button>
+
+        <div class="extra-payment-section" style="margin-bottom:14px;">
+          <div class="ep-label">💰 Ingreso mensual disponible para deudas</div>
+          <div class="ep-desc">¿Cuánto podés destinar en total por mes para pagar todas tus deudas? Incluí todo lo que puedas separar después de gastos fijos.</div>
+          <div class="field" style="margin-bottom:0;">
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="number" id="monthlyBudget" value="150000" min="0" class="input-with-prefix input-with-suffix">
+              <span class="suffix">ARS</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()">Comparar métodos →</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div>
+      <div class="card" id="resultsCard" style="min-height: 400px;">
+        <div id="placeholder">
+          <div style="font-size:48px; margin-bottom:16px; opacity:0.3;">⚖️</div>
+          <p style="font-size:15px;">Cargá tus deudas y presioná<br><strong style="color:var(--blue);">Comparar métodos</strong> para ver el análisis</p>
+        </div>
+        <div class="results-panel" id="results">
+          <div class="card-title"><div class="icon">📊</div> Análisis de tu situación</div>
+
+          <!-- CAPACITY ALERT -->
+          <div id="capacityAlert"></div>
+
+          <!-- COMPARISON -->
+          <div class="comparison-grid" id="comparisonGrid"></div>
+          <div id="savingsHighlight"></div>
+
+          <!-- CRITICAL: WHAT TO DO SECTION -->
+          <div id="scenarioSection"></div>
+
+          <!-- Chart -->
+          <div class="chart-container">
+            <div class="chart-title">Evolución de la deuda total</div>
+            <canvas id="timelineChart"></canvas>
+          </div>
+
+          <!-- Payment order -->
+          <div class="order-section">
+            <h3>Orden de pago</h3>
+            <div class="order-tabs">
+              <button class="order-tab active" onclick="showOrder('avalanche', this)">🏔️ Avalancha</button>
+              <button class="order-tab" onclick="showOrder('snowball', this)">⛄ Bola de Nieve</button>
+            </div>
+            <ul class="order-list" id="orderList"></ul>
+          </div>
+
+          <!-- Recommendation -->
+          <div id="recoContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARE -->
+  <div id="shareDeudas" style="display:none;text-align:center;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+    <h3 style="font-size:18px;font-weight:700;color:#e4eaf2;margin-bottom:8px;">📩 Compartí tu resumen con alguien</h3>
+    <p style="font-size:14px;color:#8da4bf;margin-bottom:16px;">Mandáselo a tu pareja, familiar o asesor para que vea tu situación</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="shareDeudaResumen('wa')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 Enviar por WhatsApp</button>
+      <button onclick="shareDeudaResumen('copy')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:#8da4bf;background:#1c3a5a;border:1px solid #1f4672;">📋 Copiar resumen</button>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h3>¿Querés salir de las deudas de una vez por todas?</h3>
+    <p>Esta herramienta te muestra el camino, pero si necesitás un plan paso a paso para eliminar tus deudas y recuperar el control de tu plata, tengo un programa diseñado exactamente para eso.</p>
+    <a href="https://metodofbc.com/librededeudas" target="_blank" class="cta-btn">Conocer Libre de Deudas →</a>
+  </div>
+
+  <div class="disclaimer">
+    Herramienta creada con fines educativos por <a href="https://instagram.com/nicopassini_" target="_blank">@nicopassini_</a><br>
+    Esta herramienta no constituye asesoramiento financiero ni recomendación de inversión.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+let debtCounter = 0;
+let chartInstance = null;
+let currentOrderData = {};
+
+// Initialize with 1 of each type
+function init() {
+  addDebt('tarjeta');
+  addDebt('prestamo');
+}
+
+function addDebt(type = '') {
+  debtCounter++;
+  const id = debtCounter;
+  const div = document.createElement('div');
+  div.className = 'debt-item';
+  div.id = 'debt-' + id;
+  div.setAttribute('data-type', type || '');
+  div.innerHTML = `
+    <div class="debt-item-header">
+      <span class="debt-item-number">Deuda #${id}</span>
+      <button class="debt-remove" onclick="removeDebt(${id})" title="Eliminar">✕</button>
+    </div>
+
+    <div class="debt-type-selector">
+      <div class="debt-type-btn ${type === 'tarjeta' ? 'active' : ''}" onclick="selectDebtType(${id}, 'tarjeta', this)">
+        <div class="dt-icon">💳</div>
+        <div class="dt-name">Tarjeta de crédito</div>
+      </div>
+      <div class="debt-type-btn ${type === 'prestamo' ? 'active' : ''}" onclick="selectDebtType(${id}, 'prestamo', this)">
+        <div class="dt-icon">🏦</div>
+        <div class="dt-name">Préstamo personal</div>
+      </div>
+    </div>
+
+    <!-- TARJETA fields -->
+    <div class="debt-conditional-fields ${type === 'tarjeta' ? 'visible' : ''}" id="debt-${id}-tarjeta">
+      <div class="field">
+        <label>Banco emisor</label>
+        <select data-field="banco" style="width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%238da4bf%27 stroke-width=%271.5%27 fill=%27none%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 16px center;">
+          <option value="">Seleccioná el banco</option>
+          <optgroup label="Bancos Nacionales Públicos">
+            <option value="Nación">Banco Nación</option>
+            <option value="Provincia">Banco Provincia</option>
+            <option value="Ciudad">Banco Ciudad</option>
+            <option value="Hipotecario">Banco Hipotecario</option>
+          </optgroup>
+          <optgroup label="Bancos Privados">
+            <option value="BBVA">BBVA</option>
+            <option value="Santander">Santander</option>
+            <option value="Galicia">Banco Galicia</option>
+            <option value="Macro">Banco Macro</option>
+            <option value="HSBC">HSBC</option>
+            <option value="ICBC">ICBC</option>
+            <option value="Itaú">Itaú</option>
+            <option value="Supervielle">Supervielle</option>
+            <option value="Patagonia">Banco Patagonia</option>
+            <option value="Comafi">Banco Comafi</option>
+            <option value="Credicoop">Banco Credicoop</option>
+            <option value="Columbia">Banco Columbia</option>
+            <option value="Piano">Banco Piano</option>
+            <option value="Industrial">Banco Industrial</option>
+          </optgroup>
+          <optgroup label="Bancos Provinciales / Regionales">
+            <option value="Bancor">Banco de Córdoba (Bancor)</option>
+            <option value="Nvo Bco Santa Fe">Nuevo Banco de Santa Fe</option>
+            <option value="Nvo Bco Entre Ríos">Nuevo Banco de Entre Ríos</option>
+            <option value="Bco Tucumán">Banco de Tucumán</option>
+            <option value="Bco San Juan">Banco de San Juan</option>
+            <option value="Bco Sgo del Estero">Banco de Santiago del Estero</option>
+            <option value="Bco Corrientes">Banco de Corrientes</option>
+            <option value="Bco Chubut">Banco del Chubut</option>
+            <option value="Bco Santa Cruz">Banco de Santa Cruz</option>
+            <option value="Bco Formosa">Banco de Formosa</option>
+            <option value="Bco Neuquén">Banco Provincia del Neuquén</option>
+            <option value="Nvo Bco Chaco">Nuevo Banco del Chaco</option>
+            <option value="Nvo Bco La Rioja">Nuevo Banco de La Rioja</option>
+            <option value="Bco Tierra del Fuego">Banco de Tierra del Fuego</option>
+            <option value="Bco La Pampa">Banco de La Pampa</option>
+            <option value="Bco Municipal Rosario">Banco Municipal de Rosario</option>
+            <option value="Bco San Luis">Banco de San Luis</option>
+            <option value="Bco Misiones">Banco de Misiones</option>
+            <option value="Bco Catamarca">Banco de Catamarca</option>
+          </optgroup>
+          <optgroup label="Fintech / Digitales">
+            <option value="Brubank">Brubank</option>
+            <option value="Ualá">Ualá</option>
+            <option value="Mercado Pago">Mercado Pago</option>
+            <option value="Naranja X">Naranja X</option>
+            <option value="Personal Pay">Personal Pay</option>
+            <option value="Reba">Reba</option>
+            <option value="Banco del Sol">Banco del Sol</option>
+            <option value="Prex">Prex</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="Otro">Otro</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nombre de la tarjeta</label>
+        <input type="text" placeholder="Ej: Visa Platinum" data-field="name">
+      </div>
+      <div class="field">
+        <label>Pago total del resumen</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" placeholder="0" min="0" class="input-with-prefix input-with-suffix" data-field="total">
+          <span class="suffix">ARS</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Pago mínimo</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" placeholder="0" min="0" class="input-with-prefix input-with-suffix" data-field="minpay">
+          <span class="suffix">ARS</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Cuotas pendientes (del resumen)</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" placeholder="0" min="0" class="input-with-prefix input-with-suffix" data-field="cuotaspend">
+          <span class="suffix">ARS</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>TNA sobre saldo impago</label>
+        <div class="input-wrap">
+          <input type="number" placeholder="0" min="0" max="300" step="0.1" class="input-with-suffix" data-field="tna">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Costo de mantenimiento mensual</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" placeholder="0" min="0" class="input-with-prefix input-with-suffix" data-field="mantenimiento">
+          <span class="suffix">ARS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÉSTAMO fields -->
+    <div class="debt-conditional-fields ${type === 'prestamo' ? 'visible' : ''}" id="debt-${id}-prestamo">
+      <div class="field">
+        <label>Banco emisor</label>
+        <select data-field="banco" style="width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%238da4bf%27 stroke-width=%271.5%27 fill=%27none%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 16px center;">
+          <option value="">Seleccioná el banco</option>
+          <optgroup label="Bancos Nacionales Públicos">
+            <option value="Nación">Banco Nación</option>
+            <option value="Provincia">Banco Provincia</option>
+            <option value="Ciudad">Banco Ciudad</option>
+            <option value="Hipotecario">Banco Hipotecario</option>
+          </optgroup>
+          <optgroup label="Bancos Privados">
+            <option value="BBVA">BBVA</option>
+            <option value="Santander">Santander</option>
+            <option value="Galicia">Banco Galicia</option>
+            <option value="Macro">Banco Macro</option>
+            <option value="HSBC">HSBC</option>
+            <option value="ICBC">ICBC</option>
+            <option value="Itaú">Itaú</option>
+            <option value="Supervielle">Supervielle</option>
+            <option value="Patagonia">Banco Patagonia</option>
+            <option value="Comafi">Banco Comafi</option>
+            <option value="Credicoop">Banco Credicoop</option>
+            <option value="Columbia">Banco Columbia</option>
+            <option value="Piano">Banco Piano</option>
+            <option value="Industrial">Banco Industrial</option>
+          </optgroup>
+          <optgroup label="Bancos Provinciales / Regionales">
+            <option value="Bancor">Banco de Córdoba (Bancor)</option>
+            <option value="Nvo Bco Santa Fe">Nuevo Banco de Santa Fe</option>
+            <option value="Nvo Bco Entre Ríos">Nuevo Banco de Entre Ríos</option>
+            <option value="Bco Tucumán">Banco de Tucumán</option>
+            <option value="Bco San Juan">Banco de San Juan</option>
+            <option value="Bco Sgo del Estero">Banco de Santiago del Estero</option>
+            <option value="Bco Corrientes">Banco de Corrientes</option>
+            <option value="Bco Chubut">Banco del Chubut</option>
+            <option value="Bco Santa Cruz">Banco de Santa Cruz</option>
+            <option value="Bco Formosa">Banco de Formosa</option>
+            <option value="Bco Neuquén">Banco Provincia del Neuquén</option>
+            <option value="Nvo Bco Chaco">Nuevo Banco del Chaco</option>
+            <option value="Nvo Bco La Rioja">Nuevo Banco de La Rioja</option>
+            <option value="Bco Tierra del Fuego">Banco de Tierra del Fuego</option>
+            <option value="Bco La Pampa">Banco de La Pampa</option>
+            <option value="Bco Municipal Rosario">Banco Municipal de Rosario</option>
+            <option value="Bco San Luis">Banco de San Luis</option>
+            <option value="Bco Misiones">Banco de Misiones</option>
+            <option value="Bco Catamarca">Banco de Catamarca</option>
+          </optgroup>
+          <optgroup label="Fintech / Digitales">
+            <option value="Brubank">Brubank</option>
+            <option value="Ualá">Ualá</option>
+            <option value="Mercado Pago">Mercado Pago</option>
+            <option value="Naranja X">Naranja X</option>
+            <option value="Personal Pay">Personal Pay</option>
+            <option value="Reba">Reba</option>
+            <option value="Banco del Sol">Banco del Sol</option>
+            <option value="Prex">Prex</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="Otro">Otro</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nombre del préstamo</label>
+        <input type="text" placeholder="Ej: Préstamo personal" data-field="name">
+      </div>
+      <div class="field">
+        <label>Cuota mensual</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" placeholder="0" min="0" class="input-with-prefix input-with-suffix" data-field="cuota">
+          <span class="suffix">ARS</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Tasa de interés (TNA)</label>
+        <div class="input-wrap">
+          <input type="number" placeholder="0" min="0" max="300" step="0.1" class="input-with-suffix" data-field="tna">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Cuotas restantes</label>
+        <div class="input-wrap">
+          <input type="number" placeholder="0" min="1" max="120" class="input-with-suffix" data-field="cuotas">
+          <span class="suffix">cuotas</span>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('debtList').appendChild(div);
+}
+
+function selectDebtType(id, type, btn) {
+  const item = document.getElementById('debt-' + id);
+  item.setAttribute('data-type', type);
+
+  // Toggle active on buttons
+  item.querySelectorAll('.debt-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Show/hide conditional fields
+  const tarjetaFields = document.getElementById('debt-' + id + '-tarjeta');
+  const prestamoFields = document.getElementById('debt-' + id + '-prestamo');
+
+  tarjetaFields.classList.remove('visible');
+  prestamoFields.classList.remove('visible');
+
+  if (type === 'tarjeta') tarjetaFields.classList.add('visible');
+  if (type === 'prestamo') prestamoFields.classList.add('visible');
+}
+
+function removeDebt(id) {
+  const el = document.getElementById('debt-' + id);
+  if (el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-20px)';
+    el.style.transition = 'all 0.25s';
+    setTimeout(() => el.remove(), 250);
+  }
+}
+
+function getDebts() {
+  const items = document.querySelectorAll('.debt-item');
+  const debts = [];
+
+  items.forEach(item => {
+    const type = item.getAttribute('data-type');
+
+    if (type === 'tarjeta') {
+      const fields = item.querySelector('#' + item.id + '-tarjeta');
+      if (!fields) return;
+      const bancoSelect = fields.querySelector('[data-field="banco"]');
+      const nameInput = fields.querySelector('[data-field="name"]');
+      const totalInput = fields.querySelector('[data-field="total"]');
+      const minPayInput = fields.querySelector('[data-field="minpay"]');
+      const cuotasPendInput = fields.querySelector('[data-field="cuotaspend"]');
+      const tnaInput = fields.querySelector('[data-field="tna"]');
+      const mantenimientoInput = fields.querySelector('[data-field="mantenimiento"]');
+
+      const banco = bancoSelect ? bancoSelect.value : '';
+      const name = nameInput.value || 'Tarjeta sin nombre';
+      const pagoTotal = parseFloat(totalInput.value) || 0;
+      const minPay = parseFloat(minPayInput.value) || 0;
+      const cuotasPend = parseFloat(cuotasPendInput.value) || 0;
+      const tna = parseFloat(tnaInput.value) || 0;
+      const mantenimiento = parseFloat(mantenimientoInput.value) || 0;
+
+      const revolvente = Math.max(0, pagoTotal - cuotasPend);
+
+      if (pagoTotal > 0 && minPay > 0) {
+        debts.push({
+          name: banco ? `${name} (${banco})` : name,
+          banco,
+          type: 'tarjeta',
+          balance: pagoTotal,
+          revolvente,
+          cuotasPend,
+          rate: tna / 100,
+          minPay,
+          mantenimiento,
+          costoFinancieroTotal: mantenimiento + (revolvente * (tna / 100) / 12)
+        });
+      }
+    } else if (type === 'prestamo') {
+      const fields = item.querySelector('#' + item.id + '-prestamo');
+      if (!fields) return;
+      const bancoSelect = fields.querySelector('[data-field="banco"]');
+      const nameInput = fields.querySelector('[data-field="name"]');
+      const cuotaInput = fields.querySelector('[data-field="cuota"]');
+      const tnaInput = fields.querySelector('[data-field="tna"]');
+      const cuotasInput = fields.querySelector('[data-field="cuotas"]');
+
+      const banco = bancoSelect ? bancoSelect.value : '';
+      const name = nameInput.value || 'Préstamo sin nombre';
+      const cuota = parseFloat(cuotaInput.value) || 0;
+      const tna = parseFloat(tnaInput.value) || 0;
+      const cuotasRestantes = parseInt(cuotasInput.value) || 0;
+
+      if (cuota > 0 && cuotasRestantes > 0) {
+        const monthlyRate = (tna / 100) / 12;
+        let balance;
+        if (monthlyRate > 0) {
+          balance = cuota * (1 - Math.pow(1 + monthlyRate, -cuotasRestantes)) / monthlyRate;
+        } else {
+          balance = cuota * cuotasRestantes;
+        }
+
+        debts.push({
+          name: banco ? `${name} (${banco})` : name,
+          banco,
+          type: 'prestamo',
+          balance: Math.round(balance),
+          rate: tna / 100,
+          minPay: cuota
+        });
+      }
+    }
+  });
+
+  return debts;
+}
+
+function formatMoney(n) {
+  if (!isFinite(n) || isNaN(n)) return '$0';
+  return '$' + Math.round(n).toLocaleString('es-AR');
+}
+
+function simulate(debts, extra, sortFn) {
+  let list = debts.map(d => {
+    if (d.type === 'tarjeta') {
+      return {
+        ...d,
+        remainingRevolvente: d.revolvente || d.balance,
+        remainingCuotas: d.cuotasPend || 0,
+        remaining: d.balance,
+        totalPaid: 0,
+        totalInterest: 0,
+        totalMantenimiento: 0
+      };
+    } else {
+      return {
+        ...d,
+        remainingRevolvente: 0,
+        remainingCuotas: 0,
+        remaining: d.balance,
+        totalPaid: 0,
+        totalInterest: 0,
+        totalMantenimiento: 0
+      };
+    }
+  });
+
+  const prestamos = list.filter(d => d.type === 'prestamo');
+  const tarjetas = list.filter(d => d.type === 'tarjeta');
+  tarjetas.sort(sortFn);
+  list = [...prestamos, ...tarjetas];
+
+  const timeline = [];
+  let month = 0;
+  const maxMonths = 600;
+
+  while (list.some(d => d.remaining > 0.01) && month < maxMonths) {
+    month++;
+    let extraLeft = extra;
+
+    list.forEach(d => {
+      if (d.remaining <= 0) return;
+
+      if (d.type === 'tarjeta') {
+        // Interest only on revolvente portion (daily TNA / 365 * 30 ≈ monthly)
+        if (d.remainingRevolvente > 0) {
+          const interest = d.remainingRevolvente * (d.rate / 12);
+          d.remainingRevolvente += interest;
+          d.totalInterest += interest;
+        }
+        // Mantenimiento adds to cost each month
+        const mant = d.mantenimiento || 0;
+        d.totalMantenimiento += mant;
+
+        // Cuotas decrease naturally (~1/remaining months, simplified as proportional decrease)
+        // We assume cuotas fall evenly over ~12 months
+        if (d.remainingCuotas > 0) {
+          const cuotaDrop = Math.min(d.remainingCuotas, d.cuotasPend / 12);
+          d.remainingCuotas -= cuotaDrop;
+        }
+
+        // Update total remaining
+        d.remaining = d.remainingRevolvente + d.remainingCuotas;
+      } else {
+        // Préstamo: interest on full remaining
+        const interest = d.remaining * (d.rate / 12);
+        d.remaining += interest;
+        d.totalInterest += interest;
+      }
+    });
+
+    // 1. Pay préstamo cuotas (mandatory)
+    list.forEach(d => {
+      if (d.type === 'prestamo' && d.remaining > 0) {
+        const payment = Math.min(d.minPay, d.remaining);
+        d.remaining -= payment;
+        d.totalPaid += payment;
+      }
+    });
+
+    // 2. Pay tarjeta minimums (goes to revolvente first)
+    list.forEach(d => {
+      if (d.type === 'tarjeta' && d.remaining > 0) {
+        const mant = d.mantenimiento || 0;
+        const payAfterMant = Math.max(0, d.minPay - mant);
+        d.totalPaid += d.minPay;
+
+        // Payment reduces revolvente first
+        const toRevolvente = Math.min(payAfterMant, d.remainingRevolvente);
+        d.remainingRevolvente -= toRevolvente;
+        const leftover = payAfterMant - toRevolvente;
+        if (leftover > 0 && d.remainingCuotas > 0) {
+          d.remainingCuotas = Math.max(0, d.remainingCuotas - leftover);
+        }
+        d.remaining = Math.max(0, d.remainingRevolvente + d.remainingCuotas);
+      }
+    });
+
+    // 3. Apply extra to target tarjeta
+    for (let i = 0; i < list.length && extraLeft > 0; i++) {
+      if (list[i].type === 'tarjeta' && list[i].remaining > 0) {
+        const payment = Math.min(extraLeft, list[i].remainingRevolvente);
+        list[i].remainingRevolvente -= payment;
+        list[i].remaining = Math.max(0, list[i].remainingRevolvente + list[i].remainingCuotas);
+        list[i].totalPaid += payment;
+        extraLeft -= payment;
+      }
+    }
+
+    // 4. Extra to préstamos
+    for (let i = 0; i < list.length && extraLeft > 0; i++) {
+      if (list[i].type === 'prestamo' && list[i].remaining > 0) {
+        const payment = Math.min(extraLeft, list[i].remaining);
+        list[i].remaining -= payment;
+        list[i].totalPaid += payment;
+        extraLeft -= payment;
+      }
+    }
+
+    const totalRemaining = list.reduce((s, d) => s + Math.max(0, d.remaining), 0);
+    timeline.push({ month, total: totalRemaining });
+
+    if (totalRemaining <= 0.01) break;
+  }
+
+  const totalInterest = list.reduce((s, d) => s + d.totalInterest, 0);
+  const totalPaid = list.reduce((s, d) => s + d.totalPaid, 0);
+  const totalMantenimiento = list.reduce((s, d) => s + d.totalMantenimiento, 0);
+
+  return {
+    months: month,
+    totalInterest,
+    totalPaid,
+    totalMantenimiento,
+    timeline,
+    order: list.map(d => ({
+      name: d.name, balance: d.balance, rate: d.rate, minPay: d.minPay,
+      type: d.type, mantenimiento: d.mantenimiento || 0,
+      costoFinancieroTotal: d.costoFinancieroTotal || 0,
+      revolvente: d.revolvente || 0, cuotasPend: d.cuotasPend || 0
+    }))
+  };
+}
+
+function analyzeCapacity(debts, budget) {
+  const prestamos = debts.filter(d => d.type === 'prestamo');
+  const tarjetas = debts.filter(d => d.type === 'tarjeta');
+
+  const totalPrestamosCuota = prestamos.reduce((s, d) => s + d.minPay, 0);
+  const totalTarjetasMin = tarjetas.reduce((s, d) => s + d.minPay, 0);
+  const totalMantenimiento = tarjetas.reduce((s, d) => s + (d.mantenimiento || 0), 0);
+  const totalMinRequired = totalPrestamosCuota + totalTarjetasMin;
+  const totalDebt = debts.reduce((s, d) => s + d.balance, 0);
+
+  const surplus = budget - totalMinRequired;
+  const deficit = totalMinRequired - budget;
+
+  let status; // green, orange, red
+  if (surplus >= totalMinRequired * 0.2) {
+    status = 'green';
+  } else if (surplus >= 0) {
+    status = 'orange';
+  } else {
+    status = 'red';
+  }
+
+  return {
+    status,
+    totalPrestamosCuota,
+    totalTarjetasMin,
+    totalMinRequired,
+    totalDebt,
+    surplus: Math.max(0, surplus),
+    deficit: Math.max(0, deficit),
+    prestamos,
+    tarjetas,
+    budget
+  };
+}
+
+function generateScenarios(capacity, debts) {
+  const { status, deficit, budget, prestamos, tarjetas, totalPrestamosCuota } = capacity;
+
+  if (status === 'green' || status === 'orange') return '';
+
+  // RED: Not enough to cover everything
+  // Priority: préstamos are mandatory, tarjetas are flexible
+  // Determine which debts can be paid and which need action
+
+  let remaining = budget;
+  const actions = [];
+
+  // 1. Try to pay all préstamos first (mandatory)
+  const sortedPrestamos = [...prestamos].sort((a, b) => b.rate - a.rate); // highest rate first
+  let canPayAllPrestamos = remaining >= totalPrestamosCuota;
+
+  if (canPayAllPrestamos) {
+    sortedPrestamos.forEach(d => {
+      actions.push({
+        name: d.name,
+        type: 'prestamo',
+        action: 'pay',
+        detail: `Cuota mensual de ${formatMoney(d.minPay)} — obligatoria, seguí pagando normalmente.`,
+        amount: d.minPay, banco: d.banco || ''
+      });
+      remaining -= d.minPay;
+    });
+  } else {
+    // Can't even cover all préstamos — prioritize by rate
+    sortedPrestamos.forEach(d => {
+      if (remaining >= d.minPay) {
+        actions.push({
+          name: d.name,
+          type: 'prestamo',
+          action: 'pay',
+          detail: `Cuota mensual de ${formatMoney(d.minPay)} — priorizá este pago.`,
+          amount: d.minPay, banco: d.banco || ''
+        });
+        remaining -= d.minPay;
+      } else {
+        actions.push({
+          name: d.name,
+          type: 'prestamo',
+          action: 'renegotiate',
+          detail: `No llegás a cubrir la cuota de ${formatMoney(d.minPay)}. Contactá a tu banco para renegociar: pedí extensión de plazo o reducción de cuota.`,
+          amount: d.minPay, banco: d.banco || ''
+        });
+      }
+    });
+  }
+
+  // 2. Tarjetas with remaining budget
+  const sortedTarjetas = [...tarjetas].sort((a, b) => a.balance - b.balance); // smallest first for snowball
+  sortedTarjetas.forEach(d => {
+    if (remaining >= d.minPay) {
+      actions.push({
+        name: d.name,
+        type: 'tarjeta',
+        action: 'pay',
+        detail: `Pagá al menos el mínimo de ${formatMoney(d.minPay)}. Si podés, pagá más para reducir intereses.`,
+        amount: d.minPay, banco: d.banco || ''
+      });
+      remaining -= d.minPay;
+    } else if (remaining > 0) {
+      actions.push({
+        name: d.name,
+        type: 'tarjeta',
+        action: 'renegotiate',
+        detail: `Solo podés destinar ${formatMoney(remaining)} pero el mínimo es ${formatMoney(d.minPay)}. Llamá al banco y pedí un plan de pago con cuota reducida.`,
+        amount: d.minPay, banco: d.banco || ''
+      });
+      remaining = 0;
+    } else {
+      const daysToCobranza = 90;
+      actions.push({
+        name: d.name,
+        type: 'tarjeta',
+        action: 'abandon',
+        detail: `No hay presupuesto para cubrir esta deuda de ${formatMoney(d.balance)}. Si dejás de pagar, a los 90 días (≈ 3 meses) la gestión pasa a un estudio de cobranzas y se da de baja el producto.`,
+        amount: d.minPay,
+        banco: d.banco || '',
+        daysToCobranza
+      });
+    }
+  });
+
+  const abandonCount = actions.filter(a => a.action === 'abandon').length;
+  const renegotiateCount = actions.filter(a => a.action === 'renegotiate').length;
+
+  let html = `
+    <div class="scenario-box">
+      <h4 style="color: var(--red);">🚨 Plan de acción — tu presupuesto no alcanza para todo</h4>
+      <p style="font-size:14px; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
+        Tu presupuesto mensual de <strong>${formatMoney(budget)}</strong> no cubre el total de pagos mínimos. 
+        A continuación te mostramos qué priorizar, qué renegociar y, en el peor caso, qué dejar de pagar.
+      </p>
+      <ul class="debt-action-list">
+  `;
+
+  actions.forEach(a => {
+    const actionClass = 'action-' + a.action;
+    const icon = a.action === 'pay' ? '✅' : a.action === 'renegotiate' ? '🔄' : '⛔';
+    const actionLabel = a.action === 'pay' ? 'Seguir pagando' : a.action === 'renegotiate' ? 'Renegociar' : 'Sin cobertura';
+    const typeLabel = a.type === 'prestamo' ? '🏦 Préstamo' : '💳 Tarjeta';
+
+    html += `
+      <li class="debt-action-item ${actionClass}">
+        <div class="dai-icon">${icon}</div>
+        <div class="dai-content">
+          <div class="dai-name">${a.name} <span style="font-size:11px; color:var(--text-dim); font-weight:400;">${typeLabel}</span></div>
+          <div class="dai-action">${actionLabel}</div>
+          <div class="dai-detail">${a.detail}</div>
+          ${a.daysToCobranza ? `<div class="dai-timeline">⏱ Pasa a cobranzas en ${a.daysToCobranza} días (${Math.round(a.daysToCobranza / 30)} meses)</div>` : ''}
+        </div>
+      </li>
+    `;
+  });
+
+  html += '</ul>';
+
+  if (abandonCount > 0) {
+    // Check if abandoned debts share a bank with non-abandoned debts
+    const abandonedBanks = actions.filter(a => a.action === 'abandon' && a.banco).map(a => a.banco);
+    const paidBanks = actions.filter(a => a.action === 'pay' && a.banco).map(a => a.banco);
+    const riskyBanks = abandonedBanks.filter(b => paidBanks.includes(b) && b !== 'Otro' && b !== '');
+
+    if (riskyBanks.length > 0) {
+      html += `
+        <div style="margin-top:16px; padding:16px; background:rgba(139,92,246,0.1); border-radius:10px; border:1px solid rgba(139,92,246,0.25);">
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+            <strong style="color:#8b5cf6;">🏦 ¡Atención con ${riskyBanks.join(', ')}!</strong> Tenés productos que estás pagando y otros que no podés cubrir <strong>en el mismo banco</strong>.
+            Si dejás de pagar uno, el banco puede dar de baja <strong>todos tus productos</strong> y juntar toda la deuda (incluso las cuotas que estaban al día)
+            en un solo paquete con intereses de refinanciación. <strong>Esto empeoraría mucho tu situación.</strong>
+            Considerá renegociar antes de dejar de pagar cualquier producto de ${riskyBanks.join(' o ')}.
+          </p>
+        </div>
+      `;
+    }
+
+    html += `
+      <div style="margin-top:16px; padding:16px; background:var(--red-bg); border-radius:10px; border:1px solid rgba(232,84,84,0.2);">
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+          <strong style="color:var(--red);">⚠️ Importante sobre deudas impagas:</strong> Si dejás de pagar una deuda, 
+          a los <strong>90 días de atraso</strong> el banco transfiere la gestión a un estudio de cobranzas externo y se da de baja el producto. 
+          Esto afecta tu historial crediticio y puede dificultar acceder a créditos en el futuro. 
+          <strong>Siempre intentá renegociar antes de dejar de pagar.</strong>
+        </p>
+      </div>
+    `;
+  }
+
+  if (renegotiateCount > 0) {
+    html += `
+      <div style="margin-top:12px; padding:16px; background:var(--orange-bg); border-radius:10px; border:1px solid rgba(240,160,48,0.2);">
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+          <strong style="color:var(--orange);">💡 Tip para renegociar:</strong> Llamá a tu banco y pedí hablar con el área de "refinanciación" o "cobranzas preventiva". 
+          Explicá tu situación y pedí: extensión de plazo, reducción de tasa, o un plan de pagos acorde a lo que podés pagar. 
+          Los bancos prefieren renegociar antes que mandarte a cobranzas.
+        </p>
+      </div>
+    `;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function calculate() {
+  const debts = getDebts();
+  if (debts.length === 0) {
+    alert('Cargá al menos una deuda con los datos completos.');
+    return;
+  }
+
+  const budget = parseFloat(document.getElementById('monthlyBudget').value) || 0;
+
+  if (budget <= 0) {
+    alert('Ingresá tu presupuesto mensual disponible para deudas.');
+    return;
+  }
+
+  // Analyze capacity
+  const capacity = analyzeCapacity(debts, budget);
+  const extra = capacity.surplus;
+
+  // Show results
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('shareDeudas').style.display = 'block';
+
+  // Capacity alert
+  const alertEl = document.getElementById('capacityAlert');
+  if (capacity.status === 'green') {
+    alertEl.innerHTML = `
+      <div class="capacity-alert ca-green">
+        <div class="ca-header">
+          <span class="ca-icon">✅</span>
+          <span class="ca-title">Tu presupuesto cubre todas las deudas</span>
+        </div>
+        <div class="ca-body">Podés pagar todos los mínimos y te sobran <strong>${formatMoney(capacity.surplus)}</strong> para acelerar el pago con alguno de los métodos.</div>
+        <div class="ca-numbers">
+          <div class="ca-num"><div class="cn-label">Deuda total</div><div class="cn-value">${formatMoney(capacity.totalDebt)}</div></div>
+          <div class="ca-num"><div class="cn-label">Pago mínimo total</div><div class="cn-value">${formatMoney(capacity.totalMinRequired)}/mes</div></div>
+          <div class="ca-num"><div class="cn-label">Excedente</div><div class="cn-value" style="color:var(--green)">${formatMoney(capacity.surplus)}/mes</div></div>
+        </div>
+      </div>
+    `;
+  } else if (capacity.status === 'orange') {
+    alertEl.innerHTML = `
+      <div class="capacity-alert ca-orange">
+        <div class="ca-header">
+          <span class="ca-icon">⚠️</span>
+          <span class="ca-title">Presupuesto justo — sin margen extra</span>
+        </div>
+        <div class="ca-body">Cubrís todos los mínimos pero te queda poco o nada para acelerar el pago. Cualquier imprevisto puede complicarte.</div>
+        <div class="ca-numbers">
+          <div class="ca-num"><div class="cn-label">Deuda total</div><div class="cn-value">${formatMoney(capacity.totalDebt)}</div></div>
+          <div class="ca-num"><div class="cn-label">Pago mínimo total</div><div class="cn-value">${formatMoney(capacity.totalMinRequired)}/mes</div></div>
+          <div class="ca-num"><div class="cn-label">Excedente</div><div class="cn-value" style="color:var(--orange)">${formatMoney(capacity.surplus)}/mes</div></div>
+        </div>
+      </div>
+    `;
+  } else {
+    alertEl.innerHTML = `
+      <div class="capacity-alert ca-red">
+        <div class="ca-header">
+          <span class="ca-icon">🚨</span>
+          <span class="ca-title">Tu presupuesto no alcanza para cubrir todo</span>
+        </div>
+        <div class="ca-body">Te faltan <strong>${formatMoney(capacity.deficit)}</strong> por mes para cubrir los pagos mínimos. Más abajo te mostramos un plan de acción con lo que conviene priorizar, renegociar o, en último caso, dejar de pagar.</div>
+        <div class="ca-numbers">
+          <div class="ca-num"><div class="cn-label">Deuda total</div><div class="cn-value">${formatMoney(capacity.totalDebt)}</div></div>
+          <div class="ca-num"><div class="cn-label">Pago mínimo total</div><div class="cn-value">${formatMoney(capacity.totalMinRequired)}/mes</div></div>
+          <div class="ca-num"><div class="cn-label">Déficit</div><div class="cn-value" style="color:var(--red)">-${formatMoney(capacity.deficit)}/mes</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Scenario section (only if red)
+  document.getElementById('scenarioSection').innerHTML = generateScenarios(capacity, debts);
+
+  // Simulate both methods (even in red, to show best-case)
+  const avalanche = simulate(debts, extra, (a, b) => b.rate - a.rate);
+  const snowball = simulate(debts, extra, (a, b) => a.balance - b.balance);
+
+  currentOrderData = { avalanche: avalanche.order, snowball: snowball.order };
+
+  const avalancheWins = avalanche.totalInterest <= snowball.totalInterest;
+  const savings = Math.abs(avalanche.totalInterest - snowball.totalInterest);
+  const timeDiff = Math.abs(avalanche.months - snowball.months);
+
+  // Comparison cards
+  document.getElementById('comparisonGrid').innerHTML = `
+    <div class="method-card ${avalancheWins ? 'winner' : ''}">
+      <div class="winner-tag">Recomendado</div>
+      <div class="mc-name">🏔️ Avalancha</div>
+      <div class="mc-desc">Pagás primero la deuda con mayor tasa. Los préstamos se pagan obligatoriamente; el extra va a la tarjeta con más tasa.</div>
+      <div class="mc-stat">
+        <div class="mc-stat-label">Tiempo para salir</div>
+        <div class="mc-stat-value">${avalanche.months} meses</div>
+        <div class="mc-stat-sub">${(avalanche.months / 12).toFixed(1)} años</div>
+      </div>
+      <div class="mc-stat">
+        <div class="mc-stat-label">Total en intereses</div>
+        <div class="mc-stat-value">${formatMoney(avalanche.totalInterest)}</div>
+      </div>
+      <div class="mc-stat" style="margin-bottom:0;">
+        <div class="mc-stat-label">Total pagado</div>
+        <div class="mc-stat-value">${formatMoney(avalanche.totalPaid)}</div>
+      </div>
+    </div>
+    <div class="method-card ${!avalancheWins ? 'winner' : ''}">
+      <div class="winner-tag">Recomendado</div>
+      <div class="mc-name">⛄ Bola de Nieve</div>
+      <div class="mc-desc">Pagás primero la tarjeta con menor saldo. Ganás motivación eliminando deudas rápido.</div>
+      <div class="mc-stat">
+        <div class="mc-stat-label">Tiempo para salir</div>
+        <div class="mc-stat-value">${snowball.months} meses</div>
+        <div class="mc-stat-sub">${(snowball.months / 12).toFixed(1)} años</div>
+      </div>
+      <div class="mc-stat">
+        <div class="mc-stat-label">Total en intereses</div>
+        <div class="mc-stat-value">${formatMoney(snowball.totalInterest)}</div>
+      </div>
+      <div class="mc-stat" style="margin-bottom:0;">
+        <div class="mc-stat-label">Total pagado</div>
+        <div class="mc-stat-value">${formatMoney(snowball.totalPaid)}</div>
+      </div>
+    </div>
+  `;
+
+  // Savings highlight
+  if (savings > 1) {
+    const winnerName = avalancheWins ? 'Avalancha' : 'Bola de Nieve';
+    document.getElementById('savingsHighlight').innerHTML = `
+      <div class="savings-highlight">
+        <div class="sh-label">Ahorro eligiendo ${winnerName}</div>
+        <div class="sh-value">${formatMoney(savings)}</div>
+        <div class="sh-desc">menos en intereses${timeDiff > 0 ? ' y ' + timeDiff + ' mes' + (timeDiff > 1 ? 'es' : '') + ' antes' : ''}</div>
+      </div>
+    `;
+  } else {
+    document.getElementById('savingsHighlight').innerHTML = `
+      <div class="savings-highlight">
+        <div class="sh-label">Ambos métodos son similares</div>
+        <div class="sh-value">≈ ${formatMoney(avalanche.totalInterest)}</div>
+        <div class="sh-desc">en intereses con cualquiera de los dos</div>
+      </div>
+    `;
+  }
+
+  renderChart(avalanche.timeline, snowball.timeline);
+
+  showOrder('avalanche');
+  document.querySelectorAll('.order-tab')[0].classList.add('active');
+  document.querySelectorAll('.order-tab')[1].classList.remove('active');
+
+  generateReco(debts, avalanche, snowball, extra, avalancheWins, savings, capacity);
+
+  if (window.innerWidth < 901) {
+    document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function renderChart(avTimeline, sbTimeline) {
+  const ctx = document.getElementById('timelineChart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  const maxLen = Math.max(avTimeline.length, sbTimeline.length);
+  const step = maxLen > 60 ? 3 : maxLen > 30 ? 2 : 1;
+  const labels = [];
+  const avData = [];
+  const sbData = [];
+
+  for (let i = 0; i < maxLen; i += step) {
+    labels.push(i + 1);
+    avData.push(avTimeline[i] ? avTimeline[i].total : 0);
+    sbData.push(sbTimeline[i] ? sbTimeline[i].total : 0);
+  }
+
+  const gradientAv = ctx.createLinearGradient(0, 0, 0, 240);
+  gradientAv.addColorStop(0, 'rgba(11, 128, 225, 0.2)');
+  gradientAv.addColorStop(1, 'rgba(11, 128, 225, 0)');
+
+  const gradientSb = ctx.createLinearGradient(0, 0, 0, 240);
+  gradientSb.addColorStop(0, 'rgba(17, 179, 183, 0.2)');
+  gradientSb.addColorStop(1, 'rgba(17, 179, 183, 0)');
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Avalancha',
+          data: avData,
+          borderColor: '#0b80e1',
+          backgroundColor: gradientAv,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHitRadius: 10
+        },
+        {
+          label: 'Bola de Nieve',
+          data: sbData,
+          borderColor: '#11b3b7',
+          backgroundColor: gradientSb,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHitRadius: 10
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#8da4bf',
+            font: { size: 12 },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 20
+          }
+        },
+        tooltip: {
+          backgroundColor: '#132640',
+          borderColor: '#1f4672',
+          borderWidth: 1,
+          titleColor: '#8da4bf',
+          bodyColor: '#e4eaf2',
+          titleFont: { size: 12 },
+          bodyFont: { size: 13, weight: '700' },
+          padding: 12,
+          callbacks: {
+            title: (items) => 'Mes ' + items[0].label,
+            label: (item) => ' ' + item.dataset.label + ': ' + formatMoney(item.raw)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(31, 70, 114, 0.3)' },
+          ticks: {
+            color: '#8da4bf',
+            font: { size: 11 },
+            maxTicksLimit: 8,
+            callback: v => 'Mes ' + v
+          }
+        },
+        y: {
+          grid: { color: 'rgba(31, 70, 114, 0.3)' },
+          ticks: {
+            color: '#8da4bf',
+            font: { size: 11 },
+            callback: v => formatMoney(v),
+            maxTicksLimit: 5
+          }
+        }
+      },
+      interaction: { intersect: false, mode: 'index' }
+    }
+  });
+}
+
+function showOrder(method, btn) {
+  if (btn) {
+    document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const order = currentOrderData[method];
+  const list = document.getElementById('orderList');
+  list.innerHTML = order.map((d, i) => {
+    const typeIcon = d.type === 'prestamo' ? '🏦' : '💳';
+    let detail = '';
+    if (d.type === 'prestamo') {
+      detail = `TNA: ${(d.rate * 100).toFixed(1)}% · Cuota fija`;
+    } else {
+      const mantInfo = d.mantenimiento > 0 ? ` · Mant: ${formatMoney(d.mantenimiento)}/mes` : '';
+      detail = method === 'avalanche'
+        ? `TNA: ${(d.rate * 100).toFixed(1)}%${mantInfo}`
+        : `Saldo: ${formatMoney(d.balance)}${mantInfo}`;
+    }
+    const payLabel = d.type === 'prestamo' ? 'Cuota' : 'Mínimo';
+    return `
+      <li class="order-item">
+        <div class="oi-rank">${i + 1}</div>
+        <div class="oi-info">
+          <div class="oi-name">${typeIcon} ${d.name}</div>
+          <div class="oi-detail">${detail}</div>
+        </div>
+        <div class="oi-amount">
+          <div class="oi-balance">${formatMoney(d.balance)}</div>
+          <div class="oi-rate">${payLabel}: ${formatMoney(d.minPay)}/mes</div>
+        </div>
+      </li>
+    `;
+  }).join('');
+}
+
+function generateReco(debts, av, sb, extra, avWins, savings, capacity) {
+  const container = document.getElementById('recoContainer');
+  const totalDebt = debts.reduce((s, d) => s + d.balance, 0);
+  const highestRate = Math.max(...debts.map(d => d.rate));
+  const prestamos = debts.filter(d => d.type === 'prestamo');
+  const tarjetas = debts.filter(d => d.type === 'tarjeta');
+  const totalMantenimiento = tarjetas.reduce((s, d) => s + (d.mantenimiento || 0), 0);
+
+  let tips = [];
+
+  if (capacity.status === 'green' && extra > 0) {
+    tips.push(`Tenés <strong>${formatMoney(extra)}</strong> de excedente mensual. Usalo para acelerar el pago con el método que elijas.`);
+  }
+
+  if (capacity.status === 'orange') {
+    tips.push('Tu presupuesto es justo. Buscá formas de generar ingresos extra o reducir gastos para tener margen.');
+  }
+
+  if (highestRate > 1.0) {
+    tips.push(`Tenés deudas con TNA superior al 100%. Esas deudas crecen muy rápido — priorizalas siempre.`);
+  }
+
+  if (totalMantenimiento > 0) {
+    const mantAnual = totalMantenimiento * 12;
+    tips.push(`Pagás <strong>${formatMoney(totalMantenimiento)}/mes</strong> (${formatMoney(mantAnual)}/año) solo en mantenimiento de tarjetas. Evaluá si te conviene dar de baja alguna tarjeta una vez que liquides las cuotas pendientes.`);
+
+    // Find cards where mantenimiento is high relative to their use
+    tarjetas.forEach(t => {
+      if (t.mantenimiento > 0 && t.cuotasPend <= 0 && t.revolvente <= 0) {
+        tips.push(`La tarjeta <strong>${t.name}</strong> no tiene deuda pero te cobra ${formatMoney(t.mantenimiento)}/mes de mantenimiento. Considerá darla de baja.`);
+      }
+    });
+  }
+
+  // Cards with high costo financiero total
+  tarjetas.forEach(t => {
+    if (t.mantenimiento > 0 && t.revolvente > 0) {
+      const interesesMensuales = t.revolvente * (t.rate / 12);
+      const costoTotal = interesesMensuales + t.mantenimiento;
+      tips.push(`<strong>${t.name}</strong>: costo financiero real mensual = ${formatMoney(costoTotal)} (${formatMoney(interesesMensuales)} de intereses + ${formatMoney(t.mantenimiento)} de mantenimiento).`);
+    }
+  });
+
+  // BANK GROUPING RISK ANALYSIS
+  const bancoGroups = {};
+  debts.forEach(d => {
+    if (d.banco && d.banco !== 'Otro' && d.banco !== '') {
+      if (!bancoGroups[d.banco]) bancoGroups[d.banco] = [];
+      bancoGroups[d.banco].push(d);
+    }
+  });
+
+  const multiBanks = Object.entries(bancoGroups).filter(([, items]) => items.length > 1);
+  if (multiBanks.length > 0) {
+    multiBanks.forEach(([banco, items]) => {
+      const totalBanco = items.reduce((s, d) => s + d.balance, 0);
+      const cuotasAlDia = items.filter(d => d.cuotasPend > 0).reduce((s, d) => s + d.cuotasPend, 0);
+      const nombres = items.map(d => d.name.replace(` (${banco})`, '')).join(', ');
+
+      tips.push(`<strong>⚠️ Riesgo agrupado en ${banco}:</strong> Tenés ${items.length} productos (${nombres}) por un total de ${formatMoney(totalBanco)}. Si dejás de pagar uno, el banco puede dar de baja <strong>todos los productos</strong> y juntar toda la deuda — incluso los ${formatMoney(cuotasAlDia)} que tenés en cuotas al día — en un solo paquete que va a cobranzas con intereses de refinanciación sobre el total.`);
+
+      tips.push(`Por eso, con ${banco} conviene priorizar mantener todos los productos al día, aunque financieramente parezca más barato pagar otra deuda de otro banco primero.`);
+    });
+  }
+
+  if (prestamos.length > 0) {
+    tips.push(`Tus ${prestamos.length} préstamo${prestamos.length > 1 ? 's' : ''} tienen cuota fija obligatoria. Esos se pagan sí o sí para no entrar en mora.`);
+  }
+
+  if (tarjetas.length > 0 && tarjetas.some(t => t.cuotasPend > 0)) {
+    tips.push('Las cuotas pendientes en tarjeta van cayendo solas mes a mes. Enfocá el extra en reducir el saldo revolvente, que es lo que genera intereses.');
+  }
+
+  if (savings > 1000) {
+    tips.push(`Elegir <strong>${avWins ? 'Avalancha' : 'Bola de Nieve'}</strong> te ahorra <strong>${formatMoney(savings)}</strong> en intereses.`);
+  }
+
+  tips.push('Una vez que elimines todas las deudas, redirigí ese pago mensual hacia ahorro e inversión. Ahí es donde empieza la verdadera libertad financiera.');
+
+  container.innerHTML = `
+    <div class="reco-box">
+      <h4>💡 Recomendaciones para tu situación</h4>
+      <p>Deuda total: <strong>${formatMoney(totalDebt)}</strong> repartida en ${debts.length} deuda${debts.length > 1 ? 's' : ''} (${prestamos.length} préstamo${prestamos.length !== 1 ? 's' : ''} + ${tarjetas.length} tarjeta${tarjetas.length !== 1 ? 's' : ''}).</p>
+      <ul>
+        ${tips.map(t => '<li>' + t + '</li>').join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// Enter key
+document.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') calculate();
+});
+
+// Init
+function shareDeudaResumen(method) {
+  // Build clean text summary
+  const lines = ['📊 MI RESUMEN DE DEUDAS\n'];
+  const items = document.querySelectorAll('.debt-summary-item');
+  if(items.length) {
+    items.forEach(item => {
+      lines.push('• ' + item.textContent.trim());
+    });
+  }
+  // Fallback: get from visible results text
+  const resultBox = document.getElementById('resultContent');
+  if(resultBox) {
+    const text = resultBox.innerText.substring(0, 500);
+    if(!items.length) lines.push(text);
+  }
+  lines.push('\n🔗 Herramienta gratuita: nicolaspassini.com/comparador-deudas.html');
+  lines.push('Por @nicopassini_');
+  const fullText = lines.join('\n');
+
+  if(method === 'wa') {
+    window.open('https://wa.me/?text=' + encodeURIComponent(fullText), '_blank');
+  } else {
+    navigator.clipboard.writeText(fullText).then(() => alert('✅ Resumen copiado')).catch(() => {});
+  }
+}
+
+// Show share section when results are displayed
+const origShowResults = typeof showResults === 'function' ? showResults : null;
+
+init();
+</script>
+
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>

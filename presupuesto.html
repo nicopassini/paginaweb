@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armador de Presupuesto | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face{font-family:'Century Gothic Fallback';src:local('Century Gothic'),local('CenturyGothic');}
+:root{--navy:#1a3753;--blue:#0b80e1;--white:#fff;--teal:#11b3b7;--bg:#0d1b2e;--surface:#132640;--surface-2:#17304d;--surface-3:#1c3a5a;--border:#1f4672;--text:#e4eaf2;--text-muted:#8da4bf;--accent:var(--teal);--accent-glow:rgba(17,179,183,.15);--green:#11b3b7;--green-bg:rgba(17,179,183,.12);--orange:#f0a030;--orange-bg:rgba(240,160,48,.12);--red:#e85454;--red-bg:rgba(232,84,84,.12);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--ess-color:#3b82f6;--want-color:#f59e0b;--save-color:#11b3b7;--radius:16px;--radius-sm:10px;--font-main:'Century Gothic Fallback','Questrial','Futura','Trebuchet MS',Arial,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.noise-overlay{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
+.glow-orb-1{top:-200px;right:-100px;background:var(--blue);}.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
+.container{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:40px 20px 60px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}.back-link:hover{color:var(--teal);}
+.header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
+.brand-logo{text-align:center;margin-bottom:28px;}
+.brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
+.brand-wordmark-line{display:block;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);margin-top:6px;}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:600px;margin:0 auto;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .15s both;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.field .hint{font-size:12px;color:var(--text-muted);opacity:.6;margin-top:4px;}
+.input-wrap{position:relative;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix{left:16px;}.input-wrap .suffix{right:16px;}
+input[type="number"],input[type="text"],select{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238da4bf'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
+.input-with-prefix{padding-left:36px!important;}.input-with-suffix{padding-right:60px!important;}
+.ars-equiv{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.ars-config{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:20px;}
+.ars-config label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+
+/* CURRENCY / PROFILE BUTTONS */
+.profile-btn{padding:16px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
+.profile-btn:hover{border-color:var(--text-muted);}
+.profile-btn.active{border-color:var(--teal);background:var(--accent-glow);color:var(--teal);}
+.profile-btn .p-icon{font-size:22px;display:block;margin-bottom:4px;}
+.profile-btn .p-name{display:block;font-size:12px;}
+
+/* CATEGORY TABS */
+.cat-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--surface-2);border-radius:var(--radius-sm);padding:4px;border:1px solid var(--border);}
+.cat-tab{flex:1;padding:12px 8px;border:none;border-radius:8px;background:transparent;font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;color:var(--text-muted);}
+.cat-tab.active-ess{background:rgba(59,130,246,.15);color:var(--ess-color);}
+.cat-tab.active-want{background:rgba(245,158,11,.15);color:var(--want-color);}
+.cat-tab.active-save{background:rgba(17,179,183,.15);color:var(--save-color);}
+.cat-tab .ct-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+.cat-tab .ct-count{font-size:11px;opacity:.7;margin-left:4px;}
+
+/* EXPENSE ITEM */
+.expense-section{margin-bottom:16px;}
+.expense-section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:8px 0;display:flex;align-items:center;gap:8px;}
+.expense-item{display:grid;grid-template-columns:1fr 110px 36px;gap:10px;align-items:end;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:6px;animation:fadeInUp .3s ease;}
+@media(max-width:500px){.expense-item{grid-template-columns:1fr 90px 32px;gap:8px;}
+#currencyGrid{grid-template-columns:repeat(3,1fr)!important;}}
+.expense-item input[type="text"]{padding:10px 12px;font-size:14px;font-weight:500;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;}
+.expense-item input[type="number"]{padding:10px 12px;font-size:14px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;width:100%;}
+.btn-remove{width:32px;height:38px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--red);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.btn-remove:hover{background:var(--red-bg);border-color:var(--red);}
+.btn-add{width:100%;padding:10px;border:2px dashed var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);font-family:var(--font-main);font-size:13px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-add:hover{border-color:var(--teal);color:var(--teal);}
+
+/* RULE CUSTOMIZER */
+.rule-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:500px){.rule-row{grid-template-columns:1fr;}}
+.rule-field{text-align:center;}
+.rule-field label{font-size:12px;font-weight:700;margin-bottom:6px;display:block;}
+.rule-field input{text-align:center;font-size:20px;font-weight:700;padding:10px;}
+.rule-total{text-align:center;font-size:14px;font-weight:600;padding:8px;border-radius:var(--radius-sm);}
+
+.calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;margin-top:8px;}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,128,225,.3);}
+
+/* RESULTS */
+.results{display:none;}.results.show{display:block;animation:fadeInUp .6s ease;}
+
+/* HERO */
+.hero-result{text-align:center;padding:36px 28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;position:relative;overflow:hidden;}
+.hero-result::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.hero-green::before{background:var(--green);}.hero-orange::before{background:var(--orange);}.hero-red::before{background:var(--red);}
+.hr-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hr-title{font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.hr-sub{font-size:15px;color:var(--text-muted);line-height:1.5;}
+
+/* DISTRIBUTION BARS */
+.dist-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+.dist-bar-wrap{display:flex;height:40px;border-radius:var(--radius-sm);overflow:hidden;margin:16px 0;}
+.dist-seg{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:width .8s ease;min-width:0;}
+.dist-seg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;}
+.dist-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px;}
+@media(max-width:500px){.dist-legend{grid-template-columns:1fr;}}
+.dist-leg{padding:16px;background:var(--surface-2);border-radius:var(--radius-sm);border-left:4px solid;}
+.dist-leg-ess{border-color:var(--ess-color);}.dist-leg-want{border-color:var(--want-color);}.dist-leg-save{border-color:var(--save-color);}
+.dl-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.dl-cat{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.dl-pct{font-size:18px;font-weight:700;}
+.dl-amounts{font-size:12px;color:var(--text-muted);}
+.dl-vs{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:12px;}
+.dl-vs .over{color:var(--red);font-weight:600;}
+.dl-vs .under{color:var(--green);font-weight:600;}
+
+/* CHART */
+.chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.chart-row{grid-template-columns:1fr;}}
+.chart-container canvas{max-height:280px;}
+
+/* RANKING */
+.ranking-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+.rank-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(31,70,114,.2);}
+.rank-item:last-child{border-bottom:none;}
+.rank-pos{font-size:14px;font-weight:700;color:var(--text-muted);width:24px;text-align:center;}
+.rank-bar-wrap{flex:1;position:relative;}
+.rank-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.rank-bar{height:6px;border-radius:3px;transition:width .6s ease;}
+.rank-amount{font-size:14px;font-weight:700;white-space:nowrap;}
+.rank-pct{font-size:11px;color:var(--text-muted);}
+
+/* SUGGESTIONS */
+.sug-box{background:var(--surface-2);border-radius:var(--radius-sm);padding:24px;border-left:3px solid var(--teal);margin-bottom:16px;}
+.sug-box h4{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;color:var(--white);}
+.sug-box p{font-size:14px;color:var(--text-muted);line-height:1.65;}
+.sug-box ul{margin-top:10px;padding-left:0;list-style:none;}
+.sug-box li{font-size:13px;color:var(--text-muted);line-height:1.6;padding:4px 0 4px 20px;position:relative;}
+.sug-box li::before{content:'→';position:absolute;left:0;color:var(--teal);font-weight:700;}
+
+.cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
+.cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
+.cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
+.btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer a{color:var(--teal);text-decoration:none;}
+
+/* SHARE */
+.share-card{position:absolute;left:-9999px;top:0;width:1080px;background:linear-gradient(160deg,#0d1b2e 0%,#132640 50%,#0d1b2e 100%);padding:60px;font-family:var(--font-main);color:var(--text);}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:50px;}
+.sc-brand{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
+.sc-tool{font-size:16px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;}
+.sc-main{text-align:center;margin-bottom:40px;}
+.sc-main-label{font-size:20px;color:var(--text-muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;}
+.sc-dist-bar{display:flex;height:50px;border-radius:12px;overflow:hidden;margin:0 40px 20px;}
+.sc-dist-bar div{display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;}
+.sc-stats{display:flex;gap:16px;margin-bottom:40px;}
+.sc-stat{background:rgba(23,48,77,.8);border:1px solid var(--border);border-radius:12px;padding:24px;flex:1;text-align:center;}
+.sc-stat-label{font-size:14px;color:var(--text-muted);margin-bottom:6px;}
+.sc-stat-val{font-size:26px;font-weight:700;}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:24px;}
+.sc-footer-text{font-size:16px;color:var(--text-muted);}
+.sc-footer-ig{font-size:20px;font-weight:600;color:var(--teal);}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+<div class="container">
+<a href="index.html" class="back-link">← Volver a herramientas</a>
+<div class="header">
+  <div class="brand-logo"><span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span></div>
+  <h1>Armador de Presupuesto 💰</h1>
+  <p class="subtitle">La regla 50/30/20 es una guía, no una ley. Armá tu presupuesto real y encontrá tu distribución ideal según tu realidad.</p>
+</div>
+
+<!-- MONEDA -->
+<div class="card">
+  <div class="card-title"><div class="icon">💱</div> ¿En qué moneda querés armar tu presupuesto?</div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;" id="currencyGrid">
+    <button class="profile-btn active" onclick="setCurrency('ARS')"><span class="p-icon">🇦🇷</span><span class="p-name">ARS</span></button>
+    <button class="profile-btn" onclick="setCurrency('USD')"><span class="p-icon">🇺🇸</span><span class="p-name">USD</span></button>
+    <button class="profile-btn" onclick="setCurrency('EUR')"><span class="p-icon">🇪🇺</span><span class="p-name">EUR</span></button>
+    <button class="profile-btn" onclick="setCurrency('MXN')"><span class="p-icon">🇲🇽</span><span class="p-name">MXN</span></button>
+    <button class="profile-btn" onclick="setCurrency('CLP')"><span class="p-icon">🇨🇱</span><span class="p-name">CLP</span></button>
+    <button class="profile-btn" onclick="setCurrency('COP')"><span class="p-icon">🇨🇴</span><span class="p-name">COP</span></button>
+  </div>
+  <div id="arsConfigWrap" class="ars-config">
+    <label>USD/ARS:</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="arsRate" value="1200" min="1" style="width:120px;padding-left:28px;"></div>
+    <span id="arsSource" style="font-size:11px;color:var(--text-muted);opacity:.6;"></span>
+  </div>
+</div>
+
+<!-- INGRESO -->
+<div class="card">
+  <div class="card-title"><div class="icon">💵</div> Tu ingreso mensual</div>
+  <div class="field">
+    <label>Ingreso neto mensual (lo que te queda en mano)</label>
+    <div class="input-wrap"><span class="prefix">$</span><input type="number" id="income" value="800000" min="1" class="input-with-prefix input-with-suffix"><span class="suffix" id="incomeSuffix">ARS</span></div>
+  </div>
+</div>
+
+<!-- META PERSONALIZABLE -->
+<div class="card">
+  <div class="card-title"><div class="icon">🎯</div> Tu regla ideal</div>
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">La referencia es 50/30/20 pero ajustala a tu realidad. En economías con inflación alta, es normal que los esenciales pesen más.</p>
+  <div class="rule-row">
+    <div class="rule-field"><label style="color:var(--ess-color);">🏠 Esenciales</label><div class="input-wrap"><input type="number" id="ruleEss" value="50" min="0" max="100" class="input-with-suffix" style="color:var(--ess-color);" oninput="updateRuleTotal()"><span class="suffix">%</span></div></div>
+    <div class="rule-field"><label style="color:var(--want-color);">🎯 Deseos</label><div class="input-wrap"><input type="number" id="ruleWant" value="30" min="0" max="100" class="input-with-suffix" style="color:var(--want-color);" oninput="updateRuleTotal()"><span class="suffix">%</span></div></div>
+    <div class="rule-field"><label style="color:var(--save-color);">💰 Ahorro e inversión</label><div class="input-wrap"><input type="number" id="ruleSave" value="20" min="0" max="100" class="input-with-suffix" style="color:var(--save-color);" oninput="updateRuleTotal()"><span class="suffix">%</span></div></div>
+  </div>
+  <div class="rule-total" id="ruleTotal" style="background:var(--green-bg);color:var(--green);">Total: 100% ✓</div>
+</div>
+
+<!-- GASTOS -->
+<div class="card">
+  <div class="card-title"><div class="icon">📋</div> Tus gastos mensuales</div>
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Completá los montos de tus gastos. Ya están categorizados automáticamente. Podés agregar los que quieras.</p>
+
+  <!-- ESENCIALES -->
+  <div class="expense-section">
+    <div class="expense-section-title" style="color:var(--ess-color);"><span style="width:10px;height:10px;border-radius:50%;background:var(--ess-color);display:inline-block;"></span> Esenciales (necesidades)</div>
+    <div id="essentialsList"></div>
+    <button class="btn-add" onclick="addExpense('essential')">+ Agregar gasto esencial</button>
+  </div>
+
+  <!-- DESEOS -->
+  <div class="expense-section">
+    <div class="expense-section-title" style="color:var(--want-color);"><span style="width:10px;height:10px;border-radius:50%;background:var(--want-color);display:inline-block;"></span> Deseos (gustos)</div>
+    <div id="wantsList"></div>
+    <button class="btn-add" onclick="addExpense('want')">+ Agregar gasto deseo</button>
+  </div>
+
+  <!-- AHORRO -->
+  <div class="expense-section">
+    <div class="expense-section-title" style="color:var(--save-color);"><span style="width:10px;height:10px;border-radius:50%;background:var(--save-color);display:inline-block;"></span> Ahorro e inversión</div>
+    <div id="saveList"></div>
+    <button class="btn-add" onclick="addExpense('save')">+ Agregar ahorro/inversión</button>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Analizar mi presupuesto →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+
+  <!-- HERO -->
+  <div class="hero-result" id="heroResult">
+    <div class="hr-badge" id="hrBadge"></div>
+    <div class="hr-title" id="hrTitle"></div>
+    <div class="hr-sub" id="hrSub"></div>
+  </div>
+
+  <!-- DISTRIBUTION -->
+  <div class="dist-section">
+    <div class="card-title"><div class="icon">📊</div> Tu distribución real vs tu meta</div>
+    <div class="dist-bar-wrap" id="distBar"></div>
+    <div class="dist-legend" id="distLegend"></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="chart-container">
+    <div class="card-title"><div class="icon">📈</div> Visualización</div>
+    <div class="chart-row">
+      <div><p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Tu distribución real</p><canvas id="chartReal"></canvas></div>
+      <div><p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Tu meta ideal</p><canvas id="chartIdeal"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div class="ranking-section">
+    <div class="card-title"><div class="icon">🏆</div> Ranking de gastos</div>
+    <div id="rankingList"></div>
+  </div>
+
+  <!-- SOBRANTE/DEFICIT -->
+  <div id="balanceSection" class="dist-section"></div>
+
+  <!-- SUGGESTIONS -->
+  <div id="sugContainer"></div>
+
+  <!-- SHARE -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu presupuesto</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="downloadImage()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+    </div>
+  </div>
+
+  <div class="cta-card">
+    <h3>¿Querés dominar tus finanzas de una vez?</h3>
+    <p>En el Método FBC te enseñamos a armar un presupuesto que funcione, eliminar deudas, ahorrar con sistema e invertir con criterio.</p>
+    <a href="https://metodofbc.com" target="_blank" class="btn-cta">Conocer el Método FBC →</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Herramienta gratuita creada por <a href="https://www.instagram.com/nicopassini_" target="_blank">@nicopassini_</a></p>
+  <p style="margin-top:6px;">Con fines educativos. No constituye asesoramiento financiero.</p>
+</div>
+</div>
+
+<!-- SHARE CARD -->
+<div class="share-card" id="shareCard">
+  <div class="sc-header"><div class="sc-brand">NICO PASSINI</div><div class="sc-tool">MI PRESUPUESTO</div></div>
+  <div class="sc-main">
+    <div class="sc-main-label">MI DISTRIBUCIÓN REAL</div>
+    <div class="sc-dist-bar" id="scDistBar"></div>
+  </div>
+  <div class="sc-stats">
+    <div class="sc-stat"><div class="sc-stat-label">🏠 Esenciales</div><div class="sc-stat-val" id="scEss" style="color:var(--ess-color);"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">🎯 Deseos</div><div class="sc-stat-val" id="scWant" style="color:var(--want-color);"></div></div>
+    <div class="sc-stat"><div class="sc-stat-label">💰 Ahorro</div><div class="sc-stat-val" id="scSave" style="color:var(--save-color);"></div></div>
+  </div>
+  <div class="sc-footer"><div class="sc-footer-text">Armá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let expId = 0;
+let chartReal = null, chartIdeal = null;
+let currency = 'ARS';
+
+const currencyConfig = {
+  ARS: { symbol: '$', locale: 'es-AR', decimals: 0 },
+  USD: { symbol: 'US$', locale: 'en-US', decimals: 2 },
+  EUR: { symbol: '€', locale: 'de-DE', decimals: 2 },
+  MXN: { symbol: 'MX$', locale: 'es-MX', decimals: 0 },
+  CLP: { symbol: 'CL$', locale: 'es-CL', decimals: 0 },
+  COP: { symbol: 'CO$', locale: 'es-CO', decimals: 0 }
+};
+
+const incomeDefaults = { ARS:800000, USD:2000, EUR:1800, MXN:25000, CLP:1200000, COP:4000000 };
+
+const PRESETS = {
+  ARS: {
+    essential:[{name:'Alquiler / Hipoteca',amount:350000},{name:'Servicios (luz, gas, agua, internet)',amount:80000},{name:'Supermercado / Comida',amount:200000},{name:'Transporte',amount:50000},{name:'Salud / Obra social',amount:40000},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:60000},{name:'Suscripciones (streaming, apps)',amount:20000},{name:'Ropa / Shopping',amount:30000},{name:'Ocio / Entretenimiento',amount:25000},{name:'Delivery',amount:25000}],
+    save:[{name:'Ahorro general',amount:50000},{name:'Inversiones',amount:50000},{name:'Fondo de emergencia',amount:30000}]
+  },
+  USD: {
+    essential:[{name:'Alquiler / Hipoteca',amount:600},{name:'Servicios (luz, gas, agua, internet)',amount:150},{name:'Supermercado / Comida',amount:350},{name:'Transporte',amount:100},{name:'Salud / Obra social',amount:80},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:100},{name:'Suscripciones (streaming, apps)',amount:30},{name:'Ropa / Shopping',amount:50},{name:'Ocio / Entretenimiento',amount:50},{name:'Delivery',amount:40}],
+    save:[{name:'Ahorro general',amount:100},{name:'Inversiones',amount:100},{name:'Fondo de emergencia',amount:50}]
+  },
+  EUR: {
+    essential:[{name:'Alquiler / Hipoteca',amount:550},{name:'Servicios (luz, gas, agua, internet)',amount:130},{name:'Supermercado / Comida',amount:300},{name:'Transporte',amount:80},{name:'Salud / Obra social',amount:60},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:90},{name:'Suscripciones (streaming, apps)',amount:25},{name:'Ropa / Shopping',amount:40},{name:'Ocio / Entretenimiento',amount:40},{name:'Delivery',amount:35}],
+    save:[{name:'Ahorro general',amount:80},{name:'Inversiones',amount:80},{name:'Fondo de emergencia',amount:40}]
+  },
+  MXN: {
+    essential:[{name:'Alquiler / Hipoteca',amount:8000},{name:'Servicios (luz, gas, agua, internet)',amount:2000},{name:'Supermercado / Comida',amount:5000},{name:'Transporte',amount:1500},{name:'Salud / Obra social',amount:1000},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:1500},{name:'Suscripciones (streaming, apps)',amount:500},{name:'Ropa / Shopping',amount:800},{name:'Ocio / Entretenimiento',amount:700},{name:'Delivery',amount:600}],
+    save:[{name:'Ahorro general',amount:1500},{name:'Inversiones',amount:1500},{name:'Fondo de emergencia',amount:800}]
+  },
+  CLP: {
+    essential:[{name:'Alquiler / Hipoteca',amount:400000},{name:'Servicios (luz, gas, agua, internet)',amount:80000},{name:'Supermercado / Comida',amount:200000},{name:'Transporte',amount:60000},{name:'Salud / Obra social',amount:50000},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:60000},{name:'Suscripciones (streaming, apps)',amount:18000},{name:'Ropa / Shopping',amount:35000},{name:'Ocio / Entretenimiento',amount:30000},{name:'Delivery',amount:25000}],
+    save:[{name:'Ahorro general',amount:60000},{name:'Inversiones',amount:60000},{name:'Fondo de emergencia',amount:30000}]
+  },
+  COP: {
+    essential:[{name:'Alquiler / Hipoteca',amount:1200000},{name:'Servicios (luz, gas, agua, internet)',amount:250000},{name:'Supermercado / Comida',amount:600000},{name:'Transporte',amount:200000},{name:'Salud / Obra social',amount:150000},{name:'Deudas / Cuotas fijas',amount:0}],
+    want:[{name:'Salidas / Restaurantes',amount:200000},{name:'Suscripciones (streaming, apps)',amount:60000},{name:'Ropa / Shopping',amount:100000},{name:'Ocio / Entretenimiento',amount:80000},{name:'Delivery',amount:80000}],
+    save:[{name:'Ahorro general',amount:150000},{name:'Inversiones',amount:150000},{name:'Fondo de emergencia',amount:80000}]
+  }
+};
+
+function init(){
+  fetchARS();
+  loadPresets();
+}
+
+function loadPresets(){
+  document.getElementById('essentialsList').innerHTML='';
+  document.getElementById('wantsList').innerHTML='';
+  document.getElementById('saveList').innerHTML='';
+  expId=0;
+  const presets = PRESETS[currency];
+  Object.keys(presets).forEach(cat=>{
+    presets[cat].forEach(p=>addExpense(cat,p.name,p.amount));
+  });
+}
+
+function setCurrency(cur){
+  currency=cur;
+  document.querySelectorAll('#currencyGrid .profile-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  // Show ARS config only for ARS (for USD equivalent)
+  document.getElementById('arsConfigWrap').style.display = cur==='ARS'?'flex':'none';
+  document.getElementById('incomeSuffix').textContent = cur;
+  document.getElementById('income').value = incomeDefaults[cur]||2000;
+  loadPresets();
+}
+
+// ====== ARS ======
+async function fetchARS(){
+  const el=document.getElementById('arsSource');const input=document.getElementById('arsRate');
+  const apis=[{url:'https://dolarapi.com/v1/dolares/oficial',parse:d=>d.venta,name:'DolarAPI'},{url:'https://api.bluelytics.com.ar/v2/latest',parse:d=>d.oficial?.value_sell,name:'Bluelytics'}];
+  for(const api of apis){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);const r=await fetch(api.url,{signal:c.signal});clearTimeout(t);if(!r.ok)continue;const d=await r.json();const rate=api.parse(d);if(rate&&rate>0){input.value=Math.round(rate);el.textContent='(auto · '+api.name+')';return;}}catch(e){continue;}}
+  el.textContent='(manual)';
+}
+function getARS(){return parseFloat(document.getElementById('arsRate').value)||1200;}
+
+function fmt(n){
+  const c = currencyConfig[currency];
+  return c.symbol + ' ' + Math.round(n).toLocaleString(c.locale, {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+function updateRuleTotal(){
+  const e=parseInt(document.getElementById('ruleEss').value)||0;
+  const w=parseInt(document.getElementById('ruleWant').value)||0;
+  const s=parseInt(document.getElementById('ruleSave').value)||0;
+  const total=e+w+s;
+  const el=document.getElementById('ruleTotal');
+  if(total===100){el.textContent='Total: 100% ✓';el.style.background='var(--green-bg)';el.style.color='var(--green)';}
+  else{el.textContent=`Total: ${total}% — ${total>100?'sobra':'falta'} ${Math.abs(100-total)}%`;el.style.background='var(--red-bg)';el.style.color='var(--red)';}
+}
+
+// ====== EXPENSES ======
+function addExpense(cat, name='', amount=''){
+  const id=++expId;
+  const listId = cat==='essential'?'essentialsList':cat==='want'?'wantsList':'saveList';
+  const div=document.createElement('div');
+  div.className='expense-item';
+  div.setAttribute('data-id',id);
+  div.setAttribute('data-cat',cat);
+  div.innerHTML=`
+    <input type="text" value="${name}" placeholder="Nombre del gasto">
+    <input type="number" class="exp-amt" value="${amount}" placeholder="0" min="0">
+    <button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById(listId).appendChild(div);
+}
+
+function getExpenses(){
+  const items=[];
+  document.querySelectorAll('.expense-item').forEach(el=>{
+    const name=el.querySelector('input[type="text"]').value.trim();
+    const amount=parseFloat(el.querySelector('.exp-amt').value)||0;
+    const cat=el.getAttribute('data-cat');
+    if(amount>0) items.push({name:name||'Sin nombre',amount,cat});
+  });
+  return items;
+}
+
+// ====== CALCULATE ======
+function calculate(){
+  const income=parseFloat(document.getElementById('income').value)||0;
+  if(income<=0){alert('Ingresá tu ingreso mensual.');return;}
+
+  const ruleEss=parseInt(document.getElementById('ruleEss').value)||50;
+  const ruleWant=parseInt(document.getElementById('ruleWant').value)||30;
+  const ruleSave=parseInt(document.getElementById('ruleSave').value)||20;
+  if(ruleEss+ruleWant+ruleSave!==100){alert('Tu regla debe sumar 100%.');return;}
+
+  const expenses=getExpenses();
+  const totalEss=expenses.filter(e=>e.cat==='essential').reduce((s,e)=>s+e.amount,0);
+  const totalWant=expenses.filter(e=>e.cat==='want').reduce((s,e)=>s+e.amount,0);
+  const totalSave=expenses.filter(e=>e.cat==='save').reduce((s,e)=>s+e.amount,0);
+  const totalSpent=totalEss+totalWant+totalSave;
+  const balance=income-totalSpent;
+
+  const pctEss=income>0?Math.round(totalEss/income*100):0;
+  const pctWant=income>0?Math.round(totalWant/income*100):0;
+  const pctSave=income>0?Math.round(totalSave/income*100):0;
+  const pctUsed=pctEss+pctWant+pctSave;
+
+  // Ideal amounts
+  const idealEss=income*ruleEss/100;
+  const idealWant=income*ruleWant/100;
+  const idealSave=income*ruleSave/100;
+
+  // Status
+  let status, statusText, statusEmoji;
+  if(balance<0){
+    status='red';statusEmoji='🚨';statusText='Gastás más de lo que ganás';
+  } else if(pctSave < ruleSave*0.5){
+    status='orange';statusEmoji='⚠️';statusText='Ahorrás muy poco para tu meta';
+  } else if(pctEss > ruleEss+15){
+    status='orange';statusEmoji='⚠️';statusText='Tus esenciales pesan demasiado';
+  } else {
+    status='green';statusEmoji='✅';statusText='Tu presupuesto está bien encaminado';
+  }
+
+  // HERO
+  const hero=document.getElementById('heroResult');
+  hero.className='hero-result hero-'+status;
+  const badge=document.getElementById('hrBadge');
+  badge.textContent=statusEmoji+' '+statusText.toUpperCase();
+  badge.style.background=status==='green'?'var(--green-bg)':status==='orange'?'var(--orange-bg)':'var(--red-bg)';
+  badge.style.color=status==='green'?'var(--green)':status==='orange'?'var(--orange)':'var(--red)';
+  badge.style.border='1px solid '+(status==='green'?'rgba(17,179,183,.3)':status==='orange'?'rgba(240,160,48,.3)':'rgba(232,84,84,.3)');
+
+  document.getElementById('hrTitle').textContent=`Tu distribución: ${pctEss}/${pctWant}/${pctSave}`;
+  document.getElementById('hrSub').textContent=`Meta: ${ruleEss}/${ruleWant}/${ruleSave} · Ingreso: ${fmt(income)} · Gastos: ${fmt(totalSpent)}`;
+
+  // DISTRIBUTION BAR
+  const usedPct = Math.min(100, pctEss+pctWant+pctSave);
+  const freePct = Math.max(0, 100-usedPct);
+  document.getElementById('distBar').innerHTML=`
+    <div class="dist-seg" style="width:${pctEss}%;background:var(--ess-color);"><span>${pctEss}%</span></div>
+    <div class="dist-seg" style="width:${pctWant}%;background:var(--want-color);"><span>${pctWant}%</span></div>
+    <div class="dist-seg" style="width:${pctSave}%;background:var(--save-color);"><span>${pctSave}%</span></div>
+    ${freePct>0?`<div class="dist-seg" style="width:${freePct}%;background:var(--surface-3);"><span>${freePct}%</span></div>`:''}`;
+
+  // LEGEND
+  const diffEss=totalEss-idealEss, diffWant=totalWant-idealWant, diffSave=totalSave-idealSave;
+  document.getElementById('distLegend').innerHTML=`
+    <div class="dist-leg dist-leg-ess"><div class="dl-header"><span class="dl-cat" style="color:var(--ess-color);">🏠 Esenciales</span><span class="dl-pct" style="color:var(--ess-color);">${pctEss}%</span></div><div class="dl-amounts">${fmt(totalEss)} de ${fmt(idealEss)}</div><div class="dl-vs">${diffEss>0?`<span class="over">▲ ${fmt(diffEss)} por encima</span>`:`<span class="under">▼ ${fmt(Math.abs(diffEss))} por debajo ✓</span>`}</div></div>
+    <div class="dist-leg dist-leg-want"><div class="dl-header"><span class="dl-cat" style="color:var(--want-color);">🎯 Deseos</span><span class="dl-pct" style="color:var(--want-color);">${pctWant}%</span></div><div class="dl-amounts">${fmt(totalWant)} de ${fmt(idealWant)}</div><div class="dl-vs">${diffWant>0?`<span class="over">▲ ${fmt(diffWant)} por encima</span>`:`<span class="under">▼ ${fmt(Math.abs(diffWant))} por debajo ✓</span>`}</div></div>
+    <div class="dist-leg dist-leg-save"><div class="dl-header"><span class="dl-cat" style="color:var(--save-color);">💰 Ahorro</span><span class="dl-pct" style="color:var(--save-color);">${pctSave}%</span></div><div class="dl-amounts">${fmt(totalSave)} de ${fmt(idealSave)}</div><div class="dl-vs">${diffSave<0?`<span class="over">▼ ${fmt(Math.abs(diffSave))} por debajo</span>`:`<span class="under">▲ ${fmt(diffSave)} por encima ✓</span>`}</div></div>`;
+
+  // CHARTS
+  renderCharts(pctEss,pctWant,pctSave,ruleEss,ruleWant,ruleSave,freePct);
+
+  // RANKING
+  renderRanking(expenses,income);
+
+  // BALANCE
+  const balSec=document.getElementById('balanceSection');
+  if(balance>0){
+    balSec.innerHTML=`<div class="card-title"><div class="icon">💚</div> Sobrante mensual</div>
+      <div style="text-align:center;"><div style="font-size:36px;font-weight:700;color:var(--green);">${fmt(balance)}</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px;">${Math.round(balance/income*100)}% de tu ingreso sin asignar</div>
+      <p style="font-size:14px;color:var(--text-muted);margin-top:12px;">Este dinero no está asignado. Podés sumarlo a ahorro/inversión o cubrir gastos que te falten.</p></div>`;
+  } else if(balance<0){
+    balSec.innerHTML=`<div class="card-title"><div class="icon">🔴</div> Déficit mensual</div>
+      <div style="text-align:center;"><div style="font-size:36px;font-weight:700;color:var(--red);">-${fmt(Math.abs(balance))}</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Gastás ${Math.round(Math.abs(balance)/income*100)}% más de lo que ganás</div>
+      <p style="font-size:14px;color:var(--text-muted);margin-top:12px;">Necesitás reducir gastos o aumentar ingresos. Este déficit probablemente se está financiando con deuda.</p></div>`;
+  } else {
+    balSec.innerHTML=`<div class="card-title"><div class="icon">⚖️</div> Presupuesto equilibrado</div>
+      <div style="text-align:center;"><p style="font-size:14px;color:var(--text-muted);">Tus gastos coinciden exactamente con tu ingreso. Revisá si podés optimizar algo para generar margen de ahorro.</p></div>`;
+  }
+
+  // SUGGESTIONS
+  renderSuggestions(status,pctEss,pctWant,pctSave,ruleEss,ruleWant,ruleSave,balance,income,expenses,totalEss,totalWant,totalSave);
+
+  // SHARE
+  document.getElementById('scDistBar').innerHTML=`
+    <div style="width:${pctEss}%;background:var(--ess-color);">${pctEss}%</div>
+    <div style="width:${pctWant}%;background:var(--want-color);">${pctWant}%</div>
+    <div style="width:${pctSave}%;background:var(--save-color);">${pctSave}%</div>`;
+  document.getElementById('scEss').textContent=pctEss+'%';
+  document.getElementById('scWant').textContent=pctWant+'%';
+  document.getElementById('scSave').textContent=pctSave+'%';
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderCharts(re,rw,rs,ie,iw,is,free){
+  const optBase={responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#132640',titleColor:'#e4eaf2',bodyColor:'#8da4bf',borderColor:'#1f4672',borderWidth:1}},cutout:'60%'};
+  if(chartReal) chartReal.destroy();
+  if(chartIdeal) chartIdeal.destroy();
+
+  const realData = [re,rw,rs];
+  if(free>0) realData.push(free);
+  const realColors = ['#3b82f6','#f59e0b','#11b3b7'];
+  if(free>0) realColors.push('#1c3a5a');
+  const realLabels = ['Esenciales','Deseos','Ahorro'];
+  if(free>0) realLabels.push('Sin asignar');
+
+  chartReal=new Chart(document.getElementById('chartReal'),{type:'doughnut',data:{labels:realLabels,datasets:[{data:realData,backgroundColor:realColors,borderWidth:0}]},options:optBase});
+  chartIdeal=new Chart(document.getElementById('chartIdeal'),{type:'doughnut',data:{labels:['Esenciales','Deseos','Ahorro'],datasets:[{data:[ie,iw,is],backgroundColor:['#3b82f6','#f59e0b','#11b3b7'],borderWidth:0}]},options:optBase});
+}
+
+function renderRanking(expenses,income){
+  const sorted=[...expenses].sort((a,b)=>b.amount-a.amount);
+  const max=sorted[0]?.amount||1;
+  const colors={essential:'var(--ess-color)',want:'var(--want-color)',save:'var(--save-color)'};
+  const container=document.getElementById('rankingList');
+  container.innerHTML=sorted.slice(0,10).map((e,i)=>`
+    <div class="rank-item">
+      <div class="rank-pos">${i+1}</div>
+      <div class="rank-bar-wrap">
+        <div class="rank-name">${e.name}</div>
+        <div class="rank-bar" style="width:${e.amount/max*100}%;background:${colors[e.cat]};"></div>
+      </div>
+      <div style="text-align:right;"><div class="rank-amount">${fmt(e.amount)}</div><div class="rank-pct">${Math.round(e.amount/income*100)}%</div></div>
+    </div>`).join('');
+}
+
+function renderSuggestions(status,pe,pw,ps,re,rw,rs,balance,income,expenses,totalEss,totalWant,totalSave){
+  const c=document.getElementById('sugContainer');
+  let html='';
+
+  // Main suggestion based on status
+  if(status==='red'){
+    html+=`<div class="sug-box" style="border-color:var(--red);"><h4>🚨 Prioridad: dejar de gastar más de lo que ganás</h4>
+      <p>Tenés un déficit de ${fmt(Math.abs(balance))}/mes. Esto significa que te estás endeudando cada mes para cubrir tus gastos.</p>
+      <ul><li>Revisá los gastos de "deseos" y eliminá o reducí los que puedas</li><li>Renegociá servicios: internet, celular, seguros</li><li>Considerá si tu alquiler es sostenible con tu ingreso actual</li><li>Buscá formas de generar ingresos extra mientras ajustás</li></ul></div>`;
+  } else if(pe > re+10){
+    html+=`<div class="sug-box" style="border-color:var(--orange);"><h4>⚠️ Tus esenciales pesan mucho (${pe}% vs ${re}% meta)</h4>
+      <p>En economías con inflación, es común que los esenciales superen el 50%. Pero si podés optimizar algo, te da margen para ahorrar.</p>
+      <ul><li>Revisá si hay servicios que podés renegociar o dar de baja</li><li>Compará precios en supermercado y buscá ofertas</li><li>Si el alquiler supera el 30% de tu ingreso, evaluá opciones</li><li>Mientras tus esenciales no bajen, ajustá tu regla a tu realidad (ej: ${Math.min(pe+5,75)}/${Math.max(rw-5,10)}/${Math.max(rs-5,5)})</li></ul></div>`;
+  }
+
+  if(ps < rs){
+    const gap=rs-ps;
+    html+=`<div class="sug-box" style="border-color:var(--save-color);"><h4>💰 Tu ahorro está ${gap} puntos por debajo de tu meta</h4>
+      <p>Ahorrás ${ps}% cuando tu meta es ${rs}%. Cada punto que sumes hace diferencia a largo plazo.</p>
+      <ul><li>Automatizá un ahorro el día que cobrás, aunque sea chico</li><li>Revisá suscripciones y gastos de deseos que no uses</li><li>Cada aumento de sueldo, destiná al menos la mitad a ahorro</li></ul></div>`;
+  }
+
+  // Find biggest want expense
+  const biggestWant=expenses.filter(e=>e.cat==='want').sort((a,b)=>b.amount-a.amount)[0];
+  if(biggestWant && pw > rw+5){
+    html+=`<div class="sug-box"><h4>🎯 Tu gasto más grande en deseos: ${biggestWant.name}</h4>
+      <p>${fmt(biggestWant.amount)}/mes (${Math.round(biggestWant.amount/income*100)}% de tu ingreso). ¿Podés reducirlo o encontrar alternativas más baratas?</p></div>`;
+  }
+
+  if(status==='green'){
+    html+=`<div class="sug-box"><h4>✅ ¡Buen trabajo!</h4>
+      <p>Tu presupuesto está alineado con tu meta ${re}/${rw}/${rs}. Seguí así y enfocate en aumentar gradualmente el % de ahorro e inversión.</p>
+      <ul><li>Revisá tu presupuesto cada mes para mantenerlo actualizado</li><li>Intentá subir tu ahorro 1-2% cada trimestre</li><li>Diversificá entre fondo de emergencia e inversiones</li></ul></div>`;
+  }
+
+  c.innerHTML=html;
+}
+
+// ====== SHARE ======
+async function downloadImage(){
+  const card=document.getElementById('shareCard');card.style.left='0';card.style.position='fixed';card.style.top='0';card.style.zIndex='9999';
+  try{const canvas=await html2canvas(card,{backgroundColor:'#0d1b2e',scale:2,width:1080,useCORS:true,logging:false});card.style.left='-9999px';card.style.position='absolute';card.style.zIndex='auto';
+  canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'presupuesto.png',{type:'image/png'});try{await navigator.share({title:'Presupuesto - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='presupuesto.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
+  }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
+}
+function shareWhatsApp(){const t=document.getElementById('hrTitle').textContent;const text=`💰 Mi presupuesto: ${t}\n\nArmá el tuyo gratis 👇\nnicolaspassini.com/presupuesto.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const t=document.getElementById('hrTitle').textContent;const text=`💰 ${t}\n\nArmá tu presupuesto real gratis 👇\nnicolaspassini.com/presupuesto.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/presupuesto.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/presupuesto.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+document.querySelectorAll('input').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));
+init();
+</script>
+<!-- EMAIL POPUP - Nico Passini / FBC -->
+<div id="emailPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#0d1b2e,#132640);border:1px solid #1f4672;border-radius:16px;padding:40px 32px;max-width:440px;width:90%;position:relative;animation:popIn .4s ease;">
+    <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:#8da4bf;font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(232,84,84,.15)';this.style.color='#e85454'" onmouseout="this.style.background='none';this.style.color='#8da4bf'">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+    </div>
+    <div id="popupForm">
+      <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
+      <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
+      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+    </div>
+    <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+      <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#emailPopup input::placeholder{color:#5a7a9a;}
+</style>
+<script>
+(function(){
+  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const POPUP_DELAY_MS = 5000; // 5 segundos
+  const POPUP_KEY = 'fbc_popup_shown';
+
+  // No mostrar si ya se mostró en esta sesión
+  if(sessionStorage.getItem(POPUP_KEY)) return;
+
+  setTimeout(function(){
+    const popup = document.getElementById('emailPopup');
+    if(popup) popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+  }, POPUP_DELAY_MS);
+})();
+
+function closePopup(){
+  document.getElementById('emailPopup').style.display = 'none';
+}
+
+function submitPopup(){
+  const name = document.getElementById('popupName').value.trim();
+  const email = document.getElementById('popupEmail').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popupEmail').style.borderColor = '#e85454';
+    return;
+  }
+
+  // === KLAVIYO API INTEGRATION ===
+  // Cuando tengas tus keys, descomentar este bloque:
+  /*
+  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
+  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
+  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+    })
+  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  */
+
+  // Mientras tanto, log en consola para testing
+  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
+
+  // Mostrar éxito
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('popupSuccess').style.display = 'block';
+  setTimeout(closePopup, 3000);
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closePopup();
+});
+// Cerrar al hacer click fuera
+document.getElementById('emailPopup')?.addEventListener('click', function(e){
+  if(e.target === this) closePopup();
+});
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>
