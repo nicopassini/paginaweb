@@ -354,7 +354,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 
     <div class="sc-stat"><div class="sc-stat-label">Me falta</div><div class="sc-stat-val" id="scNeed" style="color:var(--orange);"></div></div>
     <div class="sc-stat"><div class="sc-stat-label">Años restantes</div><div class="sc-stat-val" id="scYears" style="color:var(--teal);"></div></div>
   </div>
-  <div class="sc-footer"><div class="sc-footer-text">Calculá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+  <div class="sc-footer"><div class="sc-footer-text">Calculá el tuyo gratis en nicopassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -624,10 +624,10 @@ async function downloadImage(){
   canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'libertad-financiera.png',{type:'image/png'});try{await navigator.share({title:'Libertad Financiera - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='libertad-financiera.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
   }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
 }
-function shareWhatsApp(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Mi número de libertad financiera: ${amt}\n\n¿Cuál es el tuyo? Calculalo gratis 👇\nnicolaspassini.com/libertad-financiera.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
-function shareTwitter(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Calculé mi número de libertad financiera: ${amt}\n\n¿Cuánto necesitás vos para vivir sin trabajar?\n👇 nicolaspassini.com/libertad-financiera.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
-function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/libertad-financiera.html'),'_blank');}
-function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/libertad-financiera.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function shareWhatsApp(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Mi número de libertad financiera: ${amt}\n\n¿Cuál es el tuyo? Calculalo gratis 👇\nnicopassini.com/libertad-financiera.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const amt=document.getElementById('hrNumber').textContent;const text=`🏝️ Calculé mi número de libertad financiera: ${amt}\n\n¿Cuánto necesitás vos para vivir sin trabajar?\n👇 nicopassini.com/libertad-financiera.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicopassini.com/libertad-financiera.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicopassini.com/libertad-financiera.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 document.querySelectorAll('input,select').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));

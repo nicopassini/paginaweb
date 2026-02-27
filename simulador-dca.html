@@ -292,7 +292,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 
     <div class="sc-stat"><div class="sc-stat-label">Ganancia</div><div class="sc-stat-val" id="scGain"></div></div>
     <div class="sc-stat"><div class="sc-stat-label">ROI</div><div class="sc-stat-val" id="scROI"></div></div>
   </div>
-  <div class="sc-footer"><div class="sc-footer-text">Simulá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+  <div class="sc-footer"><div class="sc-footer-text">Simulá el tuyo gratis en nicopassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -713,10 +713,10 @@ async function downloadImage(){
   canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'simulador-dca.png',{type:'image/png'});try{await navigator.share({title:'Simulador DCA - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='simulador-dca.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
   }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
 }
-function shareWhatsApp(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 Invertido: ${fmt(r.totalInvested)}\n📊 Valor final: ${fmt(r.finalValue)}\n🚀 ROI: ${fmtPct(r.roi)}\n\nSimulá el tuyo gratis 👇\nnicolaspassini.com/simulador-dca.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
-function shareTwitter(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 ${fmt(r.totalInvested)} invertido → ${fmt(r.finalValue)} (${fmtPct(r.roi)})\n\nProbalo gratis 👇\nnicolaspassini.com/simulador-dca.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
-function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/simulador-dca.html'),'_blank');}
-function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/simulador-dca.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function shareWhatsApp(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 Invertido: ${fmt(r.totalInvested)}\n📊 Valor final: ${fmt(r.finalValue)}\n🚀 ROI: ${fmtPct(r.roi)}\n\nSimulá el tuyo gratis 👇\nnicopassini.com/simulador-dca.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const r=lastResult;const text=`📈 Simulé DCA en ${r.asset}\n\n💰 ${fmt(r.totalInvested)} invertido → ${fmt(r.finalValue)} (${fmtPct(r.roi)})\n\nProbalo gratis 👇\nnicopassini.com/simulador-dca.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicopassini.com/simulador-dca.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicopassini.com/simulador-dca.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 document.querySelectorAll('input,select').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));

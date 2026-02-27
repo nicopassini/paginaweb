@@ -1199,7 +1199,7 @@ function drawShareImage() {
 
   ctx.fillStyle = '#11b3b7';
   ctx.font = '500 22px sans-serif';
-  ctx.fillText('Hace el test gratis en nicolaspassini.com', W / 2, H - 170);
+  ctx.fillText('Hace el test gratis en nicopassini.com', W / 2, H - 170);
 
   ctx.fillStyle = '#11b3b7';
   ctx.font = '700 26px sans-serif';
@@ -1268,22 +1268,22 @@ async function downloadImage() {
 
 function shareWhatsApp() {
   const score = document.getElementById('scoreNumber').textContent;
-  const text = `🩺 Mi salud financiera: ${score}/100\n\n¿Querés saber cómo está la tuya?\n👉 nicolaspassini.com`;
+  const text = `🩺 Mi salud financiera: ${score}/100\n\n¿Querés saber cómo está la tuya?\n👉 nicopassini.com`;
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareTwitter() {
   const score = document.getElementById('scoreNumber').textContent;
-  const text = `🩺 Mi salud financiera es ${score}/100\n\n¿Querés saber la tuya? Hacé el test gratis 👇\nnicolaspassini.com\n\nvía @nicopassini_`;
+  const text = `🩺 Mi salud financiera es ${score}/100\n\n¿Querés saber la tuya? Hacé el test gratis 👇\nnicopassini.com\n\nvía @nicopassini_`;
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareFacebook() {
-  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/test-salud-financiera.html'), '_blank');
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicopassini.com/test-salud-financiera.html'), '_blank');
 }
 
 function copyLink() {
-  navigator.clipboard.writeText('https://nicolaspassini.com/test-salud-financiera.html').then(() => {
+  navigator.clipboard.writeText('https://nicopassini.com/test-salud-financiera.html').then(() => {
     showToast('✅ Link copiado');
   }).catch(() => {
     showToast('❌ No se pudo copiar');

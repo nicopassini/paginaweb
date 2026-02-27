@@ -321,7 +321,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 
     <div class="sc-stat"><div class="sc-stat-label">🎯 Deseos</div><div class="sc-stat-val" id="scWant" style="color:var(--want-color);"></div></div>
     <div class="sc-stat"><div class="sc-stat-label">💰 Ahorro</div><div class="sc-stat-val" id="scSave" style="color:var(--save-color);"></div></div>
   </div>
-  <div class="sc-footer"><div class="sc-footer-text">Armá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+  <div class="sc-footer"><div class="sc-footer-text">Armá el tuyo gratis en nicopassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -632,10 +632,10 @@ async function downloadImage(){
   canvas.toBlob(async blob=>{if(navigator.share&&navigator.canShare){const file=new File([blob],'presupuesto.png',{type:'image/png'});try{await navigator.share({title:'Presupuesto - Nico Passini',files:[file]});return;}catch(e){}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='presupuesto.png';a.click();URL.revokeObjectURL(url);showToast('✅ Imagen descargada');},'image/png');
   }catch(e){card.style.left='-9999px';card.style.position='absolute';showToast('❌ Error');}
 }
-function shareWhatsApp(){const t=document.getElementById('hrTitle').textContent;const text=`💰 Mi presupuesto: ${t}\n\nArmá el tuyo gratis 👇\nnicolaspassini.com/presupuesto.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
-function shareTwitter(){const t=document.getElementById('hrTitle').textContent;const text=`💰 ${t}\n\nArmá tu presupuesto real gratis 👇\nnicolaspassini.com/presupuesto.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
-function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/presupuesto.html'),'_blank');}
-function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/presupuesto.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
+function shareWhatsApp(){const t=document.getElementById('hrTitle').textContent;const text=`💰 Mi presupuesto: ${t}\n\nArmá el tuyo gratis 👇\nnicopassini.com/presupuesto.html`;window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareTwitter(){const t=document.getElementById('hrTitle').textContent;const text=`💰 ${t}\n\nArmá tu presupuesto real gratis 👇\nnicopassini.com/presupuesto.html\n\nvía @nicopassini_`;window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicopassini.com/presupuesto.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicopassini.com/presupuesto.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ Error'));}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 document.querySelectorAll('input').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));

@@ -291,7 +291,7 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
     <div class="sc-stat"><div class="sc-stat-label">Tengo</div><div class="sc-stat-val" id="scHave"></div></div>
     <div class="sc-stat"><div class="sc-stat-label">Me falta</div><div class="sc-stat-val" id="scNeed" style="color:var(--orange);"></div></div>
   </div>
-  <div class="sc-footer"><div class="sc-footer-text">Calculá el tuyo gratis en nicolaspassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
+  <div class="sc-footer"><div class="sc-footer-text">Calculá el tuyo gratis en nicopassini.com</div><div class="sc-footer-ig">@nicopassini_</div></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -555,16 +555,16 @@ async function downloadImage() {
 
 function shareWhatsApp() {
   const pct=document.getElementById('ringPct').textContent;
-  const text=`🛡️ Mi fondo de emergencia está al ${pct}\n\n¿Querés saber cómo está el tuyo?\n👉 nicolaspassini.com/fondo-emergencia.html`;
+  const text=`🛡️ Mi fondo de emergencia está al ${pct}\n\n¿Querés saber cómo está el tuyo?\n👉 nicopassini.com/fondo-emergencia.html`;
   window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
 }
 function shareTwitter() {
   const pct=document.getElementById('ringPct').textContent;
-  const text=`🛡️ Mi fondo de emergencia: ${pct} completado\n\nCalculá el tuyo gratis 👇\nnicolaspassini.com/fondo-emergencia.html\n\nvía @nicopassini_`;
+  const text=`🛡️ Mi fondo de emergencia: ${pct} completado\n\nCalculá el tuyo gratis 👇\nnicopassini.com/fondo-emergencia.html\n\nvía @nicopassini_`;
   window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
 }
-function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicolaspassini.com/fondo-emergencia.html'),'_blank');}
-function copyLink(){navigator.clipboard.writeText('https://nicolaspassini.com/fondo-emergencia.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ No se pudo copiar'));}
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://nicopassini.com/fondo-emergencia.html'),'_blank');}
+function copyLink(){navigator.clipboard.writeText('https://nicopassini.com/fondo-emergencia.html').then(()=>showToast('✅ Link copiado')).catch(()=>showToast('❌ No se pudo copiar'));}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 document.querySelectorAll('input').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));

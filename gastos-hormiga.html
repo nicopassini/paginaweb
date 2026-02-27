@@ -1598,7 +1598,7 @@ function drawGastosImage() {
 
   ctx.fillStyle = '#11b3b7';
   ctx.font = '500 22px sans-serif';
-  ctx.fillText('nicolaspassini.com', W/2, H-170);
+  ctx.fillText('nicopassini.com', W/2, H-170);
 
   ctx.fillStyle = '#11b3b7';
   ctx.font = '700 26px sans-serif';
@@ -1641,22 +1641,22 @@ async function shareResult() {
 function shareWhatsApp() {
   const total = document.getElementById('shockAmount').textContent;
   const years = document.getElementById('horizonte').value;
-  const text = `🐜 Mis gastos hormiga me cuestan ${total} en ${years} años!\n\n¿Querés saber cuánto te cuestan los tuyos?\n👉 nicolaspassini.com/gastos-hormiga.html`;
+  const text = `🐜 Mis gastos hormiga me cuestan ${total} en ${years} años!\n\n¿Querés saber cuánto te cuestan los tuyos?\n👉 nicopassini.com/gastos-hormiga.html`;
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareTwitter() {
   const total = document.getElementById('shockAmount').textContent;
-  const text = `🐜 Mis gastos hormiga me cuestan ${total}...\n\nDescubrí cuánto te cuestan los tuyos 👇\nnicolaspassini.com/gastos-hormiga.html\n\nvía @nicopassini_`;
+  const text = `🐜 Mis gastos hormiga me cuestan ${total}...\n\nDescubrí cuánto te cuestan los tuyos 👇\nnicopassini.com/gastos-hormiga.html\n\nvía @nicopassini_`;
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareFacebook() {
-  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/gastos-hormiga.html'), '_blank');
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicopassini.com/gastos-hormiga.html'), '_blank');
 }
 
 function copyLink() {
-  navigator.clipboard.writeText('https://nicolaspassini.com/gastos-hormiga.html').then(() => showToast()).catch(() => {});
+  navigator.clipboard.writeText('https://nicopassini.com/gastos-hormiga.html').then(() => showToast()).catch(() => {});
 }
 
 function showToast() {

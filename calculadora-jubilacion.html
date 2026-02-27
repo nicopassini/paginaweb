@@ -1752,22 +1752,22 @@ function generateRecosGoal(monthly, years, goal, initial, interest, age) {
 function shareWhatsApp() {
   const total = document.getElementById('totalFund').textContent;
   const label = document.getElementById('bigLabel').textContent;
-  const text = `📈 ${label}: ${total}\n\nSimulá tu jubilación gratis 👇\nnicolaspassini.com/calculadora-jubilacion.html`;
+  const text = `📈 ${label}: ${total}\n\nSimulá tu jubilación gratis 👇\nnicopassini.com/calculadora-jubilacion.html`;
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareTwitter() {
   const total = document.getElementById('totalFund').textContent;
-  const text = `📈 Simulé mi plan de jubilación y mi capital proyectado es ${total}\n\nHacé la tuya gratis 👇\nnicolaspassini.com/calculadora-jubilacion.html\n\nvía @nicopassini_`;
+  const text = `📈 Simulé mi plan de jubilación y mi capital proyectado es ${total}\n\nHacé la tuya gratis 👇\nnicopassini.com/calculadora-jubilacion.html\n\nvía @nicopassini_`;
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareFacebook() {
-  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/calculadora-jubilacion.html'), '_blank');
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicopassini.com/calculadora-jubilacion.html'), '_blank');
 }
 
 function copyLink() {
-  navigator.clipboard.writeText('https://nicolaspassini.com/calculadora-jubilacion.html').then(() => {
+  navigator.clipboard.writeText('https://nicopassini.com/calculadora-jubilacion.html').then(() => {
     alert('✅ Link copiado');
   }).catch(() => {});
 }

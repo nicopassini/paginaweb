@@ -411,7 +411,7 @@ td.highlight{color:var(--teal);font-weight:700;}
     <div class="sc-hl-sub">de tu capital final</div>
   </div>
   <div class="sc-footer">
-    <div class="sc-footer-text">Calculá el tuyo gratis en nicolaspassini.com</div>
+    <div class="sc-footer-text">Calculá el tuyo gratis en nicopassini.com</div>
     <div class="sc-footer-ig">@nicopassini_</div>
   </div>
 </div>
@@ -694,23 +694,23 @@ function showToast(msg) { const t=document.getElementById('toast');t.textContent
 
 function shareWhatsApp() {
   const total = document.getElementById('rTotal').textContent;
-  const text = `📈 Con interés compuesto, mi dinero llegaría a ${total}\n\nCalculá el tuyo gratis 👇\nnicolaspassini.com/interes-compuesto.html`;
+  const text = `📈 Con interés compuesto, mi dinero llegaría a ${total}\n\nCalculá el tuyo gratis 👇\nnicopassini.com/interes-compuesto.html`;
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareTwitter() {
   const total = document.getElementById('rTotal').textContent;
   const pct = document.getElementById('mPct').textContent;
-  const text = `📈 El interés compuesto genera el ${pct} de mi capital final (${total})\n\nCalculá el tuyo 👇\nnicolaspassini.com/interes-compuesto.html\n\nvía @nicopassini_`;
+  const text = `📈 El interés compuesto genera el ${pct} de mi capital final (${total})\n\nCalculá el tuyo 👇\nnicopassini.com/interes-compuesto.html\n\nvía @nicopassini_`;
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
 function shareFacebook() {
-  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicolaspassini.com/interes-compuesto.html'), '_blank');
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://nicopassini.com/interes-compuesto.html'), '_blank');
 }
 
 function copyLink() {
-  navigator.clipboard.writeText('https://nicolaspassini.com/interes-compuesto.html').then(() => showToast('✅ Link copiado')).catch(() => showToast('❌ No se pudo copiar'));
+  navigator.clipboard.writeText('https://nicopassini.com/interes-compuesto.html').then(() => showToast('✅ Link copiado')).catch(() => showToast('❌ No se pudo copiar'));
 }
 
 // ====== ENTER ======
