@@ -3,6 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="9 calculadoras y tests gratuitos para ordenar tus finanzas, eliminar deudas, ahorrar e invertir con criterio. Por @nicopassini_">
+<meta name="author" content="Nico Passini">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://nicopassini.com/">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nico Passini | Herramientas Financieras Gratuitas">
+<meta property="og:description" content="9 calculadoras y tests gratuitos para ordenar tus finanzas, eliminar deudas, ahorrar e invertir con criterio. Por @nicopassini_">
+<meta property="og:url" content="https://nicopassini.com/">
+<meta property="og:site_name" content="Nico Passini">
+<meta property="og:locale" content="es_AR">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nico Passini | Herramientas Financieras Gratuitas">
+<meta name="twitter:description" content="9 calculadoras y tests gratuitos para ordenar tus finanzas, eliminar deudas, ahorrar e invertir con criterio. Por @nicopassini_">
+<meta name="twitter:creator" content="@nicopassini_">
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <title>Nico Passini — Educación Financiera</title>
 <link href="https://fonts.googleapis.com/css2?family=Questrial&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -644,6 +662,22 @@ body {
   border-color: rgba(90, 122, 155, 0.2);
 }
 
+/* LOCKED CARDS */
+.tool-card.locked {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
+  filter: grayscale(0.3);
+}
+.tool-card.locked:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border-subtle);
+}
+.tool-card.locked::before { display: none; }
+.tool-card.locked h3 { color: var(--text-muted); }
+.tool-card.locked .tool-icon { opacity: 0.5; }
+
 /* =========================================
    MÉTODO FBC
    ========================================= */
@@ -1031,73 +1065,124 @@ body {
     <div class="tools-header reveal">
       <div class="section-label"><span class="sl-line"></span> Herramientas gratuitas</div>
       <h2 class="section-title">Tu caja de herramientas financieras</h2>
-      <p>Calculadoras y tests 100% gratuitos para que empieces a tomar mejores decisiones con tu plata hoy mismo.</p>
+      <p>9 calculadoras y tests 100% gratuitos para que empieces a tomar mejores decisiones con tu plata hoy mismo.</p>
     </div>
 
-    <div class="tools-grid">
-      <a href="calculadora-jubilacion.html" class="tool-card reveal">
-        <div class="tool-icon ti-blue">🎯</div>
-        <h3>Calculadora de Jubilación</h3>
-        <p>Descubrí si tu plan actual te va a alcanzar para vivir tranquilo cuando te jubiles. Con diagnóstico personalizado.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="test-salud-financiera.html" class="tool-card reveal">
-        <div class="tool-icon ti-teal">🩺</div>
-        <h3>Test de Salud Financiera</h3>
-        <p>Un diagnóstico de 2 minutos que te da un puntaje real de cómo estás manejando tu plata hoy.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="gastos-hormiga.html" class="tool-card reveal">
-        <div class="tool-icon ti-blue">☕</div>
-        <h3>Calculadora de Gastos Hormiga</h3>
-        <p>Ese café diario, esas suscripciones... Mirá cuánto te cuestan realmente a 10, 20 y 30 años.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="presupuesto.html" class="tool-card reveal">
-        <div class="tool-icon ti-navy">📊</div>
-        <h3>Armador de Presupuesto</h3>
-        <p>Armá tu presupuesto real adaptado a tu realidad. La regla 50/30/20 es una guía, no una ley.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="fondo-emergencia.html" class="tool-card reveal">
-        <div class="tool-icon ti-teal">🚨</div>
-        <h3>Fondo de Emergencia</h3>
-        <p>Calculá exactamente cuánto necesitás ahorrar y armá un plan para completarlo.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="comparador-deudas.html" class="tool-card reveal">
-        <div class="tool-icon ti-blue">💳</div>
-        <h3>Comparador de Deudas</h3>
-        <p>Cargá tus deudas y compará los métodos avalancha vs bola de nieve para salir más rápido.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="simulador-dca.html" class="tool-card reveal">
-        <div class="tool-icon ti-navy">📈</div>
-        <h3>Simulador DCA</h3>
-        <p>¿Qué hubiera pasado si invertías $100/mes? Probalo con datos reales o proyectá a futuro.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="interes-compuesto.html" class="tool-card reveal">
-        <div class="tool-icon ti-teal">🔥</div>
-        <h3>Calculadora de Interés Compuesto</h3>
-        <p>Capital + aporte + tasa + tiempo = tu futuro financiero. Visualizá el poder del tiempo.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
-
-      <a href="libertad-financiera.html" class="tool-card reveal">
-        <div class="tool-icon ti-blue">🏝️</div>
-        <h3>Libertad Financiera</h3>
-        <p>¿Cuánto necesitás para vivir sin depender de un sueldo? Calculá tu número y armá un plan.</p>
-        <span class="tool-badge">Disponible</span>
-      </a>
+    <!-- CTA BANNER -->
+    <div class="reveal" style="background:linear-gradient(135deg,#132640,#17304d);border:1px solid var(--teal);border-radius:var(--radius);padding:24px 28px;margin-bottom:48px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">¿Querés ir más allá de las herramientas?</div>
+        <div style="font-size:14px;color:var(--text-muted);">En el Método FBC te enseño a ordenar tus finanzas, invertir con criterio y armar tu camino a la libertad financiera.</div>
+      </div>
+      <a href="https://metodofbc.com" target="_blank" style="display:inline-block;padding:12px 28px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap;transition:all .3s;">Conocer el Método FBC →</a>
     </div>
+
+    <!-- 📋 DIAGNOSTICÁ -->
+    <div class="tools-category reveal">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:36px;height:36px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:2px;">Diagnosticá</div>
+          <div style="font-size:13px;color:var(--text-muted);">¿Cómo estás hoy? Empezá por acá</div>
+        </div>
+      </div>
+      <div class="tools-grid">
+        <a href="test-salud-financiera.html" class="tool-card reveal">
+          <div class="tool-icon ti-teal">🩺</div>
+          <h3>Test de Salud Financiera</h3>
+          <p>Un diagnóstico de 2 minutos que te da un puntaje real de cómo estás manejando tu plata hoy.</p>
+          <span class="tool-badge">⚡ Disponible</span>
+        </a>
+        <a href="gastos-hormiga.html" class="tool-card reveal">
+          <div class="tool-icon ti-blue">☕</div>
+          <h3>Calculadora de Gastos Hormiga</h3>
+          <p>Ese café diario, esas suscripciones... Mirá cuánto te cuestan realmente a 10, 20 y 30 años.</p>
+          <span class="tool-badge">⚡ Disponible</span>
+        </a>
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-navy">💰</div>
+          <h3>Armador de Presupuesto</h3>
+          <p>Armá tu presupuesto real adaptado a tu realidad. La regla 50/30/20 es una guía, no una ley.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🛡️ ORDENÁ Y PROTEGÉ -->
+    <div class="tools-category reveal" style="margin-top:48px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:36px;height:36px;background:rgba(17,179,183,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🛡️</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;">Ordená y protegé</div>
+          <div style="font-size:13px;color:var(--text-muted);">Fondo de emergencia y salida de deudas</div>
+        </div>
+      </div>
+      <div class="tools-grid">
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-teal">🛡️</div>
+          <h3>Fondo de Emergencia</h3>
+          <p>Calculá cuánto necesitás, cuánto te falta y armá un plan mensual para completar tu colchón financiero.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+        <a href="comparador-deudas.html" class="tool-card reveal">
+          <div class="tool-icon ti-blue">💳</div>
+          <h3>Comparador de Deudas</h3>
+          <p>Cargá tus deudas y compará los métodos avalancha vs bola de nieve para salir más rápido.</p>
+          <span class="tool-badge">⚡ Disponible</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 📈 INVERTÍ Y CRECÉ -->
+    <div class="tools-category reveal" style="margin-top:48px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:36px;height:36px;background:rgba(167,139,250,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📈</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;">Invertí y crecé</div>
+          <div style="font-size:13px;color:var(--text-muted);">Hacé crecer tu plata con estrategia</div>
+        </div>
+      </div>
+      <div class="tools-grid">
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-teal">🔥</div>
+          <h3>Calculadora de Interés Compuesto</h3>
+          <p>Capital + aporte + tasa + tiempo = tu futuro financiero. Visualizá el poder del tiempo.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-navy">📊</div>
+          <h3>Simulador DCA</h3>
+          <p>¿Qué hubiera pasado si invertías $100/mes en Bitcoin o S&P 500? Probalo con datos reales.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🏝️ PROYECTÁ TU FUTURO -->
+    <div class="tools-category reveal" style="margin-top:48px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:36px;height:36px;background:rgba(240,160,48,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🏝️</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f0a030;text-transform:uppercase;letter-spacing:2px;">Proyectá tu futuro</div>
+          <div style="font-size:13px;color:var(--text-muted);">Tu jubilación y tu libertad financiera</div>
+        </div>
+      </div>
+      <div class="tools-grid">
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-blue">🎯</div>
+          <h3>Calculadora de Jubilación</h3>
+          <p>Descubrí si tu plan actual te va a alcanzar para vivir tranquilo cuando te jubiles.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+        <div class="tool-card locked reveal">
+          <div class="tool-icon ti-teal">🏝️</div>
+          <h3>Libertad Financiera</h3>
+          <p>¿Cuánto necesitás para vivir sin depender de un sueldo? Calculá tu número y armá un plan.</p>
+          <span class="tool-badge coming">🔒 Próximamente</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
