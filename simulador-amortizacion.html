@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Simulá tu préstamo personal con sistema francés, alemán o americano. Calculá cuotas, intereses, IVA y ahorro por amortización parcial. Gratis.">
+<meta name="author" content="Nico Passini">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://nicopassini.com/simulador-amortizacion.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Simulador de Amortización de Préstamos | Nico Passini">
+<meta property="og:description" content="Simulá tu préstamo personal con sistema francés, alemán o americano. Calculá cuotas, intereses, IVA y ahorro por amortización parcial. Gratis.">
+<meta property="og:url" content="https://nicopassini.com/simulador-amortizacion.html">
+<meta property="og:site_name" content="Nico Passini">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Simulador de Amortización de Préstamos | Nico Passini">
+<meta name="twitter:description" content="Simulá tu préstamo personal con sistema francés, alemán o americano. Calculá cuotas, intereses, IVA y ahorro por amortización parcial. Gratis.">
+<meta name="twitter:creator" content="@nicopassini_">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+<title>Simulador de Amortización de Préstamos | Método FBC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Questrial&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face{font-family:'Century Gothic Fallback';src:local('Century Gothic'),local('CenturyGothic');}
+:root{
+  --navy:#1a3753;--blue:#0b80e1;--black:#141414;--white:#fff;--teal:#11b3b7;
+  --bg:#0d1b2e;--surface:#132640;--surface-2:#17304d;--surface-3:#1c3a5a;
+  --border:#1f4672;--text:#e4eaf2;--text-muted:#8da4bf;
+  --accent:var(--teal);--accent-glow:rgba(17,179,183,0.15);
+  --green:#11b3b7;--green-bg:rgba(17,179,183,0.12);
+  --orange:#f0a030;--orange-bg:rgba(240,160,48,0.12);
+  --red:#e85454;--red-bg:rgba(232,84,84,0.12);
+  --purple:#a374f5;--purple-bg:rgba(163,116,245,0.12);
+  --gold:#f0c040;
+  --radius:16px;--radius-sm:10px;
+  --font-main:'Century Gothic Fallback','Questrial','Futura','Trebuchet MS',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.noise-overlay{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.025;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
+.glow-orb-1{top:-200px;right:-100px;background:var(--blue);}
+.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
+.container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:40px 20px 60px;}
+
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}
+.back-link:hover{color:var(--teal);}
+
+.header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
+.brand-logo{text-align:center;margin-bottom:28px;}
+.brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
+.brand-wordmark-line{display:block;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);margin-top:6px;}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:620px;margin:0 auto;}
+
+.impact-banner{background:linear-gradient(135deg,var(--green-bg),var(--accent-glow));border:1px solid rgba(17,179,183,.25);border-radius:var(--radius);padding:24px 28px;text-align:center;margin-bottom:32px;animation:fadeInUp .7s ease .1s both;}
+.impact-banner .big-text{font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--teal);margin-bottom:6px;}
+.impact-banner p{font-size:14px;color:var(--text-muted);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .2s both;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+
+/* FORM */
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.input-wrap{position:relative;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix{left:16px;}.input-wrap .suffix{right:16px;}
+.field input,.field select{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;outline:none;}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
+.field select{cursor:pointer;}.field select option{background:var(--surface);}
+.input-with-prefix{padding-left:36px!important;}.input-with-suffix{padding-right:60px!important;}
+.input-hint{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.fields-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:600px){.fields-row{grid-template-columns:1fr;}}
+
+/* SYSTEM SELECTOR */
+.system-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.system-btn{padding:16px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);cursor:pointer;transition:all .25s;text-align:center;font-family:var(--font-main);}
+.system-btn:hover{border-color:var(--text-muted);transform:translateY(-1px);}
+.system-btn.active{border-color:var(--blue);background:rgba(11,128,225,.1);box-shadow:0 0 0 3px rgba(11,128,225,.15);}
+.system-btn .sname{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.system-btn.active .sname{color:var(--teal);}
+.system-btn .sdesc{font-size:11px;color:var(--text-muted);}
+@media(max-width:500px){.system-selector{grid-template-columns:1fr;}}
+
+.system-info{background:var(--surface-2);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin-top:16px;font-size:13px;color:var(--text-muted);line-height:1.6;}
+
+/* PREPAYMENT */
+.prepay-section{background:var(--surface-2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:20px;margin-top:20px;}
+.prepay-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;}
+@media(max-width:600px){.prepay-grid{grid-template-columns:1fr 1fr;}}
+.prepay-grid .field{margin-bottom:0;}
+.prepay-grid .field input,.prepay-grid .field select{padding:10px 14px;font-size:14px;}
+.btn-add{padding:10px 20px;background:var(--teal);color:var(--bg);border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;white-space:nowrap;height:44px;}
+.btn-add:hover{background:#0ea5a5;transform:translateY(-1px);}
+.prepay-list{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;}
+.prepay-tag{display:inline-flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid rgba(17,179,183,.3);color:var(--teal);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;}
+.prepay-tag .remove{cursor:pointer;opacity:.6;font-size:14px;line-height:1;}.prepay-tag .remove:hover{opacity:1;}
+
+/* CTA BUTTON */
+.calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;letter-spacing:.5px;margin-top:8px;}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,128,225,.3);}
+
+/* ====== RESULTS ====== */
+.results{display:none;}
+.results.show{display:block;animation:fadeInUp .6s ease;}
+
+/* HERO */
+.result-hero{text-align:center;padding:36px 28px;background:linear-gradient(135deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;position:relative;overflow:hidden;}
+.result-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--teal));}
+.rh-label{font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+.rh-amount{font-size:clamp(32px,7vw,50px);font-weight:700;color:var(--teal);line-height:1.1;}
+.rh-sub{font-size:15px;color:var(--text-muted);margin-top:12px;}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;}
+.mc-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.mc-value{font-size:22px;font-weight:700;color:var(--white);}
+.mc-sub{font-size:12px;color:var(--text-muted);margin-top:3px;}
+.mc-value.teal{color:var(--teal);}
+.mc-value.orange{color:var(--orange);}
+.mc-value.red{color:var(--red);}
+.mc-value.green{color:var(--green);}
+
+/* COMPARISON */
+.comparison-bar{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.comp-side{text-align:center;}
+.comp-amount{font-size:clamp(18px,4vw,26px);font-weight:700;}
+.comp-desc{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-top:4px;}
+.comp-arrow{font-size:28px;color:var(--teal);}
+.savings-badge{display:inline-block;background:var(--green-bg);border:1px solid rgba(17,179,183,.3);color:var(--teal);font-size:14px;font-weight:700;padding:6px 18px;border-radius:20px;margin-top:8px;}
+@media(max-width:500px){.comparison-bar{grid-template-columns:1fr;text-align:center;}.comp-arrow{transform:rotate(90deg);}}
+
+/* DOWNLOAD BUTTONS */
+.download-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.btn-download{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-muted);font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;}
+.btn-download:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-1px);}
+.btn-download svg{width:16px;height:16px;}
+
+/* TABLE */
+.table-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;overflow:hidden;}
+.table-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.table-toggle h3{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:10px;}
+.table-toggle .arrow{font-size:16px;color:var(--text-muted);transition:transform .3s;}
+.table-toggle .arrow.open{transform:rotate(180deg);}
+.table-body{display:none;margin-top:16px;overflow-x:auto;}
+.table-body.show{display:block;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:right;padding:10px 12px;border-bottom:2px solid var(--border);font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+th:first-child{text-align:center;}
+td{padding:10px 12px;border-bottom:1px solid rgba(31,70,114,.3);color:var(--text);text-align:right;white-space:nowrap;}
+td:first-child{text-align:center;color:var(--text-muted);font-weight:700;}
+tr:hover td{background:rgba(17,179,183,.04);}
+tr.prepay-row td{background:var(--green-bg);}
+tr.prepay-row td:first-child{color:var(--teal);}
+.table-count{font-size:12px;color:var(--text-muted);}
+
+/* SHARE */
+.share-section{text-align:center;margin-bottom:24px;}
+.btn-share{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border:2px solid var(--teal);border-radius:var(--radius);background:var(--accent-glow);color:var(--teal);font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-share:hover{background:var(--teal);color:var(--bg);}
+
+/* CTA */
+.cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
+.cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
+.cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
+.btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
+
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer a{color:var(--teal);text-decoration:none;}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<div class="container">
+<a href="index.html" class="back-link">← Volver a herramientas</a>
+
+<div class="header">
+  <div class="brand-logo"><span class="brand-wordmark">NICO PASSINI<span class="brand-wordmark-line"></span></span></div>
+  <h1>Simulador de Amortización de Préstamos 🏦</h1>
+  <p class="subtitle">Simulá tu préstamo personal con la lógica real de bancos argentinos. Compará sistemas, calculá el IVA y descubrí cuánto ahorrás con pagos anticipados.</p>
+</div>
+
+<div class="impact-banner">
+  <div class="big-text">¿Sabías que podés ahorrar +30% en intereses con amortización parcial?</div>
+  <p>Un pago extra en el momento justo reduce tu deuda más de lo que imaginás. Simulalo acá abajo.</p>
+</div>
+
+<!-- ====== INPUTS ====== -->
+<div class="card">
+  <div class="card-title"><div class="icon">📋</div> Datos del Préstamo</div>
+
+  <div class="fields-row">
+    <div class="field">
+      <label>Monto del préstamo</label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" id="loanAmount" placeholder="5.000.000" class="input-with-prefix" oninput="formatNumber(this)">
+      </div>
+    </div>
+    <div class="field">
+      <label>Tasa Nominal Anual</label>
+      <div class="input-wrap">
+        <input type="text" id="annualRate" placeholder="95" class="input-with-suffix" inputmode="decimal">
+        <span class="suffix">% TNA</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Cantidad de cuotas</label>
+      <input type="number" id="numPayments" placeholder="36" min="1" max="600">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>IVA sobre intereses</label>
+    <div class="input-wrap" style="max-width:200px;">
+      <input type="text" id="ivaRate" value="21" class="input-with-suffix" inputmode="decimal">
+      <span class="suffix">%</span>
+    </div>
+    <div class="input-hint">21% estándar en Argentina — se aplica sobre los intereses de cada cuota</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><div class="icon">⚙️</div> Sistema de Amortización</div>
+
+  <div class="system-selector">
+    <button class="system-btn active" data-system="french" onclick="selectSystem(this)">
+      <div class="sname">Francés</div>
+      <div class="sdesc">Cuota pura fija</div>
+    </button>
+    <button class="system-btn" data-system="german" onclick="selectSystem(this)">
+      <div class="sname">Alemán</div>
+      <div class="sdesc">Capital constante</div>
+    </button>
+    <button class="system-btn" data-system="american" onclick="selectSystem(this)">
+      <div class="sname">Americano</div>
+      <div class="sdesc">Bullet (interés)</div>
+    </button>
+  </div>
+
+  <div class="system-info" id="systemInfo">
+    <strong>Sistema Francés:</strong> Todas las cuotas puras son iguales. Al inicio pagás más interés y menos capital; con el tiempo se invierte. Es el más usado en bancos argentinos para préstamos personales.
+  </div>
+</div>
+
+<!-- PREPAYMENTS -->
+<div class="card">
+  <div class="card-title"><div class="icon">💸</div> Amortizaciones Parciales <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;color:var(--text-muted);">(opcional)</span></div>
+
+  <div class="prepay-grid">
+    <div class="field">
+      <label>En cuota N°</label>
+      <input type="number" id="prepayMonth" placeholder="6" min="1">
+    </div>
+    <div class="field">
+      <label>Monto extra</label>
+      <input type="text" id="prepayAmount" placeholder="500.000" oninput="formatNumber(this)">
+    </div>
+    <div class="field">
+      <label>Efecto</label>
+      <select id="prepayEffect">
+        <option value="reduce_term">Reducir plazo</option>
+        <option value="reduce_payment">Reducir cuota</option>
+      </select>
+    </div>
+    <button class="btn-add" onclick="addPrepayment()">+ Agregar</button>
+  </div>
+  <div class="prepay-list" id="prepayList"></div>
+</div>
+
+<button class="calc-btn" onclick="calculate()">Calcular Amortización →</button>
+
+<!-- ====== RESULTS ====== -->
+<div class="results" id="results">
+
+  <!-- Hero -->
+  <div class="result-hero" id="resultHero"></div>
+
+  <!-- Metrics -->
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <!-- Comparison -->
+  <div id="comparisonSection"></div>
+
+  <!-- Downloads -->
+  <div class="download-bar">
+    <button class="btn-download" onclick="downloadPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Descargar PDF
+    </button>
+    <button class="btn-download" onclick="downloadCSV()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar CSV
+    </button>
+    <button class="btn-download" onclick="downloadCSVComparison()" id="btnCompareCSV" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      CSV Comparativo
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-section">
+    <div class="table-toggle" onclick="toggleTable()">
+      <h3><div class="icon" style="width:28px;height:28px;font-size:14px;">📊</div> Detalle de Cuotas <span class="table-count" id="tableCount"></span></h3>
+      <span class="arrow" id="tableArrow">▼</span>
+    </div>
+    <div class="table-body" id="tableBody">
+      <table>
+        <thead id="tableHead"></thead>
+        <tbody id="tableTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Share -->
+  <div class="share-section">
+    <button class="btn-share" onclick="shareWhatsApp()">📲 Compartir en WhatsApp</button>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <h3>¿Querés aprender a manejar tu plata de verdad?</h3>
+    <p>En el Método FBC te enseño paso a paso a controlar tus finanzas, salir de deudas e invertir. Más de 20 horas de contenido práctico.</p>
+    <a href="https://nicopassini.com" class="btn-cta">Conocé el Método FBC →</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Hecho con 💙 por <a href="https://www.instagram.com/nicopassini_" target="_blank">Nico Passini</a></p>
+  <p style="margin-top:4px;">Simulación informativa — No constituye oferta de crédito</p>
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ====== STATE ======
+let selectedSystem = 'french';
+let prepayments = [];
+let tableData = [];
+let tableDataOriginal = [];
+
+const systemDescriptions = {
+  french: '<strong>Sistema Francés:</strong> Todas las cuotas puras son iguales. Al inicio pagás más interés y menos capital; con el tiempo se invierte. Es el más usado en bancos argentinos para préstamos personales.',
+  german: '<strong>Sistema Alemán:</strong> La amortización de capital es constante. Las cuotas van bajando porque el interés se calcula sobre un saldo cada vez menor.',
+  american: '<strong>Sistema Americano (Bullet):</strong> Solo pagás intereses durante el plazo, y el capital total se devuelve en la última cuota. Cuotas muy bajas pero el último pago es enorme.'
+};
+
+// ====== HELPERS ======
+function selectSystem(el) {
+  document.querySelectorAll('.system-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedSystem = el.dataset.system;
+  document.getElementById('systemInfo').innerHTML = systemDescriptions[selectedSystem];
+}
+
+function formatNumber(input) {
+  let val = input.value.replace(/[^\d]/g, '');
+  if (val) input.value = parseInt(val).toLocaleString('es-AR');
+}
+
+function parseNum(str) { return parseFloat(str.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0; }
+function parseFormattedInt(str) { return parseInt(str.replace(/[^\d]/g, '')) || 0; }
+function getIvaRate() { return (parseNum(document.getElementById('ivaRate').value) || 21) / 100; }
+
+function fmt(val) { return '$ ' + val.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtNum(val) { return val.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtShort(val) {
+  if (val >= 1e6) return '$ ' + (val / 1e6).toFixed(1) + 'M';
+  if (val >= 1e3) return '$ ' + (val / 1e3).toFixed(0) + 'K';
+  return fmt(val);
+}
+
+// ====== PREPAYMENTS ======
+function addPrepayment() {
+  const month = parseInt(document.getElementById('prepayMonth').value);
+  const amount = parseFormattedInt(document.getElementById('prepayAmount').value);
+  const effect = document.getElementById('prepayEffect').value;
+  const n = parseInt(document.getElementById('numPayments').value) || 999;
+  if (!month || month < 1 || month > n) { alert('Ingresá un número de cuota válido'); return; }
+  if (!amount || amount <= 0) { alert('Ingresá un monto válido'); return; }
+  prepayments.push({ month, amount, effect });
+  prepayments.sort((a, b) => a.month - b.month);
+  renderPrepayments();
+  document.getElementById('prepayMonth').value = '';
+  document.getElementById('prepayAmount').value = '';
+}
+
+function removePrepayment(idx) { prepayments.splice(idx, 1); renderPrepayments(); }
+
+function renderPrepayments() {
+  document.getElementById('prepayList').innerHTML = prepayments.map((p, i) =>
+    `<span class="prepay-tag">Cuota ${p.month}: $ ${p.amount.toLocaleString('es-AR')} (${p.effect === 'reduce_term' ? 'Reduce plazo' : 'Reduce cuota'}) <span class="remove" onclick="removePrepayment(${i})">✕</span></span>`
+  ).join('');
+}
+
+// ====== CALCULATION ENGINE ======
+function calcFrench(principal, monthlyRate, n) {
+  const rows = []; const iva = getIvaRate();
+  if (monthlyRate === 0) { const p = principal / n; let b = principal; for (let i = 1; i <= n; i++) { b -= p; rows.push({ month:i, payment:p, interest:0, tax:0, principal:p, balance:Math.max(b,0), prepayment:0, totalPayment:p }); } return rows; }
+  const pmt = principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+  let b = principal;
+  for (let i = 1; i <= n; i++) {
+    const int = b * monthlyRate; const princ = pmt - int; const tax = int * iva;
+    b -= princ;
+    rows.push({ month:i, payment:pmt, interest:int, tax, principal:princ, balance:Math.max(b,0), prepayment:0, totalPayment:pmt + tax });
+  }
+  return rows;
+}
+
+function calcGerman(principal, monthlyRate, n) {
+  const rows = []; const iva = getIvaRate(); const cp = principal / n; let b = principal;
+  for (let i = 1; i <= n; i++) {
+    const int = b * monthlyRate; const tax = int * iva; const pmt = cp + int;
+    b -= cp;
+    rows.push({ month:i, payment:pmt, interest:int, tax, principal:cp, balance:Math.max(b,0), prepayment:0, totalPayment:pmt + tax });
+  }
+  return rows;
+}
+
+function calcAmerican(principal, monthlyRate, n) {
+  const rows = []; const iva = getIvaRate(); const int = principal * monthlyRate; const tax = int * iva;
+  for (let i = 1; i < n; i++) rows.push({ month:i, payment:int, interest:int, tax, principal:0, balance:principal, prepayment:0, totalPayment:int + tax });
+  rows.push({ month:n, payment:int+principal, interest:int, tax, principal, balance:0, prepayment:0, totalPayment:int+principal+tax });
+  return rows;
+}
+
+function calcWithPrepayments(principal, monthlyRate, n, system, preps) {
+  const rows = []; const iva = getIvaRate(); let balance = principal; let remainingN = n;
+  const prepMap = {}; preps.forEach(p => { if (!prepMap[p.month]) prepMap[p.month] = []; prepMap[p.month].push(p); });
+  let currentMonth = 0;
+  while (balance > 0.01 && currentMonth < n * 2) {
+    currentMonth++; let interest, princ, payment;
+    if (system === 'french') {
+      if (monthlyRate === 0) { payment = balance / remainingN; interest = 0; princ = payment; }
+      else { payment = balance * (monthlyRate * Math.pow(1+monthlyRate,remainingN)) / (Math.pow(1+monthlyRate,remainingN)-1); interest = balance * monthlyRate; princ = payment - interest; }
+    } else if (system === 'german') { princ = balance / remainingN; interest = balance * monthlyRate; payment = princ + interest; }
+    else { interest = balance * monthlyRate; if (remainingN === 1) { princ = balance; payment = interest + balance; } else { princ = 0; payment = interest; } }
+    if (princ > balance) princ = balance; balance -= princ; if (balance < 0.01) balance = 0;
+    const tax = interest * iva; let prepayAmt = 0;
+    if (prepMap[currentMonth]) {
+      prepMap[currentMonth].forEach(p => {
+        let extra = Math.min(p.amount, balance); balance -= extra; prepayAmt += extra;
+        if (p.effect === 'reduce_term' && balance > 0) {
+          if (system === 'french') { if (monthlyRate === 0) remainingN = Math.ceil(balance / payment); else remainingN = Math.ceil(Math.log(payment / (payment - balance * monthlyRate)) / Math.log(1 + monthlyRate)); }
+          else if (system === 'german') { remainingN = Math.max(1, Math.ceil(balance / princ)); }
+          else { remainingN = Math.max(1, remainingN - 1); }
+        }
+      }); if (balance < 0.01) balance = 0;
+    }
+    remainingN = Math.max(0, remainingN - 1);
+    rows.push({ month:currentMonth, payment, interest, tax, principal:princ, balance:Math.max(balance,0), prepayment:prepayAmt, totalPayment:payment + tax + prepayAmt });
+    if (balance <= 0) break;
+  }
+  return rows;
+}
+
+// ====== MAIN CALCULATE ======
+function calculate() {
+  const principal = parseFormattedInt(document.getElementById('loanAmount').value);
+  const tna = parseNum(document.getElementById('annualRate').value);
+  const n = parseInt(document.getElementById('numPayments').value);
+  if (!principal || principal <= 0) { alert('Ingresá el monto del préstamo'); return; }
+  if (tna < 0) { alert('La tasa no puede ser negativa'); return; }
+  if (!n || n < 1) { alert('Ingresá la cantidad de cuotas'); return; }
+  const monthlyRate = (tna / 100) / 12;
+
+  let baseRows;
+  if (selectedSystem === 'french') baseRows = calcFrench(principal, monthlyRate, n);
+  else if (selectedSystem === 'german') baseRows = calcGerman(principal, monthlyRate, n);
+  else baseRows = calcAmerican(principal, monthlyRate, n);
+  tableDataOriginal = baseRows;
+
+  let rows = prepayments.length > 0 ? calcWithPrepayments(principal, monthlyRate, n, selectedSystem, prepayments) : baseRows;
+  tableData = rows;
+
+  const hasPrepay = prepayments.length > 0;
+  const totalPaid = rows.reduce((s,r) => s + r.totalPayment, 0);
+  const totalInterest = rows.reduce((s,r) => s + r.interest, 0);
+  const totalTax = rows.reduce((s,r) => s + r.tax, 0);
+  const baseTotalPaid = baseRows.reduce((s,r) => s + r.totalPayment, 0);
+  const sysName = { french:'Francés', german:'Alemán', american:'Americano' }[selectedSystem];
+
+  // Hero
+  document.getElementById('resultHero').innerHTML = `
+    <div class="rh-label">Cuota total mensual ${selectedSystem === 'french' ? '(fija con IVA)' : '(primera con IVA)'}</div>
+    <div class="rh-amount">${fmt(rows[0].totalPayment)}</div>
+    <div class="rh-sub">Sistema ${sysName} · ${rows.length} cuotas · TNA ${tna}%${selectedSystem === 'german' ? '<br>Última cuota: ' + fmt(rows[rows.length-1].totalPayment) : ''}</div>
+  `;
+
+  // Metrics
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-card"><div class="mc-label">Monto solicitado</div><div class="mc-value">${fmtShort(principal)}</div></div>
+    <div class="metric-card"><div class="mc-label">Total a pagar</div><div class="mc-value">${fmtShort(totalPaid)}</div><div class="mc-sub">Capital + Interés + IVA</div></div>
+    <div class="metric-card"><div class="mc-label">Total intereses</div><div class="mc-value orange">${fmtShort(totalInterest)}</div><div class="mc-sub">${(totalInterest/principal*100).toFixed(1)}% del capital</div></div>
+    <div class="metric-card"><div class="mc-label">Total IVA</div><div class="mc-value red">${fmtShort(totalTax)}</div><div class="mc-sub">${(getIvaRate()*100).toFixed(0)}% sobre intereses</div></div>
+    <div class="metric-card"><div class="mc-label">Cuota pura</div><div class="mc-value teal">${fmtShort(rows[0].payment)}</div><div class="mc-sub">Sin IVA</div></div>
+    <div class="metric-card"><div class="mc-label">Plazo efectivo</div><div class="mc-value">${rows.length}</div><div class="mc-sub">cuotas${rows.length < n ? ' (ahorrás ' + (n - rows.length) + ')' : ''}</div></div>
+    ${hasPrepay ? `<div class="metric-card" style="border-color:var(--teal);background:var(--green-bg);grid-column:1/-1;"><div class="mc-label">Ahorro por amortización parcial</div><div class="mc-value green">${fmt(baseTotalPaid - totalPaid)}</div><div class="mc-sub">${((baseTotalPaid - totalPaid) / baseTotalPaid * 100).toFixed(1)}% menos</div></div>` : ''}
+  `;
+
+  // Comparison
+  const compSection = document.getElementById('comparisonSection');
+  const btnCompCSV = document.getElementById('btnCompareCSV');
+  if (hasPrepay) {
+    const saving = baseTotalPaid - totalPaid;
+    compSection.innerHTML = `<div class="comparison-bar"><div class="comp-side"><div class="comp-amount" style="color:var(--red)">${fmtShort(baseTotalPaid)}</div><div class="comp-desc">Sin amortización parcial</div></div><div class="comp-arrow">→</div><div class="comp-side"><div class="comp-amount" style="color:var(--teal)">${fmtShort(totalPaid)}</div><div class="comp-desc">Con amortización parcial</div><div class="savings-badge">Ahorrás ${fmt(saving)}</div></div></div>`;
+    btnCompCSV.style.display = 'inline-flex';
+  } else { compSection.innerHTML = ''; btnCompCSV.style.display = 'none'; }
+
+  // Table
+  document.getElementById('tableHead').innerHTML = `<tr><th style="text-align:center">Cuota</th><th>Capital</th><th>Interés</th><th>IVA</th>${hasPrepay ? '<th>Extra</th>' : ''}<th>Cuota Total</th><th>Saldo</th></tr>`;
+  document.getElementById('tableTbody').innerHTML = rows.map(r => `<tr class="${r.prepayment > 0 ? 'prepay-row' : ''}"><td>${r.month}</td><td>${fmtNum(r.principal)}</td><td>${fmtNum(r.interest)}</td><td>${fmtNum(r.tax)}</td>${hasPrepay ? `<td style="color:var(--teal);font-weight:600">${r.prepayment > 0 ? fmtNum(r.prepayment) : '-'}</td>` : ''}<td style="font-weight:700">${fmtNum(r.totalPayment)}</td><td>${fmtNum(r.balance)}</td></tr>`).join('');
+  document.getElementById('tableCount').textContent = `· ${rows.length} cuotas`;
+
+  // Show
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleTable() {
+  const body = document.getElementById('tableBody');
+  const arrow = document.getElementById('tableArrow');
+  body.classList.toggle('show');
+  arrow.classList.toggle('open');
+}
+
+// ====== CSV EXPORT ======
+function downloadCSV() {
+  if (!tableData.length) return;
+  const hasPrepay = prepayments.length > 0;
+  const sysName = { french:'Francés', german:'Alemán', american:'Americano' }[selectedSystem];
+  let csv = '\uFEFF';
+  csv += `Simulador de Amortización - Sistema ${sysName}\n`;
+  csv += `Moneda:,ARS\nMonto:,${parseFormattedInt(document.getElementById('loanAmount').value)}\nTNA:,${document.getElementById('annualRate').value}%\nIVA:,${document.getElementById('ivaRate').value}%\nCuotas:,${document.getElementById('numPayments').value}\n\n`;
+  const headers = ['Cuota','Capital','Interés','IVA']; if (hasPrepay) headers.push('Amort. Extra'); headers.push('Cuota Total','Saldo');
+  csv += headers.join(',') + '\n';
+  tableData.forEach(r => { const row = [r.month,r.principal.toFixed(2),r.interest.toFixed(2),r.tax.toFixed(2)]; if(hasPrepay)row.push(r.prepayment.toFixed(2)); row.push(r.totalPayment.toFixed(2),r.balance.toFixed(2)); csv += row.join(',') + '\n'; });
+  csv += `\nTotal Pagado:,${tableData.reduce((s,r)=>s+r.totalPayment,0).toFixed(2)}\nTotal Intereses:,${tableData.reduce((s,r)=>s+r.interest,0).toFixed(2)}\nTotal IVA:,${tableData.reduce((s,r)=>s+r.tax,0).toFixed(2)}\n`;
+  downloadFile(csv, `amortizacion_${selectedSystem}_ARS.csv`);
+}
+
+function downloadCSVComparison() {
+  if (!tableData.length || !tableDataOriginal.length) return;
+  const sysName = { french:'Francés', german:'Alemán', american:'Americano' }[selectedSystem];
+  let csv = '\uFEFF'; csv += `Comparativo - Sistema ${sysName}\n\n--- SIN AMORTIZACIÓN PARCIAL ---\nCuota,Capital,Interés,IVA,Cuota Total,Saldo\n`;
+  tableDataOriginal.forEach(r => { csv += [r.month,r.principal.toFixed(2),r.interest.toFixed(2),r.tax.toFixed(2),r.totalPayment.toFixed(2),r.balance.toFixed(2)].join(',') + '\n'; });
+  const oT = tableDataOriginal.reduce((s,r)=>s+r.totalPayment,0); const oI = tableDataOriginal.reduce((s,r)=>s+r.interest,0);
+  csv += `\n--- CON AMORTIZACIÓN PARCIAL ---\nCuota,Capital,Interés,IVA,Extra,Cuota Total,Saldo\n`;
+  tableData.forEach(r => { csv += [r.month,r.principal.toFixed(2),r.interest.toFixed(2),r.tax.toFixed(2),r.prepayment.toFixed(2),r.totalPayment.toFixed(2),r.balance.toFixed(2)].join(',') + '\n'; });
+  const nT = tableData.reduce((s,r)=>s+r.totalPayment,0);
+  csv += `\nAHORRO TOTAL:,${(oT-nT).toFixed(2)}\nCUOTAS AHORRADAS:,${tableDataOriginal.length - tableData.length}\n`;
+  downloadFile(csv, `comparativo_amortizacion_ARS.csv`);
+}
+
+function downloadFile(content, filename) { const blob = new Blob([content], { type:'text/csv;charset=utf-8;' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
+
+// ====== PDF EXPORT ======
+function downloadPDF() {
+  if (!tableData.length) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('portrait','mm','a4');
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 15;
+  const contentW = pageW - margin * 2;
+  const hasPrepay = prepayments.length > 0;
+  const sysName = { french:'Francés', german:'Alemán', american:'Americano' }[selectedSystem];
+  const principal = parseFormattedInt(document.getElementById('loanAmount').value);
+  const tna = document.getElementById('annualRate').value;
+  const ivaVal = document.getElementById('ivaRate').value;
+  const nCuotas = document.getElementById('numPayments').value;
+  const totalPaid = tableData.reduce((s,r)=>s+r.totalPayment,0);
+  const totalInterest = tableData.reduce((s,r)=>s+r.interest,0);
+  const totalTax = tableData.reduce((s,r)=>s+r.tax,0);
+  const totalPrincipal = tableData.reduce((s,r)=>s+r.principal,0);
+  const totalPrepay = tableData.reduce((s,r)=>s+r.prepayment,0);
+  const dateStr = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  const dk=[15,23,42], md=[30,58,138], ac=[11,128,225], tl=[17,179,183], gy=[100,116,139], lt=[241,245,249], rd=[232,84,84], or=[240,160,48];
+
+  // Header
+  doc.setFillColor(...dk); doc.rect(0,0,pageW,42,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.text('SIMULACIÓN DE PRÉSTAMO PERSONAL', margin, 18);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,230);
+  doc.text(`Sistema ${sysName}  |  Fecha: ${dateStr}`, margin, 28);
+  doc.setFontSize(8); doc.text('nicopassini.com — Herramienta Financiera', margin, 36);
+
+  let y = 52;
+
+  // Info box
+  doc.setFillColor(...lt); doc.roundedRect(margin,y,contentW,28,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...dk);
+  doc.text('DATOS DEL PRÉSTAMO', margin+4, y+6);
+  doc.setFontSize(9);
+  const c1=margin+4, c2=margin+contentW*0.35, c3=margin+contentW*0.65, iy=y+14;
+  doc.text(fmt(principal), c1, iy); doc.text(`TNA ${tna}%`, c2, iy); doc.text(`${nCuotas} cuotas`, c3, iy);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...gy);
+  doc.text('Monto solicitado', c1, iy+5); doc.text('Tasa Nominal Anual', c2, iy+5); doc.text(`Plazo original | IVA ${ivaVal}%`, c3, iy+5);
+  y += 36;
+
+  // Summary boxes
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...dk);
+  doc.text('RESUMEN FINANCIERO', margin, y); y += 6;
+  const bxW = contentW/3-2;
+  [{l:'TOTAL A PAGAR',v:fmt(totalPaid),c:dk},{l:'TOTAL INTERESES',v:fmt(totalInterest),c:or},{l:'TOTAL IVA',v:fmt(totalTax),c:rd}].forEach((b,i) => {
+    const bx=margin+i*(bxW+3);
+    doc.setFillColor(248,250,252); doc.roundedRect(bx,y,bxW,16,1.5,1.5,'F');
+    doc.setDrawColor(226,232,240); doc.roundedRect(bx,y,bxW,16,1.5,1.5,'S');
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...gy); doc.text(b.l, bx+3, y+5.5);
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...b.c); doc.text(b.v, bx+3, y+12.5);
+  });
+  y += 22;
+
+  // Cuota pura + total
+  if (tableData[0]) {
+    const hw = contentW/2-1.5;
+    doc.setFillColor(239,246,255); doc.roundedRect(margin,y,hw,14,1.5,1.5,'F'); doc.setDrawColor(...ac); doc.roundedRect(margin,y,hw,14,1.5,1.5,'S');
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...ac); doc.text(selectedSystem==='french'?'CUOTA PURA (FIJA)':'PRIMERA CUOTA PURA', margin+3, y+5);
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text(fmt(tableData[0].payment), margin+3, y+11.5);
+    const rx=margin+contentW/2+1.5;
+    doc.setFillColor(236,253,245); doc.roundedRect(rx,y,hw,14,1.5,1.5,'F'); doc.setDrawColor(...tl); doc.roundedRect(rx,y,hw,14,1.5,1.5,'S');
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...tl); doc.text(selectedSystem==='french'?'CUOTA TOTAL CON IVA':'PRIMERA CUOTA CON IVA', rx+3, y+5);
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text(fmt(tableData[0].totalPayment), rx+3, y+11.5);
+    y += 19;
+  }
+
+  // Savings
+  if (hasPrepay) {
+    const saving = tableDataOriginal.reduce((s,r)=>s+r.totalPayment,0) - totalPaid;
+    doc.setFillColor(236,253,245); doc.roundedRect(margin,y,contentW,14,1.5,1.5,'F'); doc.setDrawColor(...tl); doc.roundedRect(margin,y,contentW,14,1.5,1.5,'S');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...tl); doc.text('AHORRO POR AMORTIZACIÓN PARCIAL', margin+3, y+5);
+    doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text(`${fmt(saving)}  |  ${tableDataOriginal.length - tableData.length} cuotas menos  |  Plazo: ${tableData.length} cuotas`, margin+3, y+11.5);
+    y += 17;
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
+    doc.text('Pagos anticipados: ' + prepayments.map(p=>`Cuota ${p.month}: ${fmt(p.amount)} (${p.effect==='reduce_term'?'Reduce plazo':'Reduce cuota'})`).join(' | '), margin, y);
+    y += 8;
+  }
+
+  y += 2;
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...dk);
+  doc.text('DETALLE DE CUOTAS', margin, y); y += 3;
+
+  const headers = [['Cuota','Capital','Interés','IVA',...(hasPrepay?['Extra']:[]),'Cuota Total','Saldo']];
+  const body = tableData.map(r => { const row=[r.month.toString(),fmtNum(r.principal),fmtNum(r.interest),fmtNum(r.tax)]; if(hasPrepay)row.push(r.prepayment>0?fmtNum(r.prepayment):'-'); row.push(fmtNum(r.totalPayment),fmtNum(r.balance)); return row; });
+  body.push(['TOTAL',fmtNum(totalPrincipal),fmtNum(totalInterest),fmtNum(totalTax),...(hasPrepay?[fmtNum(totalPrepay)]:[]),fmtNum(totalPaid),'-']);
+
+  doc.autoTable({
+    startY:y, head:headers, body:body, margin:{left:margin,right:margin},
+    styles:{fontSize:7,cellPadding:1.8,font:'helvetica',textColor:[30,41,59],lineColor:[226,232,240],lineWidth:0.1},
+    headStyles:{fillColor:[...dk],textColor:[255,255,255],fontStyle:'bold',fontSize:6.5,halign:'right'},
+    bodyStyles:{halign:'right'},
+    columnStyles:{0:{halign:'center',fontStyle:'bold',cellWidth:14}},
+    alternateRowStyles:{fillColor:[248,250,252]},
+    didParseCell:function(data){
+      if(data.section==='body'&&data.row.index===body.length-1){data.cell.styles.fontStyle='bold';data.cell.styles.fillColor=[241,245,249];data.cell.styles.textColor=[...dk];data.cell.styles.fontSize=7.5;}
+    },
+    didDrawPage:function(data){
+      const pgH=doc.internal.pageSize.getHeight();
+      doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(150,150,150);
+      doc.text(`Simulación informativa — nicopassini.com  |  Sistema ${sysName}  |  TNA ${tna}%  |  IVA ${ivaVal}%`,margin,pgH-8);
+      doc.text(`Página ${data.pageNumber}`,pageW-margin,pgH-8,{align:'right'});
+    }
+  });
+  doc.save(`simulacion_prestamo_${sysName.toLowerCase()}_${nCuotas}cuotas.pdf`);
+}
+
+// ====== SHARE ======
+function shareWhatsApp() {
+  if (!tableData.length) return;
+  const cuota = fmt(tableData[0].totalPayment);
+  const sysName = { french:'francés', german:'alemán', american:'americano' }[selectedSystem];
+  const text = `🏦 Simulé mi préstamo con sistema ${sysName}:\n💰 Cuota total: ${cuota}\n📊 ${tableData.length} cuotas\n\nSimulá el tuyo gratis 👇\nnicopassini.com/simulador-amortizacion.html`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function showToast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500); }
+
+// Enter key
+document.querySelectorAll('input').forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter')calculate();}));
+</script>
+
+<script src="lead-gate.js"></script>
+</body>
+</html>
