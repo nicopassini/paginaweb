@@ -1088,191 +1088,169 @@ function drawShareImage() {
   const { score, level, areaScores } = shareData;
   const levelColor = getLevelColorHex(level);
 
-  // Background gradient
-  const bgGrad = ctx.createLinearGradient(0, 0, W * 0.3, H);
-  bgGrad.addColorStop(0, '#0a1628');
-  bgGrad.addColorStop(0.5, '#132640');
-  bgGrad.addColorStop(1, '#0a1628');
+  // Background
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#081422');
+  bgGrad.addColorStop(0.35, '#0f2035');
+  bgGrad.addColorStop(0.65, '#0f2035');
+  bgGrad.addColorStop(1, '#081422');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // Subtle glow behind score
-  const glowGrad = ctx.createRadialGradient(W/2, 520, 50, W/2, 520, 350);
-  glowGrad.addColorStop(0, levelColor + '20');
+  // Subtle radial glow behind score
+  const glowGrad = ctx.createRadialGradient(W/2, 560, 30, W/2, 560, 400);
+  glowGrad.addColorStop(0, levelColor + '18');
   glowGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = glowGrad;
-  ctx.fillRect(0, 200, W, 700);
+  ctx.fillRect(0, 150, W, 850);
 
-  // === TOP: Brand ===
+  // === BRAND (y: 80-160) ===
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#e4eaf2';
-  ctx.font = '300 36px Georgia, serif';
-  ctx.letterSpacing = '8px';
-  ctx.fillText('N I C O   P A S S I N I', W/2, 120);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '300 44px Georgia, serif';
+  ctx.fillText('N I C O   P A S S I N I', W/2, 100);
 
-  // Brand line
-  const lineGrad = ctx.createLinearGradient(W/2-160, 0, W/2+160, 0);
+  const lineGrad = ctx.createLinearGradient(W/2-180, 0, W/2+180, 0);
   lineGrad.addColorStop(0, 'transparent');
   lineGrad.addColorStop(0.3, '#0b80e1');
   lineGrad.addColorStop(0.7, '#11b3b7');
   lineGrad.addColorStop(1, 'transparent');
   ctx.strokeStyle = lineGrad;
   ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(W/2-160, 145);
-  ctx.lineTo(W/2+160, 145);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2-180, 130); ctx.lineTo(W/2+180, 130); ctx.stroke();
 
   // Test label
   ctx.fillStyle = '#11b3b7';
-  ctx.font = '700 24px sans-serif';
-  ctx.fillText('TEST DE SALUD FINANCIERA', W/2, 210);
+  ctx.font = '700 28px sans-serif';
+  ctx.fillText('TEST DE SALUD FINANCIERA', W/2, 195);
 
-  // === SCORE RING (bigger) ===
-  const cx = W/2, cy = 480, r = 170;
+  // === SCORE RING (y: 280-680) ===
+  const cx = W/2, cy = 480, r = 185;
 
-  // Ring background
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = '#1c3a5a';
-  ctx.lineWidth = 20;
+  // Ring bg
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = '#1a3050';
+  ctx.lineWidth = 24;
   ctx.stroke();
 
   // Ring fill
-  const startAngle = -Math.PI / 2;
-  const endAngle = startAngle + (score / 100) * Math.PI * 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, endAngle);
+  const startA = -Math.PI/2;
+  const endA = startA + (score/100) * Math.PI*2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, startA, endA);
   ctx.strokeStyle = levelColor;
-  ctx.lineWidth = 20;
+  ctx.lineWidth = 24;
   ctx.lineCap = 'round';
   ctx.stroke();
   ctx.lineCap = 'butt';
 
-  // Score number (BIG)
+  // Score number
   ctx.fillStyle = '#ffffff';
-  ctx.font = '800 110px sans-serif';
-  ctx.fillText(score.toString(), cx, cy + 35);
+  ctx.font = '900 140px sans-serif';
+  ctx.fillText(score.toString(), cx, cy + 45);
 
-  ctx.fillStyle = '#8da4bf';
-  ctx.font = '400 30px sans-serif';
-  ctx.fillText('de 100', cx, cy + 75);
+  ctx.fillStyle = '#7a94ad';
+  ctx.font = '400 36px sans-serif';
+  ctx.fillText('de 100', cx, cy + 95);
 
-  // Level badge with background pill
-  const badgeY = cy + 230;
+  // === LEVEL BADGE (y: 720-780) ===
+  const badgeY = 755;
   const badgeText = level.emoji + '  ' + level.name.toUpperCase();
-  ctx.font = '800 48px sans-serif';
-  const badgeW = ctx.measureText(badgeText).width + 60;
-  roundRect(ctx, cx - badgeW/2, badgeY - 38, badgeW, 60, 30);
-  ctx.fillStyle = levelColor + '25';
+  ctx.font = '900 52px sans-serif';
+  const tw = ctx.measureText(badgeText).width + 80;
+  roundRect(ctx, cx-tw/2, badgeY-40, tw, 72, 36);
+  ctx.fillStyle = levelColor + '22';
   ctx.fill();
-  ctx.strokeStyle = levelColor + '50';
-  ctx.lineWidth = 2;
-  roundRect(ctx, cx - badgeW/2, badgeY - 38, badgeW, 60, 30);
+  ctx.strokeStyle = levelColor + '55';
+  ctx.lineWidth = 2.5;
+  roundRect(ctx, cx-tw/2, badgeY-40, tw, 72, 36);
   ctx.stroke();
   ctx.fillStyle = levelColor;
-  ctx.font = '800 44px sans-serif';
-  ctx.fillText(badgeText, cx, badgeY + 8);
+  ctx.font = '900 48px sans-serif';
+  ctx.fillText(badgeText, cx, badgeY + 12);
 
-  // Level description
-  ctx.fillStyle = '#a0b4c8';
-  ctx.font = '400 26px sans-serif';
-  wrapText(ctx, level.desc, cx, badgeY + 80, 800, 36);
+  // Level desc
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '400 30px sans-serif';
+  wrapText(ctx, level.desc, cx, badgeY + 85, 860, 42);
 
-  // === AREA BOXES (bigger, 2x3 grid) ===
+  // === AREA BOXES (y: 920-1200) ===
   const areas = Object.entries(areaConfig);
-  const boxW = 260, boxH = 140, gap = 24;
-  const totalRowW = 3 * boxW + 2 * gap;
+  const boxW = 300, boxH = 165, gap = 28;
+  const totalRowW = 3*boxW + 2*gap;
   const startX = (W - totalRowW) / 2;
-  let areaY = 950;
+  const areaY = 945;
 
   areas.forEach(([key, cfg], i) => {
     const col = i % 3;
     const row = Math.floor(i / 3);
-    const bx = startX + col * (boxW + gap);
-    const by = areaY + row * (boxH + gap);
+    const bx = startX + col*(boxW+gap);
+    const by = areaY + row*(boxH+gap);
 
-    // Box background
-    roundRect(ctx, bx, by, boxW, boxH, 18);
-    ctx.fillStyle = 'rgba(23, 48, 77, 0.9)';
+    // Box
+    roundRect(ctx, bx, by, boxW, boxH, 20);
+    ctx.fillStyle = 'rgba(20, 42, 68, 0.95)';
     ctx.fill();
-    ctx.strokeStyle = '#1f4672';
-    ctx.lineWidth = 1.5;
-    roundRect(ctx, bx, by, boxW, boxH, 18);
+    ctx.strokeStyle = '#1e3f66';
+    ctx.lineWidth = 2;
+    roundRect(ctx, bx, by, boxW, boxH, 20);
     ctx.stroke();
 
     // Icon
-    ctx.font = '36px sans-serif';
+    ctx.font = '44px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#e4eaf2';
-    ctx.fillText(cfg.icon, bx + boxW/2, by + 45);
+    ctx.fillText(cfg.icon, bx+boxW/2, by+52);
 
     // Name
-    ctx.font = '500 18px sans-serif';
-    ctx.fillStyle = '#8da4bf';
-    ctx.fillText(cfg.name, bx + boxW/2, by + 78);
+    ctx.font = '500 22px sans-serif';
+    ctx.fillStyle = '#7a94ad';
+    ctx.fillText(cfg.name, bx+boxW/2, by+88);
 
-    // Score %
+    // Score
     const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
-    const aColor = pct >= 70 ? '#11b3b7' : pct >= 40 ? '#f0a030' : '#e85454';
-    ctx.font = '800 38px sans-serif';
-    ctx.fillStyle = aColor;
-    ctx.fillText(pct + '%', bx + boxW/2, by + 120);
+    const ac = pct >= 70 ? '#11b3b7' : pct >= 40 ? '#f0a030' : '#e85454';
+    ctx.font = '900 48px sans-serif';
+    ctx.fillStyle = ac;
+    ctx.fillText(pct + '%', bx+boxW/2, by+142);
   });
 
-  // === CTA SECTION (bottom) ===
-  const ctaY = 1400;
-
-  // Divider line
-  const divGrad = ctx.createLinearGradient(100, 0, W-100, 0);
+  // === CTA SECTION (y: 1380-1760) ===
+  // Divider
+  const divGrad = ctx.createLinearGradient(120, 0, W-120, 0);
   divGrad.addColorStop(0, 'transparent');
-  divGrad.addColorStop(0.5, '#1f4672');
+  divGrad.addColorStop(0.5, '#1e3f66');
   divGrad.addColorStop(1, 'transparent');
-  ctx.strokeStyle = divGrad;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(100, ctaY);
-  ctx.lineTo(W-100, ctaY);
-  ctx.stroke();
+  ctx.strokeStyle = divGrad; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(120, 1400); ctx.lineTo(W-120, 1400); ctx.stroke();
 
-  // CTA text
+  // CTA headline
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
-  ctx.font = '700 42px sans-serif';
-  ctx.fillText('¿Cómo está tu salud financiera?', W/2, ctaY + 80);
+  ctx.font = '800 50px sans-serif';
+  ctx.fillText('¿Cómo está tu salud', W/2, 1500);
+  ctx.fillText('financiera?', W/2, 1560);
 
-  // CTA button-like element
-  const btnY = ctaY + 130;
-  const btnW = 680, btnH = 70;
+  // CTA button
+  const btnY = 1620, btnW = 760, btnH = 80;
   const btnGrad = ctx.createLinearGradient(W/2-btnW/2, btnY, W/2+btnW/2, btnY);
   btnGrad.addColorStop(0, '#0b80e1');
   btnGrad.addColorStop(1, '#11b3b7');
-  roundRect(ctx, W/2-btnW/2, btnY, btnW, btnH, 35);
+  roundRect(ctx, W/2-btnW/2, btnY, btnW, btnH, 40);
   ctx.fillStyle = btnGrad;
   ctx.fill();
   ctx.fillStyle = '#ffffff';
-  ctx.font = '700 28px sans-serif';
-  ctx.fillText('Hacé el test gratis → nicopassini.com', W/2, btnY + 44);
-
-  // Challenge text
-  ctx.fillStyle = '#a0b4c8';
-  ctx.font = '400 26px sans-serif';
-  ctx.fillText('Desafiá a tus amigos a superarte 🔥', W/2, btnY + 130);
-
-  // Instagram handle
-  ctx.fillStyle = '#11b3b7';
   ctx.font = '700 32px sans-serif';
-  ctx.fillText('@nicopassini_', W/2, H - 100);
+  ctx.fillText('Hacé el test gratis → nicopassini.com', W/2, btnY+50);
 
-  // Subtle watermark dots
-  ctx.fillStyle = 'rgba(17,179,183,0.08)';
-  for(let i = 0; i < 20; i++) {
-    const dx = Math.random() * W;
-    const dy = Math.random() * H;
-    ctx.beginPath();
-    ctx.arc(dx, dy, Math.random() * 3 + 1, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  // Challenge
+  ctx.fillStyle = '#8da4bf';
+  ctx.font = '500 30px sans-serif';
+  ctx.fillText('Desafiá a tus amigos a superarte 🔥', W/2, 1770);
+
+  // Handle
+  ctx.fillStyle = '#11b3b7';
+  ctx.font = '700 36px sans-serif';
+  ctx.fillText('@nicopassini_', W/2, 1860);
 
   return canvas;
 }
@@ -1376,7 +1354,6 @@ function retake() {
 async function downloadPDFReport() {
   if(!shareData.score) return;
   
-  // Load jsPDF dynamically if needed
   if(!window.jspdf) {
     showToast('Cargando generador de PDF...');
     await new Promise((resolve, reject) => {
@@ -1404,7 +1381,7 @@ async function downloadPDFReport() {
   doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
   doc.text('REPORTE DE SALUD FINANCIERA', m, 16);
   doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,230);
-  doc.text('Nico Passini — nicopassini.com', m, 26);
+  doc.text('Nico Passini  |  nicopassini.com', m, 26);
   doc.text('Fecha: ' + dateStr, W-m, 26, {align:'right'});
 
   let y = 50;
@@ -1419,7 +1396,7 @@ async function downloadPDFReport() {
   
   // Level name
   doc.setFontSize(18); doc.setTextColor(...dk);
-  doc.text(level.emoji + ' ' + level.name.toUpperCase(), m + 65, y + 22);
+  doc.text(level.name.toUpperCase(), m + 55, y + 20);
   
   // Level desc
   doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
@@ -1429,7 +1406,7 @@ async function downloadPDFReport() {
 
   // Area scores section
   doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...dk);
-  doc.text('DETALLE POR ÁREA', m, y); y += 8;
+  doc.text('DETALLE POR AREA', m, y); y += 8;
 
   const areas = Object.entries(areaConfig);
   areas.forEach(([key, cfg]) => {
@@ -1441,7 +1418,7 @@ async function downloadPDFReport() {
     
     // Icon + Name
     doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...dk);
-    doc.text(cfg.icon + '  ' + cfg.name, m+4, y+7);
+    doc.text(areaNames[key] || cfg.name, m+4, y+8);
     
     // Bar background
     const barX = m + 75, barW = cW - 115, barH = 6, barY = y + 5;
@@ -1469,13 +1446,13 @@ async function downloadPDFReport() {
     const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
     if(pct < 70) {
       let advice = '';
-      if(key === 'saving') advice = 'Automatizá un ahorro fijo el día que cobrás, aunque sea chico. El hábito es más importante que el monto.';
-      else if(key === 'debt') advice = 'Priorizá pagar las deudas con mayor tasa de interés primero (método avalancha). Evitá pagar solo el mínimo de la tarjeta.';
-      else if(key === 'budget') advice = 'Empezá a registrar tus gastos durante 1 mes. No necesitás una app compleja, un Excel o papel alcanza. No podés mejorar lo que no medís.';
-      else if(key === 'investment') advice = 'Empezá con inversiones simples y de bajo costo. Un fondo indexado o un plazo fijo como primer paso, sin correr riesgos innecesarios.';
-      else if(key === 'income') advice = 'Evaluá formas de diversificar tus ingresos: freelance, proyectos paralelos o inversiones que generen renta pasiva.';
-      else if(key === 'mindset') advice = 'Dedicá 15 minutos por semana a leer o escuchar contenido de educación financiera. La mentalidad es la base de todo.';
-      recs.push({ area: cfg.icon + ' ' + cfg.name, pct, advice });
+      if(key === 'saving') advice = 'Automatiza un ahorro fijo el dia que cobras, aunque sea chico. El habito es mas importante que el monto.';
+      else if(key === 'debt') advice = 'Prioriza pagar las deudas con mayor tasa de interes primero (metodo avalancha). Nunca pagues solo el minimo de la tarjeta de credito.';;
+      else if(key === 'budget') advice = 'Registra tus gastos durante 1 mes completo. No puedes mejorar lo que no medis. Usa la herramienta de presupuesto en nicopassini.com.';;
+      else if(key === 'investment') advice = 'Empieza con inversiones simples y de bajo costo. Un fondo indexado o plazo fijo como primer paso. Lo importante es empezar.';;
+      else if(key === 'income') advice = 'Evalua formas de diversificar tus ingresos: freelance, proyectos paralelos o inversiones que generen renta pasiva.';;
+      else if(key === 'mindset') advice = 'Dedica 15 minutos por semana a educacion financiera. La mentalidad es la base de todo cambio financiero duradero.';;
+      recs.push({ area: areaNames[key] || cfg.name, pct, advice });
     }
   });
 
@@ -1483,7 +1460,7 @@ async function downloadPDFReport() {
     doc.setFillColor(236,253,245); doc.roundedRect(m, y, cW, 14, 2, 2, 'F');
     doc.setDrawColor(...tl); doc.roundedRect(m, y, cW, 14, 2, 2, 'S');
     doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...tl);
-    doc.text('¡Excelente! Todas tus áreas están en buen nivel. Seguí así.', m+4, y+9);
+    doc.text('Excelente! Todas tus areas estan en buen nivel. Segui asi.', m+4, y+9);
     y += 20;
   } else {
     recs.forEach(r => {
@@ -1496,28 +1473,31 @@ async function downloadPDFReport() {
       doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(8.5);
       const lines = doc.splitTextToSize(r.advice, cW - 10);
       doc.text(lines, m+4, y+14);
-      y += 26;
+      y += boxH + 5;
     });
   }
 
-  y += 10;
+  y += 8;
+  
+  // Check if CTA fits
+  if(y > H - 55) { doc.addPage(); y = 20; }
 
   // CTA section
   doc.setFillColor(...dk); doc.roundedRect(m, y, cW, 30, 3, 3, 'F');
   doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('¿Querés mejorar tu puntaje?', m+4, y+10);
+  doc.text('Queres mejorar tu puntaje?', m+4, y+10);
   doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,230);
-  doc.text('En el Método FBC te enseño a ordenar tus finanzas e invertir con criterio, desde cero.', m+4, y+18);
+  doc.text('En el Metodo FBC te enseno a ordenar tus finanzas e invertir con criterio, desde cero.', m+4, y+18);
   doc.setTextColor(...tl); doc.setFont('helvetica','bold');
   doc.text('metodofbc.com', m+4, y+26);
 
   // Footer
   doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(150,150,150);
-  doc.text('Reporte generado en nicopassini.com — Este test es informativo y no constituye asesoramiento financiero.', m, H-8);
+  doc.text('Reporte generado en nicopassini.com -- Este test es informativo y no constituye asesoramiento financiero.', m, H-8);
   doc.text('@nicopassini_', W-m, H-8, {align:'right'});
 
   doc.save('reporte-salud-financiera.pdf');
-  showToast('✅ PDF descargado');
+  showToast('PDF descargado');
 }
 </script>
 
