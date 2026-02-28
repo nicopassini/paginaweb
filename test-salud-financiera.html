@@ -1352,20 +1352,35 @@ function retake() {
 
 // ====== PDF REPORT ======
 async function downloadPDFReport() {
-  if(!shareData.score) return;
+  if(!shareData.score) { alert('Primero completa el test.'); return; }
   
-  if(!window.jspdf) {
-    showToast('Cargando generador de PDF...');
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-  }
+  try {
+    if(!window.jspdf) {
+      showToast('Cargando...');
+      const cdns = [
+        'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
+        'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js'
+      ];
+      for(const url of cdns) {
+        try {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = url;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+          if(window.jspdf) break;
+        } catch(e) { continue; }
+      }
+      if(!window.jspdf) {
+        alert('No se pudo cargar la libreria PDF. Proba desactivar el bloqueador de anuncios o recarga la pagina.');
+        return;
+      }
+    }
 
-  const { jsPDF } = window.jspdf;
+    const { jsPDF } = window.jspdf;
   const doc = new jsPDF('portrait','mm','a4');
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -1464,16 +1479,23 @@ async function downloadPDFReport() {
     y += 20;
   } else {
     recs.forEach(r => {
-      const recColor = r.pct < 40 ? [254,242,242] : [255,251,235];
-      const recBorder = r.pct < 40 ? [232,84,84] : [240,160,48];
-      doc.setFillColor(...recColor); doc.roundedRect(m, y, cW, 22, 2, 2, 'F');
-      doc.setDrawColor(...recBorder); doc.roundedRect(m, y, cW, 22, 2, 2, 'S');
-      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...recBorder);
-      doc.text(r.area + ' (' + r.pct + '%)', m+4, y+7);
-      doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(8.5);
+      const isLow = r.pct < 40;
+      const recFill = isLow ? [254,242,242] : [255,251,235];
+      const recBorder = isLow ? [232,84,84] : [240,160,48];
+      
+      doc.setFontSize(8.5);
       const lines = doc.splitTextToSize(r.advice, cW - 10);
-      doc.text(lines, m+4, y+14);
-      y += boxH + 5;
+      const recH = 10 + lines.length * 4.5;
+      
+      if(y + recH > H - 50) { doc.addPage(); y = 20; }
+      
+      doc.setFillColor(...recFill); doc.roundedRect(m, y, cW, recH, 2, 2, 'F');
+      doc.setDrawColor(...recBorder); doc.roundedRect(m, y, cW, recH, 2, 2, 'S');
+      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...recBorder);
+      doc.text(r.area + ' (' + r.pct + '%)', m+4, y+6);
+      doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(8.5);
+      doc.text(lines, m+4, y+12);
+      y += recH + 5;
     });
   }
 
@@ -1498,6 +1520,11 @@ async function downloadPDFReport() {
 
   doc.save('reporte-salud-financiera.pdf');
   showToast('PDF descargado');
+
+  } catch(err) {
+    console.error('PDF error:', err);
+    alert('Error al generar el PDF: ' + err.message);
+  }
 }
 </script>
 
