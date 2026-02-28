@@ -1345,8 +1345,8 @@ function handleEmail(e) {
 <script>
 (function(){
   // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
-  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA'; // Reemplazar con tu List ID de Klaviyo
-  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA'; // Reemplazar con tu Public API Key de Klaviyo
+  const KLAVIYO_LIST_ID = 'TNhMED';
+  const KLAVIYO_PUBLIC_KEY = 'XbCYge';
   const POPUP_DELAY_MS = 5000; // 5 segundos
   const POPUP_KEY = 'fbc_popup_shown';
 
@@ -1373,21 +1373,31 @@ function submitPopup(){
   }
 
   // === KLAVIYO API INTEGRATION ===
-  // Cuando tengas tus keys, descomentar este bloque:
-  /*
-  const KLAVIYO_LIST_ID = 'TU_LIST_ID_ACA';
-  const KLAVIYO_PUBLIC_KEY = 'TU_PUBLIC_KEY_ACA';
-  fetch('https://a.klaviyo.com/api/v2/list/' + KLAVIYO_LIST_ID + '/subscribe?api_key=' + KLAVIYO_PUBLIC_KEY, {
+  fetch('https://a.klaviyo.com/client/subscriptions/?company_id=XbCYge', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
     body: JSON.stringify({
-      profiles: [{ email: email, first_name: name, source: 'Herramientas FBC - ' + document.title }]
+      data: {
+        type: 'subscription',
+        attributes: {
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                email: email,
+                first_name: name,
+                properties: { source: 'Popup NicoPassini.com - ' + document.title }
+              }
+            }
+          },
+          custom_source: 'Popup NicoPassini.com'
+        },
+        relationships: {
+          list: { data: { type: 'list', id: 'TNhMED' } }
+        }
+      }
     })
   }).catch(function(e){ console.log('Klaviyo error:', e); });
-  */
-
-  // Mientras tanto, log en consola para testing
-  console.log('📬 Nuevo suscriptor:', { name, email, source: document.title });
 
   // Mostrar éxito
   document.getElementById('popupForm').style.display = 'none';
