@@ -34,7 +34,7 @@ body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-hei
 .glow-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(130px);opacity:.06;pointer-events:none;z-index:0;}
 .glow-orb-1{top:-200px;right:-100px;background:var(--blue);}.glow-orb-2{bottom:-200px;left:-100px;background:var(--teal);}
 .container{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 20px 60px;}
-.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}.back-link:hover{color:var(--teal);}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:16px;margin-bottom:24px;transition:color .2s;animation:fadeInUp .5s ease;}.back-link:hover{color:var(--teal);}
 .header{text-align:center;margin-bottom:40px;animation:fadeInUp .7s ease;}
 .brand-logo{text-align:center;margin-bottom:28px;}
 .brand-wordmark{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--white);display:inline-block;}
@@ -43,20 +43,20 @@ body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-hei
 .header .subtitle{color:var(--text-muted);font-size:16px;line-height:1.6;max-width:560px;margin:0 auto;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;animation:fadeInUp .7s ease .15s both;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--teal),transparent);opacity:.6;}
-.card-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.card-title{font-size:15px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
 .card-title .icon{width:32px;height:32px;background:rgba(11,128,225,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
 .field{margin-bottom:20px;}
-.field label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
+.field label{display:block;font-size:15px;font-weight:600;color:var(--text-muted);margin-bottom:8px;}
 .input-wrap{position:relative;}
-.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);font-weight:500;pointer-events:none;}
+.input-wrap .prefix,.input-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);font-weight:500;pointer-events:none;}
 .input-wrap .prefix{left:16px;}.input-wrap .suffix{right:16px;}
 input[type="number"]{width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--font-main);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;-moz-appearance:textfield;}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
 input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,128,225,.2);}
 .input-with-prefix{padding-left:36px!important;}.input-with-suffix{padding-right:60px!important;}
-.ars-equiv{font-size:12px;color:var(--text-muted);margin-top:5px;opacity:.7;}
+.ars-equiv{font-size:15px;color:var(--text-muted);margin-top:5px;opacity:.7;}
 .ars-config{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:20px;}
-.ars-config label{font-size:12px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+.ars-config label{font-size:15px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
 .fields-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:500px){.fields-row{grid-template-columns:1fr;}}
 
@@ -73,7 +73,7 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
 @media(max-width:500px){.expense-item{grid-template-columns:1fr 100px 36px;}}
 .btn-remove{width:36px;height:38px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--red);font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;align-self:end;}
 .btn-remove:hover{background:var(--red-bg);border-color:var(--red);}
-.btn-add{width:100%;padding:12px;border:2px dashed var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);font-family:var(--font-main);font-size:14px;cursor:pointer;transition:all .2s;}
+.btn-add{width:100%;padding:12px;border:2px dashed var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);font-family:var(--font-main);font-size:16px;cursor:pointer;transition:all .2s;}
 .btn-add:hover{border-color:var(--teal);color:var(--teal);}
 
 .calc-btn{width:100%;padding:18px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--radius-sm);font-family:var(--font-main);font-size:17px;font-weight:700;color:var(--white);cursor:pointer;transition:all .3s;margin-top:8px;}
@@ -95,23 +95,23 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
 .ring-fill circle{stroke-dasharray:534.07;stroke-dashoffset:534.07;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.5s ease;}
 .ring-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
 .ring-pct{font-size:48px;font-weight:700;line-height:1;}
-.ring-label{font-size:13px;color:var(--text-muted);}
-.hero-status{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.ring-label{font-size:15px;color:var(--text-muted);}
+.hero-status{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:100px;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
 .hero-title{font-size:18px;color:var(--text-muted);line-height:1.5;}
 .hero-amounts{margin-top:16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
 .ha-item{text-align:center;}
-.ha-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+.ha-label{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
 .ha-value{font-size:24px;font-weight:700;margin-top:2px;}
-.ha-ars{font-size:12px;color:var(--text-muted);opacity:.7;}
+.ha-ars{font-size:15px;color:var(--text-muted);opacity:.7;}
 
 /* PLAN */
 .plan-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
 .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
 @media(max-width:500px){.plan-grid{grid-template-columns:1fr;}}
 .plan-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 16px;text-align:center;}
-.plan-card .pc-months{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
+.plan-card .pc-months{font-size:15px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
 .plan-card .pc-amount{font-size:24px;font-weight:700;color:var(--teal);margin:6px 0 2px;}
-.plan-card .pc-sub{font-size:12px;color:var(--text-muted);}
+.plan-card .pc-sub{font-size:15px;color:var(--text-muted);}
 
 /* CHART */
 .chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
@@ -124,34 +124,34 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
 .where-card:hover{border-color:var(--teal);}
 .where-icon{font-size:24px;flex-shrink:0;}
 .where-info{flex:1;}
-.where-name{font-size:14px;font-weight:700;color:var(--white);}
-.where-desc{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
-.where-badge{padding:4px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.where-name{font-size:16px;font-weight:700;color:var(--white);}
+.where-desc{font-size:15px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
+.where-badge{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
 
 /* RECO */
 .reco-box{background:var(--surface-2);border-radius:var(--radius-sm);padding:24px;border-left:3px solid;margin-bottom:16px;}
 .reco-box.reco-green{border-color:var(--green);}.reco-box.reco-orange{border-color:var(--orange);}.reco-box.reco-red{border-color:var(--red);}
 .reco-box h4{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .reco-green h4{color:var(--green);}.reco-orange h4{color:var(--orange);}.reco-red h4{color:var(--red);}
-.reco-box p{font-size:14px;color:var(--text-muted);line-height:1.65;}
+.reco-box p{font-size:16px;color:var(--text-muted);line-height:1.65;}
 .reco-box ul{margin-top:10px;padding-left:0;list-style:none;}
-.reco-box li{font-size:13px;color:var(--text-muted);line-height:1.6;padding:4px 0 4px 20px;position:relative;}
+.reco-box li{font-size:15px;color:var(--text-muted);line-height:1.6;padding:4px 0 4px 20px;position:relative;}
 .reco-box li::before{content:'→';position:absolute;left:0;color:var(--teal);font-weight:700;}
 
 /* CURRENCY BUTTONS */
 .cur-grid{display:flex;gap:8px;margin-bottom:16px;}
-.cur-btn{flex:1;padding:16px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
+.cur-btn{flex:1;padding:16px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);color:var(--text-muted);font-family:var(--font-main);font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;}
 .cur-btn:hover{border-color:var(--text-muted);}
 .cur-btn.active{border-color:var(--teal);background:var(--accent-glow);color:var(--teal);}
 .cur-btn .c-icon{font-size:22px;display:block;margin-bottom:4px;}
-.cur-btn .c-name{display:block;font-size:12px;}
+.cur-btn .c-name{display:block;font-size:15px;}
 
 .cta-card{background:linear-gradient(135deg,var(--surface-2),var(--surface-3));border:1px solid var(--teal);border-radius:var(--radius);padding:32px 28px;text-align:center;margin-bottom:24px;}
 .cta-card h3{font-size:20px;color:var(--white);margin-bottom:10px;}
 .cta-card p{color:var(--text-muted);font-size:15px;margin-bottom:18px;line-height:1.6;}
 .btn-cta{display:inline-block;padding:14px 36px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;text-decoration:none;font-weight:600;font-size:15px;transition:all .3s;}
 .btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(11,128,225,.3);}
-.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:13px;line-height:1.6;}
+.footer{text-align:center;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:15px;line-height:1.6;}
 .footer a{color:var(--teal);text-decoration:none;}
 
 /* SHARE CARD */
@@ -165,13 +165,13 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
 .sc-main-sub{font-size:22px;color:var(--text-muted);margin-top:8px;}
 .sc-stats{display:flex;gap:16px;margin-bottom:40px;}
 .sc-stat{background:rgba(23,48,77,.8);border:1px solid var(--border);border-radius:12px;padding:24px;flex:1;text-align:center;}
-.sc-stat-label{font-size:14px;color:var(--text-muted);margin-bottom:6px;}
+.sc-stat-label{font-size:16px;color:var(--text-muted);margin-bottom:6px;}
 .sc-stat-val{font-size:28px;font-weight:700;}
 .sc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:24px;}
 .sc-footer-text{font-size:16px;color:var(--text-muted);}
 .sc-footer-ig{font-size:20px;font-weight:600;color:var(--teal);}
 
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:14px;z-index:100;transition:transform .4s ease;pointer-events:none;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--teal);color:var(--bg);padding:14px 28px;border-radius:var(--radius-sm);font-weight:600;font-size:16px;z-index:100;transition:transform .4s ease;pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 ::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:4px;}
@@ -199,7 +199,7 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
   <div class="ars-config" id="arsConfigWrap">
     <label>USD/ARS:</label>
     <div class="input-wrap"><span class="prefix">$</span><input type="number" id="arsRate" value="1200" min="1" style="width:120px;padding-left:28px;" oninput="updateAllEquiv()"></div>
-    <span id="arsSource" style="font-size:11px;color:var(--text-muted);opacity:.6;"></span>
+    <span id="arsSource" style="font-size:13px;color:var(--text-muted);opacity:.6;"></span>
   </div>
 </div>
 
@@ -209,12 +209,12 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
     <button class="month-btn" onclick="setMonths(3, this)"><span class="num">3</span>meses</button>
     <button class="month-btn active" onclick="setMonths(6, this)"><span class="num">6</span>meses</button>
   </div>
-  <p style="font-size:13px;color:var(--text-muted);line-height:1.5;">3 meses es el mínimo recomendado. 6 meses te da mucha más tranquilidad ante pérdida de empleo o emergencias médicas.</p>
+  <p style="font-size:15px;color:var(--text-muted);line-height:1.5;">3 meses es el mínimo recomendado. 6 meses te da mucha más tranquilidad ante pérdida de empleo o emergencias médicas.</p>
 </div>
 
 <div class="card">
   <div class="card-title"><div class="icon">💸</div> Tus gastos mensuales esenciales</div>
-  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Solo gastos que NO podés dejar de pagar: alquiler, servicios, comida, transporte, salud, deudas mínimas.</p>
+  <p style="font-size:15px;color:var(--text-muted);margin-bottom:16px;">Solo gastos que NO podés dejar de pagar: alquiler, servicios, comida, transporte, salud, deudas mínimas.</p>
   <div class="expense-list" id="expenseList"></div>
   <button class="btn-add" onclick="addExpense()">+ Agregar gasto</button>
 </div>
@@ -250,7 +250,7 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
   <!-- PLAN -->
   <div class="plan-section">
     <div class="card-title"><div class="icon">📅</div> Plan de ahorro para completarlo</div>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:4px;" id="planDesc"></p>
+    <p style="font-size:16px;color:var(--text-muted);margin-bottom:4px;" id="planDesc"></p>
     <div class="plan-grid" id="planGrid"></div>
   </div>
 
@@ -263,7 +263,7 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
   <!-- WHERE TO KEEP -->
   <div class="where-section">
     <div class="card-title"><div class="icon">🏦</div> ¿Dónde guardar tu fondo?</div>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:4px;">Tu fondo de emergencia debe ser líquido (que puedas sacarlo rápido) y seguro. No es para invertir.</p>
+    <p style="font-size:16px;color:var(--text-muted);margin-bottom:4px;">Tu fondo de emergencia debe ser líquido (que puedas sacarlo rápido) y seguro. No es para invertir.</p>
     <div class="where-grid" id="whereGrid"></div>
   </div>
 
@@ -273,13 +273,13 @@ input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,1
   <!-- SHARE -->
   <div style="text-align:center;margin-bottom:24px;">
     <h3 style="font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">📲 Compartí tu resultado</h3>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
+    <p style="font-size:16px;color:var(--text-muted);margin-bottom:20px;">Descargá tu imagen o compartila directo en redes</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <button onclick="downloadImage()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
-      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
-      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
-      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
-      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
+      <button onclick="downloadImage()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:white;background:linear-gradient(135deg,var(--blue),var(--teal));">📥 Descargar imagen</button>
+      <button onclick="shareWhatsApp()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 WhatsApp</button>
+      <button onclick="shareTwitter()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:white;background:#1DA1F2;">🐦 Twitter/X</button>
+      <button onclick="shareFacebook()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:white;background:#1877F2;">📘 Facebook</button>
+      <button onclick="copyLink()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:var(--text-muted);background:var(--surface-3);border:1px solid var(--border);">🔗 Copiar link</button>
     </div>
   </div>
 
@@ -391,8 +391,8 @@ function addExpense(name='', amount='') {
   div.className = 'expense-item';
   div.setAttribute('data-id', id);
   div.innerHTML = `
-    <div class="field" style="margin:0;"><label style="font-size:11px;">Gasto</label><input type="text" value="${name}" placeholder="Ej: alquiler" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-main);font-size:14px;"></div>
-    <div class="field" style="margin:0;"><label style="font-size:11px;">Monto</label><input type="number" class="exp-amount" value="${amount}" placeholder="0" min="0" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-main);font-size:14px;"></div>
+    <div class="field" style="margin:0;"><label style="font-size:13px;">Gasto</label><input type="text" value="${name}" placeholder="Ej: alquiler" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-main);font-size:16px;"></div>
+    <div class="field" style="margin:0;"><label style="font-size:13px;">Monto</label><input type="number" class="exp-amount" value="${amount}" placeholder="0" min="0" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-main);font-size:16px;"></div>
     <button class="btn-remove" onclick="removeExpense(${id})">×</button>`;
   document.getElementById('expenseList').appendChild(div);
 }
@@ -595,21 +595,21 @@ init();
     <div style="text-align:center;margin-bottom:24px;">
       <div style="font-size:40px;margin-bottom:12px;">📬</div>
       <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
-      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:16px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
     </div>
     <div id="popupForm">
       <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
       <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
       <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
-      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+      <p style="text-align:center;font-size:13px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
     </div>
     <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
       <div style="font-size:48px;margin-bottom:12px;">🎉</div>
       <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
-      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
     </div>
     <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
-      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
     </div>
   </div>
 </div>

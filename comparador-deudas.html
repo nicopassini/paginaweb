@@ -123,7 +123,7 @@ body {
 }
 
 .nav-back {
-  font-size: 14px;
+  font-size:16px;
   color: var(--text-muted);
   text-decoration: none;
   transition: color 0.25s;
@@ -147,7 +147,7 @@ body {
   background: rgba(11, 128, 225, 0.12);
   border: 1px solid rgba(11, 128, 225, 0.25);
   color: var(--blue);
-  font-size: 11px;
+  font-size:13px;
   font-weight: 600;
   letter-spacing: 1.8px;
   text-transform: uppercase;
@@ -192,7 +192,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size:15px;
   font-weight: 600;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -226,7 +226,7 @@ body {
 }
 
 .card-title {
-  font-size: 12px;
+  font-size:15px;
   font-weight: 700;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -252,7 +252,7 @@ body {
 
 .field label {
   display: block;
-  font-size: 13px;
+  font-size:15px;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 7px;
@@ -264,7 +264,7 @@ body {
 .input-wrap .suffix {
   position: absolute;
   top: 50%; transform: translateY(-50%);
-  font-size: 14px;
+  font-size:16px;
   color: var(--text-muted);
   font-weight: 500;
   pointer-events: none;
@@ -319,7 +319,7 @@ input:focus {
 }
 
 .debt-item-number {
-  font-size: 13px;
+  font-size:15px;
   font-weight: 700;
   color: var(--blue);
 }
@@ -362,7 +362,7 @@ input:focus {
   border: 1.5px dashed var(--border);
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
@@ -407,14 +407,14 @@ input:focus {
 }
 
 .extra-payment-section .ep-label {
-  font-size: 13px;
+  font-size:15px;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
 
 .extra-payment-section .ep-desc {
-  font-size: 12px;
+  font-size:15px;
   color: var(--text-dim);
   margin-bottom: 12px;
   line-height: 1.5;
@@ -423,13 +423,11 @@ input:focus {
 /* MAIN LAYOUT */
 .main-layout {
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: 1fr;
   gap: 28px;
   padding-bottom: 80px;
-}
-
-@media (max-width: 900px) {
-  .main-layout { grid-template-columns: 1fr; }
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 /* RESULTS */
@@ -474,7 +472,7 @@ input:focus {
   top: -1px; right: 20px;
   background: linear-gradient(135deg, var(--blue), var(--teal));
   color: var(--white);
-  font-size: 10px;
+  font-size:12px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -493,7 +491,7 @@ input:focus {
 }
 
 .method-card .mc-desc {
-  font-size: 12px;
+  font-size:15px;
   color: var(--text-dim);
   margin-bottom: 20px;
   line-height: 1.5;
@@ -504,7 +502,7 @@ input:focus {
 }
 
 .method-card .mc-stat-label {
-  font-size: 11px;
+  font-size:13px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -519,7 +517,7 @@ input:focus {
 }
 
 .method-card .mc-stat-sub {
-  font-size: 12px;
+  font-size:15px;
   color: var(--text-dim);
   margin-top: 2px;
 }
@@ -534,7 +532,7 @@ input:focus {
 }
 
 .savings-highlight .sh-label {
-  font-size: 12px;
+  font-size:15px;
   color: var(--teal);
   font-weight: 600;
   text-transform: uppercase;
@@ -549,7 +547,7 @@ input:focus {
 }
 
 .savings-highlight .sh-desc {
-  font-size: 13px;
+  font-size:15px;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -560,7 +558,7 @@ input:focus {
 }
 
 .order-section h3 {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 700;
   color: var(--white);
   margin-bottom: 14px;
@@ -578,7 +576,7 @@ input:focus {
   border: 1.5px solid var(--border);
   border-radius: 100px;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size:15px;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
@@ -611,7 +609,7 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:15px;
   font-weight: 700;
   color: var(--blue);
   flex-shrink: 0;
@@ -620,13 +618,13 @@ input:focus {
 .order-item .oi-info { flex: 1; }
 
 .order-item .oi-name {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: var(--white);
 }
 
 .order-item .oi-detail {
-  font-size: 12px;
+  font-size:15px;
   color: var(--text-dim);
   margin-top: 2px;
 }
@@ -636,13 +634,13 @@ input:focus {
 }
 
 .order-item .oi-balance {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 700;
   color: var(--text);
 }
 
 .order-item .oi-rate {
-  font-size: 11px;
+  font-size:13px;
   color: var(--text-dim);
 }
 
@@ -656,7 +654,7 @@ input:focus {
 }
 
 .chart-title {
-  font-size: 12px;
+  font-size:15px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -689,7 +687,7 @@ canvas#timelineChart {
 }
 
 .reco-box p {
-  font-size: 14px;
+  font-size:16px;
   color: var(--text-muted);
   line-height: 1.65;
 }
@@ -701,7 +699,7 @@ canvas#timelineChart {
 }
 
 .reco-box li {
-  font-size: 13px;
+  font-size:15px;
   color: var(--text-muted);
   line-height: 1.6;
   padding: 4px 0 4px 20px;
@@ -758,7 +756,7 @@ canvas#timelineChart {
 .ca-red .ca-title { color: var(--red); }
 
 .capacity-alert .ca-body {
-  font-size: 14px;
+  font-size:16px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -779,7 +777,7 @@ canvas#timelineChart {
 }
 
 .ca-num .cn-label {
-  font-size: 10px;
+  font-size:12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -837,14 +835,14 @@ canvas#timelineChart {
 .debt-action-item .dai-content { flex: 1; }
 
 .debt-action-item .dai-name {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 700;
   color: var(--white);
   margin-bottom: 2px;
 }
 
 .debt-action-item .dai-action {
-  font-size: 12px;
+  font-size:15px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -856,7 +854,7 @@ canvas#timelineChart {
 .action-abandon .dai-action { color: var(--red); }
 
 .debt-action-item .dai-detail {
-  font-size: 13px;
+  font-size:15px;
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -865,7 +863,7 @@ canvas#timelineChart {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size:13px;
   font-weight: 600;
   margin-top: 6px;
   padding: 3px 10px;
@@ -947,7 +945,7 @@ canvas#timelineChart {
 .disclaimer {
   text-align: center;
   padding: 20px 20px 60px;
-  font-size: 12px;
+  font-size:15px;
   color: var(--text-dim);
   line-height: 1.7;
   max-width: 600px;
@@ -993,7 +991,7 @@ canvas#timelineChart {
 }
 
 .debt-type-btn .dt-name {
-  font-size: 12px;
+  font-size:15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -1123,10 +1121,10 @@ canvas#timelineChart {
   <!-- SHARE -->
   <div id="shareDeudas" style="display:none;text-align:center;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
     <h3 style="font-size:18px;font-weight:700;color:#e4eaf2;margin-bottom:8px;">📩 Compartí tu resumen con alguien</h3>
-    <p style="font-size:14px;color:#8da4bf;margin-bottom:16px;">Mandáselo a tu pareja, familiar o asesor para que vea tu situación</p>
+    <p style="font-size:16px;color:#8da4bf;margin-bottom:16px;">Mandáselo a tu pareja, familiar o asesor para que vea tu situación</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <button onclick="shareDeudaResumen('wa')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 Enviar por WhatsApp</button>
-      <button onclick="shareDeudaResumen('copy')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:14px;font-weight:600;cursor:pointer;border:none;color:#8da4bf;background:#1c3a5a;border:1px solid #1f4672;">📋 Copiar resumen</button>
+      <button onclick="shareDeudaResumen('wa')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:white;background:#25D366;">💬 Enviar por WhatsApp</button>
+      <button onclick="shareDeudaResumen('copy')" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-family:var(--font-main);font-size:16px;font-weight:600;cursor:pointer;border:none;color:#8da4bf;background:#1c3a5a;border:1px solid #1f4672;">📋 Copiar resumen</button>
     </div>
   </div>
 
@@ -1768,7 +1766,7 @@ function generateScenarios(capacity, debts) {
   let html = `
     <div class="scenario-box">
       <h4 style="color: var(--red);">🚨 Plan de acción — tu presupuesto no alcanza para todo</h4>
-      <p style="font-size:14px; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
+      <p style="font-size:16px; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
         Tu presupuesto mensual de <strong>${formatMoney(budget)}</strong> no cubre el total de pagos mínimos. 
         A continuación te mostramos qué priorizar, qué renegociar y, en el peor caso, qué dejar de pagar.
       </p>
@@ -1785,7 +1783,7 @@ function generateScenarios(capacity, debts) {
       <li class="debt-action-item ${actionClass}">
         <div class="dai-icon">${icon}</div>
         <div class="dai-content">
-          <div class="dai-name">${a.name} <span style="font-size:11px; color:var(--text-dim); font-weight:400;">${typeLabel}</span></div>
+          <div class="dai-name">${a.name} <span style="font-size:13px; color:var(--text-dim); font-weight:400;">${typeLabel}</span></div>
           <div class="dai-action">${actionLabel}</div>
           <div class="dai-detail">${a.detail}</div>
           ${a.daysToCobranza ? `<div class="dai-timeline">⏱ Pasa a cobranzas en ${a.daysToCobranza} días (${Math.round(a.daysToCobranza / 30)} meses)</div>` : ''}
@@ -1805,7 +1803,7 @@ function generateScenarios(capacity, debts) {
     if (riskyBanks.length > 0) {
       html += `
         <div style="margin-top:16px; padding:16px; background:rgba(139,92,246,0.1); border-radius:10px; border:1px solid rgba(139,92,246,0.25);">
-          <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.6;">
             <strong style="color:#8b5cf6;">🏦 ¡Atención con ${riskyBanks.join(', ')}!</strong> Tenés productos que estás pagando y otros que no podés cubrir <strong>en el mismo banco</strong>.
             Si dejás de pagar uno, el banco puede dar de baja <strong>todos tus productos</strong> y juntar toda la deuda (incluso las cuotas que estaban al día)
             en un solo paquete con intereses de refinanciación. <strong>Esto empeoraría mucho tu situación.</strong>
@@ -1817,7 +1815,7 @@ function generateScenarios(capacity, debts) {
 
     html += `
       <div style="margin-top:16px; padding:16px; background:var(--red-bg); border-radius:10px; border:1px solid rgba(232,84,84,0.2);">
-        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+        <p style="font-size:15px; color:var(--text-muted); line-height:1.6;">
           <strong style="color:var(--red);">⚠️ Importante sobre deudas impagas:</strong> Si dejás de pagar una deuda, 
           a los <strong>90 días de atraso</strong> el banco transfiere la gestión a un estudio de cobranzas externo y se da de baja el producto. 
           Esto afecta tu historial crediticio y puede dificultar acceder a créditos en el futuro. 
@@ -1830,7 +1828,7 @@ function generateScenarios(capacity, debts) {
   if (renegotiateCount > 0) {
     html += `
       <div style="margin-top:12px; padding:16px; background:var(--orange-bg); border-radius:10px; border:1px solid rgba(240,160,48,0.2);">
-        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+        <p style="font-size:15px; color:var(--text-muted); line-height:1.6;">
           <strong style="color:var(--orange);">💡 Tip para renegociar:</strong> Llamá a tu banco y pedí hablar con el área de "refinanciación" o "cobranzas preventiva". 
           Explicá tu situación y pedí: extensión de plazo, reducción de tasa, o un plan de pagos acorde a lo que podés pagar. 
           Los bancos prefieren renegociar antes que mandarte a cobranzas.
@@ -2280,21 +2278,21 @@ init();
     <div style="text-align:center;margin-bottom:24px;">
       <div style="font-size:40px;margin-bottom:12px;">📬</div>
       <h2 style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3;">Tips financieros gratis cada semana</h2>
-      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:14px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
+      <p style="font-family:'Century Gothic','Questrial','Futura','Trebuchet MS',sans-serif;font-size:16px;color:#8da4bf;line-height:1.5;">Recibí en tu mail estrategias simples para ahorrar, invertir y hacer crecer tu plata. Sin humo, sin spam.</p>
     </div>
     <div id="popupForm">
       <input type="text" id="popupName" placeholder="Tu nombre" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:10px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
       <input type="email" id="popupEmail" placeholder="Tu mejor email" style="width:100%;padding:14px 16px;background:#17304d;border:1.5px solid #1f4672;border-radius:10px;color:#e4eaf2;font-family:'Century Gothic','Questrial',sans-serif;font-size:15px;margin-bottom:14px;transition:border-color .25s;" onfocus="this.style.borderColor='#0b80e1'" onblur="this.style.borderColor='#1f4672'">
       <button onclick="submitPopup()" style="width:100%;padding:16px;background:linear-gradient(135deg,#0b80e1,#11b3b7);border:none;border-radius:10px;color:#fff;font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(11,128,225,.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">Quiero recibirlos →</button>
-      <p style="text-align:center;font-size:11px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
+      <p style="text-align:center;font-size:13px;color:#8da4bf;opacity:.6;margin-top:10px;">0% spam. Te podés desuscribir cuando quieras.</p>
     </div>
     <div id="popupSuccess" style="display:none;text-align:center;padding:20px 0;">
       <div style="font-size:48px;margin-bottom:12px;">🎉</div>
       <h3 style="font-family:'Century Gothic','Questrial',sans-serif;font-size:20px;color:#11b3b7;margin-bottom:8px;">¡Listo! Ya estás adentro</h3>
-      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:14px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
+      <p style="font-family:'Century Gothic','Questrial',sans-serif;font-size:16px;color:#8da4bf;">Revisá tu mail. El primer tip llega esta semana.</p>
     </div>
     <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1f4672;">
-      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:#8da4bf;">NICO PASSINI</span>
     </div>
   </div>
 </div>

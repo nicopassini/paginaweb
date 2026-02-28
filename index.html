@@ -799,8 +799,9 @@ body {
 .email-form {
   display: flex;
   gap: 12px;
-  max-width: 480px;
+  max-width: 600px;
   margin: 0 auto;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 500px) {
@@ -1236,7 +1237,8 @@ body {
       <h2>Un tip de educación financiera por semana</h2>
       <p>Cada semana te mando un email corto con una idea práctica para que aprendas a manejar mejor tu plata. Sin humo, sin vueltas. Gratis.</p>
       <form class="email-form" onsubmit="handleEmail(event)">
-        <input type="email" placeholder="Tu email" required>
+        <input type="text" id="nlName" placeholder="Tu nombre" required style="flex:0.8;">
+        <input type="email" id="nlEmail" placeholder="Tu email" required>
         <button type="submit">Suscribirme</button>
       </form>
       <p class="email-note">Sin spam. Te podés desuscribir cuando quieras.</p>
@@ -1303,13 +1305,37 @@ const revealObserver = new IntersectionObserver((entries) => {
 reveals.forEach(el => revealObserver.observe(el));
 
 // Email form handler (placeholder)
-function handleEmail(e) {
+async function handleEmail(e) {
   e.preventDefault();
-  const input = e.target.querySelector('input');
-  const email = input.value;
-  // Replace with your email service integration
-  alert('¡Gracias por suscribirte! 🎉\nTe llegará un email de confirmación a ' + email);
-  input.value = '';
+  const nameInput = document.getElementById('nlName');
+  const emailInput = document.getElementById('nlEmail');
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+  if(!name || !email) return;
+  const btn = e.target.querySelector('button');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    await fetch('https://a.klaviyo.com/client/subscriptions/?company_id=XbCYge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
+      body: JSON.stringify({
+        data: {
+          type: 'subscription',
+          attributes: {
+            profile: { data: { type: 'profile', attributes: { email: email, first_name: name, properties: { source: 'newsletter-landing' } } } },
+            custom_source: 'Newsletter NicoPassini.com'
+          },
+          relationships: { list: { data: { type: 'list', id: 'TNhMED' } } }
+        }
+      })
+    });
+  } catch(err) { console.warn('Klaviyo:', err); }
+  btn.textContent = '¡Listo! ✓';
+  btn.style.background = '#11b3b7';
+  nameInput.value = '';
+  emailInput.value = '';
+  setTimeout(() => { btn.textContent = 'Suscribirme'; btn.disabled = false; btn.style.background = ''; }, 3000);
 }
 </script>
 
