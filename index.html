@@ -973,7 +973,6 @@ body {
       <li><a href="#historia">Mi historia</a></li>
       <li><a href="#herramientas">Herramientas</a></li>
       <li><a href="#metodo">Método FBC</a></li>
-      <li><a href="#newsletter">Email semanal</a></li>
       <li><a href="https://instagram.com/nicopassini_" target="_blank" class="nav-cta">Seguime</a></li>
     </ul>
     <button class="nav-toggle" id="navToggle" aria-label="Menú">
@@ -1229,23 +1228,6 @@ body {
   </div>
 </section>
 
-<!-- ===== EMAIL CAPTURE ===== -->
-<section class="section email-section" id="newsletter">
-  <div class="container">
-    <div class="email-card reveal">
-      <div class="section-label" style="justify-content:center;"><span class="sl-line"></span> Email semanal</div>
-      <h2>Un tip de educación financiera por semana</h2>
-      <p>Cada semana te mando un email corto con una idea práctica para que aprendas a manejar mejor tu plata. Sin humo, sin vueltas. Gratis.</p>
-      <form class="email-form" onsubmit="handleEmail(event)">
-        <input type="text" id="nlName" placeholder="Tu nombre" required style="flex:0.8;">
-        <input type="email" id="nlEmail" placeholder="Tu email" required>
-        <button type="submit">Suscribirme</button>
-      </form>
-      <p class="email-note">Sin spam. Te podés desuscribir cuando quieras.</p>
-    </div>
-  </div>
-</section>
-
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="container">
@@ -1304,39 +1286,6 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 reveals.forEach(el => revealObserver.observe(el));
 
-// Email form handler (placeholder)
-async function handleEmail(e) {
-  e.preventDefault();
-  const nameInput = document.getElementById('nlName');
-  const emailInput = document.getElementById('nlEmail');
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim();
-  if(!name || !email) return;
-  const btn = e.target.querySelector('button');
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
-  try {
-    await fetch('https://a.klaviyo.com/client/subscriptions/?company_id=XbCYge', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
-      body: JSON.stringify({
-        data: {
-          type: 'subscription',
-          attributes: {
-            profile: { data: { type: 'profile', attributes: { email: email, first_name: name, properties: { source: 'newsletter-landing' } } } },
-            custom_source: 'Newsletter NicoPassini.com'
-          },
-          relationships: { list: { data: { type: 'list', id: 'TNhMED' } } }
-        }
-      })
-    });
-  } catch(err) { console.warn('Klaviyo:', err); }
-  btn.textContent = '¡Listo! ✓';
-  btn.style.background = '#11b3b7';
-  nameInput.value = '';
-  emailInput.value = '';
-  setTimeout(() => { btn.textContent = 'Suscribirme'; btn.disabled = false; btn.style.background = ''; }, 3000);
-}
 </script>
 
 <!-- EMAIL POPUP - Nico Passini / FBC -->
