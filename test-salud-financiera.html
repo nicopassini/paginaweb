@@ -1447,11 +1447,11 @@ async function downloadPDFReport() {
     if(pct < 70) {
       let advice = '';
       if(key === 'saving') advice = 'Automatiza un ahorro fijo el dia que cobras, aunque sea chico. El habito es mas importante que el monto.';
-      else if(key === 'debt') advice = 'Prioriza pagar las deudas con mayor tasa de interes primero (metodo avalancha). Nunca pagues solo el minimo de la tarjeta de credito.';;
-      else if(key === 'budget') advice = 'Registra tus gastos durante 1 mes completo. No puedes mejorar lo que no medis. Usa la herramienta de presupuesto en nicopassini.com.';;
-      else if(key === 'investment') advice = 'Empieza con inversiones simples y de bajo costo. Un fondo indexado o plazo fijo como primer paso. Lo importante es empezar.';;
-      else if(key === 'income') advice = 'Evalua formas de diversificar tus ingresos: freelance, proyectos paralelos o inversiones que generen renta pasiva.';;
-      else if(key === 'mindset') advice = 'Dedica 15 minutos por semana a educacion financiera. La mentalidad es la base de todo cambio financiero duradero.';;
+      else if(key === 'debt') advice = 'Prioriza pagar las deudas con mayor tasa de interes primero (metodo avalancha). Nunca pagues solo el minimo de la tarjeta de credito.';
+      else if(key === 'budget') advice = 'Registra tus gastos durante 1 mes completo. No puedes mejorar lo que no medis. Usa la herramienta de presupuesto en nicopassini.com.';
+      else if(key === 'investment') advice = 'Empieza con inversiones simples y de bajo costo. Un fondo indexado o plazo fijo como primer paso. Lo importante es empezar.';
+      else if(key === 'income') advice = 'Evalua formas de diversificar tus ingresos: freelance, proyectos paralelos o inversiones que generen renta pasiva.';
+      else if(key === 'mindset') advice = 'Dedica 15 minutos por semana a educacion financiera. La mentalidad es la base de todo cambio financiero duradero.';
       recs.push({ area: areaNames[key] || cfg.name, pct, advice });
     }
   });
