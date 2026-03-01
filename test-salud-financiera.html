@@ -1421,7 +1421,7 @@ async function downloadPDFReport() {
     doc.setFont('helvetica','normal');
     doc.setTextColor(180,210,240);
     doc.text('Nico Passini  |  nicopassini.com', m, 30);
-    doc.text(dateStr, W - m, 30, {align:'right'});
+    doc.text(String(dateStr), W - m, 30, {align:'right'});
 
     let y = 54;
 
@@ -1435,13 +1435,13 @@ async function downloadPDFReport() {
     doc.setTextColor(255,255,255);
     doc.setFontSize(14);
     doc.setFont('helvetica','bold');
-    doc.text(score.toString(), m + 22, y + 25, {align:'center'});
+    doc.text(String(score), m + 22, y + 25, {align:'center'});
     doc.setFontSize(22);
     doc.setTextColor(...navy);
-    doc.text(san(level.name.toUpperCase()), m + 45, y + 18);
+    doc.text(san(level.name).toUpperCase(), m + 45, y + 18);
     doc.setFontSize(11);
     doc.setTextColor(...blue);
-    doc.text(san(score + ' de 100 puntos'), m + 45, y + 28);
+    doc.text(String(score) + ' de 100 puntos', m + 45, y + 28);
     doc.setFontSize(9);
     doc.setFont('helvetica','normal');
     doc.setTextColor(...grayTxt);
@@ -1468,7 +1468,7 @@ async function downloadPDFReport() {
       doc.setFontSize(10);
       doc.setFont('helvetica','bold');
       doc.setTextColor(...navy);
-      doc.text(areaNames[key], m + 4, y + 9);
+      doc.text(san(areaNames[key]), m + 4, y + 9);
       const barX = m + 50, barW = cW - 85, barH = 5, barY = y + 5;
       doc.setFillColor(220,225,235);
       doc.roundedRect(barX, barY, barW, barH, 2.5, 2.5, 'F');
@@ -1478,7 +1478,7 @@ async function downloadPDFReport() {
       doc.setFontSize(11);
       doc.setFont('helvetica','bold');
       doc.setTextColor(...barColor);
-      doc.text(pct + '%', W - m - 2, y + 9, {align:'right'});
+      doc.text(String(pct) + '%', W - m - 2, y + 9, {align:'right'});
       y += 17;
     });
 
@@ -1495,7 +1495,7 @@ async function downloadPDFReport() {
     doc.setFontSize(9);
     doc.setFont('helvetica','normal');
     doc.setTextColor(180,210,240);
-    doc.text(san('Basados en tu puntaje de ' + score + '/100'), m, 30);
+    doc.text('Basados en tu puntaje de ' + String(score) + '/100', m, 30);
     y = 54;
 
     const allTips = [];
@@ -1537,7 +1537,7 @@ async function downloadPDFReport() {
       else { fillColor = [254,242,242]; borderColor = [220,60,60]; labelColor = [220,60,60]; label = 'URGENTE'; }
 
       doc.setFontSize(8.5);
-      const tipLines = doc.splitTextToSize(t.tip, cW - 14);
+      const tipLines = doc.splitTextToSize(san(t.tip), cW - 14);
       const tipH = 16 + tipLines.length * 4;
 
       if(y + tipH > H - 30) {
@@ -1560,11 +1560,11 @@ async function downloadPDFReport() {
       doc.setFontSize(10);
       doc.setFont('helvetica','bold');
       doc.setTextColor(...navy);
-      doc.text(t.area, m + 7, y + 7);
+      doc.text(san(t.area), m + 7, y + 7);
       doc.setFontSize(9);
       doc.setTextColor(...labelColor);
-      const areaW = doc.getTextWidth(t.area);
-      doc.text(t.pct + '%  |  ' + label, m + 7 + areaW + 4, y + 7);
+      const areaW = doc.getTextWidth(san(t.area));
+      doc.text(String(t.pct) + '%  |  ' + label, m + 7 + areaW + 4, y + 7);
       doc.setFont('helvetica','normal');
       doc.setTextColor(60,60,60);
       doc.setFontSize(8.5);
