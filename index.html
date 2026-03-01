@@ -1318,9 +1318,10 @@ reveals.forEach(el => revealObserver.observe(el));
 #emailPopup input::placeholder{color:#5a7a9a;}
 </style>
 <script>
+// CONFIG: GoHighLevel Webhook
+const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/MIk6rZOxMRO5C9bFaZu1/webhook-trigger/28b92337-e7e4-4648-a113-33f99f8e1f4d';
+
 (function(){
-  // CONFIG: GoHighLevel Webhook
-  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/MIk6rZOxMRO5C9bFaZu1/webhook-trigger/28b92337-e7e4-4648-a113-33f99f8e1f4d';
   const POPUP_DELAY_MS = 5000; // 5 segundos
   const POPUP_KEY = 'fbc_popup_shown';
 
