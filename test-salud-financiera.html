@@ -1381,152 +1381,228 @@ async function downloadPDFReport() {
     }
 
     const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('portrait','mm','a4');
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const m = 15;
-  const cW = W - m*2;
-  const { score, level, areaScores } = shareData;
-  const dateStr = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const levelColor = level.name === 'Critico' ? [232,84,84] : level.name === 'Fragil' ? [240,160,48] : level.name === 'En camino' ? [240,192,64] : [17,179,183];
-  const dk = [13,27,46], bl = [11,128,225], tl = [17,179,183], gy = [100,116,139];
-  const areaNames = { saving:'Ahorro', debt:'Deudas', budget:'Presupuesto', investment:'Inversiones', income:'Ingresos', mindset:'Mentalidad' };
+    const doc = new jsPDF('portrait','mm','a4');
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+    const m = 15;
+    const cW = W - m*2;
+    const { score, level, areaScores } = shareData;
+    const dateStr = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-  // Header bar
-  doc.setFillColor(...dk); doc.rect(0,0,W,38,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('REPORTE DE SALUD FINANCIERA', m, 16);
-  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,230);
-  doc.text('Nico Passini  |  nicopassini.com', m, 26);
-  doc.text('Fecha: ' + dateStr, W-m, 26, {align:'right'});
+    // BRAND PALETTE
+    const navy = [26,55,83];
+    const blue = [11,128,225];
+    const black = [20,20,20];
+    const teal = [17,179,183];
+    const grayTxt = [100,116,139];
+    const levelColor = level.name === 'Critico' ? [220,60,60] : level.name === 'Fragil' ? [230,150,30] : level.name === 'En camino' ? [230,180,40] : teal;
+    const areaNames = { saving:'Ahorro', debt:'Deudas', budget:'Presupuesto', investment:'Inversiones', income:'Ingresos', mindset:'Mentalidad' };
 
-  let y = 50;
+    // ===== PAGE 1: SCORE + AREAS =====
+    doc.setFillColor(...navy);
+    doc.rect(0, 0, W, 40, 'F');
+    doc.setFillColor(...teal);
+    doc.rect(0, 40, W, 1.2, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica','bold');
+    doc.text('REPORTE DE SALUD FINANCIERA', m, 18);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(180,210,240);
+    doc.text('Nico Passini  |  nicopassini.com', m, 30);
+    doc.text(dateStr, W - m, 30, {align:'right'});
 
-  // Score section
-  doc.setFillColor(241,245,249); doc.roundedRect(m, y, cW, 40, 3, 3, 'F');
-  doc.setDrawColor(226,232,240); doc.roundedRect(m, y, cW, 40, 3, 3, 'S');
-  
-  // Score number
-  doc.setFontSize(32); doc.setFont('helvetica','bold'); doc.setTextColor(...levelColor);
-  doc.text(score + '/100', m + 15, y + 22);
-  
-  // Level name
-  doc.setFontSize(18); doc.setTextColor(...dk);
-  doc.text(level.name.toUpperCase(), m + 55, y + 20);
-  
-  // Level desc
-  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
-  doc.text(level.desc, m + 15, y + 35);
-  
-  y += 52;
+    let y = 54;
 
-  // Area scores section
-  doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...dk);
-  doc.text('DETALLE POR AREA', m, y); y += 8;
+    // Score card
+    doc.setFillColor(245,247,250);
+    doc.roundedRect(m, y, cW, 42, 4, 4, 'F');
+    doc.setDrawColor(220,225,235);
+    doc.roundedRect(m, y, cW, 42, 4, 4, 'S');
+    doc.setFillColor(...levelColor);
+    doc.circle(m + 22, y + 21, 15, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica','bold');
+    doc.text(score.toString(), m + 22, y + 25, {align:'center'});
+    doc.setFontSize(22);
+    doc.setTextColor(...navy);
+    doc.text(level.name.toUpperCase(), m + 45, y + 18);
+    doc.setFontSize(11);
+    doc.setTextColor(...blue);
+    doc.text(score + ' de 100 puntos', m + 45, y + 28);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(...grayTxt);
+    const descLines = doc.splitTextToSize(level.desc, cW - 55);
+    doc.text(descLines, m + 45, y + 36);
 
-  const areas = Object.entries(areaConfig);
-  areas.forEach(([key, cfg]) => {
-    const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
-    const barColor = pct >= 70 ? tl : pct >= 40 ? [240,160,48] : [232,84,84];
-    
-    // Area row
-    doc.setFillColor(248,250,252); doc.roundedRect(m, y, cW, 16, 2, 2, 'F');
-    
-    // Icon + Name
-    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...dk);
-    doc.text(areaNames[key] || cfg.name, m+4, y+8);
-    
-    // Bar background
-    const barX = m + 75, barW = cW - 115, barH = 6, barY = y + 5;
-    doc.setFillColor(226,232,240); doc.roundedRect(barX, barY, barW, barH, 3, 3, 'F');
-    
-    // Bar fill
-    const fillW = Math.max(barW * (pct/100), 3);
-    doc.setFillColor(...barColor); doc.roundedRect(barX, barY, fillW, barH, 3, 3, 'F');
-    
-    // Percentage
-    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(...barColor);
-    doc.text(pct + '%', W-m-4, y+8, {align:'right'});
-    
-    y += 20;
-  });
+    y += 52;
 
-  y += 8;
+    // Section: DETALLE POR AREA
+    doc.setFillColor(...navy);
+    doc.roundedRect(m, y, cW, 9, 2, 2, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.text('DETALLE POR AREA', m + 4, y + 6.5);
+    y += 14;
 
-  // Recommendations section
-  doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...dk);
-  doc.text('RECOMENDACIONES PERSONALIZADAS', m, y); y += 8;
-
-  const recs = [];
-  areas.forEach(([key, cfg]) => {
-    const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
-    if(pct < 70) {
-      let advice = '';
-      if(key === 'saving') advice = 'Automatiza un ahorro fijo el dia que cobras, aunque sea chico. El habito es mas importante que el monto.';
-      else if(key === 'debt') advice = 'Prioriza pagar las deudas con mayor tasa de interes primero (metodo avalancha). Nunca pagues solo el minimo de la tarjeta de credito.';
-      else if(key === 'budget') advice = 'Registra tus gastos durante 1 mes completo. No puedes mejorar lo que no medis. Usa la herramienta de presupuesto en nicopassini.com.';
-      else if(key === 'investment') advice = 'Empieza con inversiones simples y de bajo costo. Un fondo indexado o plazo fijo como primer paso. Lo importante es empezar.';
-      else if(key === 'income') advice = 'Evalua formas de diversificar tus ingresos: freelance, proyectos paralelos o inversiones que generen renta pasiva.';
-      else if(key === 'mindset') advice = 'Dedica 15 minutos por semana a educacion financiera. La mentalidad es la base de todo cambio financiero duradero.';
-      recs.push({ area: areaNames[key] || cfg.name, pct, advice });
-    }
-  });
-
-  if(recs.length === 0) {
-    doc.setFillColor(236,253,245); doc.roundedRect(m, y, cW, 14, 2, 2, 'F');
-    doc.setDrawColor(...tl); doc.roundedRect(m, y, cW, 14, 2, 2, 'S');
-    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...tl);
-    doc.text('Excelente! Todas tus areas estan en buen nivel. Segui asi.', m+4, y+9);
-    y += 20;
-  } else {
-    recs.forEach(r => {
-      const isLow = r.pct < 40;
-      const recFill = isLow ? [254,242,242] : [255,251,235];
-      const recBorder = isLow ? [232,84,84] : [240,160,48];
-      
-      doc.setFontSize(8.5);
-      const lines = doc.splitTextToSize(r.advice, cW - 10);
-      const recH = 10 + lines.length * 4.5;
-      
-      if(y + recH > H - 50) { doc.addPage(); y = 20; }
-      
-      doc.setFillColor(...recFill); doc.roundedRect(m, y, cW, recH, 2, 2, 'F');
-      doc.setDrawColor(...recBorder); doc.roundedRect(m, y, cW, recH, 2, 2, 'S');
-      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...recBorder);
-      doc.text(r.area + ' (' + r.pct + '%)', m+4, y+6);
-      doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(8.5);
-      doc.text(lines, m+4, y+12);
-      y += recH + 5;
+    const areas = Object.entries(areaConfig);
+    areas.forEach(([key, cfg]) => {
+      const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
+      const barColor = pct >= 70 ? teal : pct >= 40 ? [230,150,30] : [220,60,60];
+      doc.setFillColor(250,251,252);
+      doc.roundedRect(m, y, cW, 13, 1.5, 1.5, 'F');
+      doc.setFontSize(10);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(...navy);
+      doc.text(areaNames[key], m + 4, y + 9);
+      const barX = m + 50, barW = cW - 85, barH = 5, barY = y + 5;
+      doc.setFillColor(220,225,235);
+      doc.roundedRect(barX, barY, barW, barH, 2.5, 2.5, 'F');
+      const fillW = Math.max(barW * (pct / 100), 3);
+      doc.setFillColor(...barColor);
+      doc.roundedRect(barX, barY, fillW, barH, 2.5, 2.5, 'F');
+      doc.setFontSize(11);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(...barColor);
+      doc.text(pct + '%', W - m - 2, y + 9, {align:'right'});
+      y += 17;
     });
-  }
 
-  y += 8;
-  
-  // Check if CTA fits
-  if(y > H - 55) { doc.addPage(); y = 20; }
+    // ===== PAGE 2: TIPS PERSONALIZADOS =====
+    doc.addPage();
+    doc.setFillColor(...navy);
+    doc.rect(0, 0, W, 40, 'F');
+    doc.setFillColor(...teal);
+    doc.rect(0, 40, W, 1.2, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica','bold');
+    doc.text('TIPS PERSONALIZADOS', m, 18);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(180,210,240);
+    doc.text('Basados en tu puntaje de ' + score + '/100', m, 30);
+    y = 54;
 
-  // CTA section
-  doc.setFillColor(...dk); doc.roundedRect(m, y, cW, 30, 3, 3, 'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('Queres mejorar tu puntaje?', m+4, y+10);
-  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(180,200,230);
-  doc.text('En el Metodo FBC te enseno a ordenar tus finanzas e invertir con criterio, desde cero.', m+4, y+18);
-  doc.setTextColor(...tl); doc.setFont('helvetica','bold');
-  doc.text('metodofbc.com', m+4, y+26);
+    const allTips = [];
+    areas.forEach(([key, cfg]) => {
+      const pct = Math.round((areaScores[key] / cfg.maxScore) * 100);
+      let tip = '', status = '';
+      if(key === 'saving') {
+        if(pct >= 70) { status = 'bien'; tip = 'Tus habitos de ahorro son solidos. Asegurate de que tu fondo de emergencia cubra al menos 6 meses de gastos y considera automatizar aportes a inversiones.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Automatiza un ahorro fijo el dia que cobras. Empieza con el 10% de tus ingresos. El habito importa mas que el monto. Usa la calculadora de fondo de emergencia en nicopassini.com.'; }
+        else { status = 'urgente'; tip = 'El ahorro es la base de todo plan financiero. Empieza HOY separando aunque sea el 5% de lo que ganas. Sin ahorro, cualquier imprevisto se convierte en deuda.'; }
+      } else if(key === 'debt') {
+        if(pct >= 70) { status = 'bien'; tip = 'Tenes un buen manejo de deudas. Segui evitando pagar solo el minimo de las tarjetas y prioriza cancelar cualquier deuda pendiente lo antes posible.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Prioriza las deudas con mayor tasa de interes (metodo avalancha). Nunca pagues solo el minimo de la tarjeta. Usa el Comparador de Deudas en nicopassini.com para ver cual metodo te conviene.'; }
+        else { status = 'urgente'; tip = 'Las deudas con intereses altos son una emergencia financiera. Congela gastos no esenciales y destina todo lo posible a cancelarlas. El metodo avalancha es tu mejor aliado.'; }
+      } else if(key === 'budget') {
+        if(pct >= 70) { status = 'bien'; tip = 'Llevas buen control de tus gastos. Revisa tu presupuesto mensualmente y ajusta segun cambien tus prioridades.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Registra todos tus gastos durante 1 mes completo. No puedes mejorar lo que no medis. Usa el Armador de Presupuesto en nicopassini.com para crear tu plan.'; }
+        else { status = 'urgente'; tip = 'Sin presupuesto, es imposible tomar el control de tu plata. Empieza esta semana: anota cada gasto, por chico que sea. En 30 dias vas a tener una foto clara.'; }
+      } else if(key === 'investment') {
+        if(pct >= 70) { status = 'bien'; tip = 'Ya estas invirtiendo, excelente. Revisa la diversificacion de tu cartera y considera si estas aprovechando el interes compuesto al maximo.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Empieza con inversiones simples: un fondo indexado, cedears o un plazo fijo como primer paso. Lo importante es empezar y ser constante.'; }
+        else { status = 'urgente'; tip = 'Tu dinero pierde valor cada dia que no esta invertido (inflacion). Un plazo fijo o fondo comun es mejor que dejar la plata quieta en la cuenta.'; }
+      } else if(key === 'income') {
+        if(pct >= 70) { status = 'bien'; tip = 'Tenes buena diversificacion de ingresos. Segui buscando formas de generar ingresos pasivos y reinverti parte de lo que ganas.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Evalua formas de diversificar: freelance, proyectos paralelos, habilidades monetizables o inversiones que generen renta pasiva.'; }
+        else { status = 'urgente'; tip = 'Depender de un solo ingreso es riesgoso. Identifica una habilidad que puedas monetizar. Empieza en paralelo a tu trabajo actual.'; }
+      } else if(key === 'mindset') {
+        if(pct >= 70) { status = 'bien'; tip = 'Tu mentalidad financiera es fuerte. Segui educandote y rodeandate de personas que compartan tu vision sobre el dinero.'; }
+        else if(pct >= 40) { status = 'mejorar'; tip = 'Dedica 15 minutos por dia a educacion financiera: libros, podcasts o contenido de calidad. La mentalidad es la base de todo cambio.'; }
+        else { status = 'urgente'; tip = 'Tu relacion con el dinero necesita un reset. Las finanzas no son complicadas, solo nunca te las ensenaron. Seguime en @nicopassini_ para tips diarios.'; }
+      }
+      allTips.push({ area: areaNames[key], pct, tip, status });
+    });
 
-  // Footer
-  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(150,150,150);
-  doc.text('Reporte generado en nicopassini.com -- Este test es informativo y no constituye asesoramiento financiero.', m, H-8);
-  doc.text('@nicopassini_', W-m, H-8, {align:'right'});
+    allTips.forEach(t => {
+      let fillColor, borderColor, labelColor, label;
+      if(t.status === 'bien') { fillColor = [240,253,250]; borderColor = teal; labelColor = teal; label = 'BIEN'; }
+      else if(t.status === 'mejorar') { fillColor = [255,251,235]; borderColor = [230,150,30]; labelColor = [230,150,30]; label = 'A MEJORAR'; }
+      else { fillColor = [254,242,242]; borderColor = [220,60,60]; labelColor = [220,60,60]; label = 'URGENTE'; }
 
-  doc.save('reporte-salud-financiera.pdf');
-  showToast('PDF descargado');
+      doc.setFontSize(8.5);
+      const tipLines = doc.splitTextToSize(t.tip, cW - 14);
+      const tipH = 16 + tipLines.length * 4;
+
+      if(y + tipH > H - 30) {
+        doc.addPage();
+        doc.setFillColor(...navy); doc.rect(0,0,W,15,'F');
+        doc.setFillColor(...teal); doc.rect(0,15,W,0.8,'F');
+        doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+        doc.text('TIPS PERSONALIZADOS (cont.)', m, 10);
+        y = 24;
+      }
+
+      doc.setFillColor(...fillColor);
+      doc.roundedRect(m, y, cW, tipH, 3, 3, 'F');
+      doc.setDrawColor(...borderColor);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(m, y, cW, tipH, 3, 3, 'S');
+      doc.setFillColor(...borderColor);
+      doc.roundedRect(m, y, 2.5, tipH, 1, 1, 'F');
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(...navy);
+      doc.text(t.area, m + 7, y + 7);
+      doc.setFontSize(9);
+      doc.setTextColor(...labelColor);
+      doc.text(t.pct + '%  |  ' + label, m + 7 + doc.getTextWidth(t.area) + 4, y + 7);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(60,60,60);
+      doc.setFontSize(8.5);
+      doc.text(tipLines, m + 7, y + 14);
+
+      y += tipH + 4;
+    });
+
+    y += 6;
+    if(y + 32 > H - 20) { doc.addPage(); y = 20; }
+
+    // CTA
+    doc.setFillColor(...navy);
+    doc.roundedRect(m, y, cW, 30, 4, 4, 'F');
+    doc.setFillColor(...teal);
+    doc.roundedRect(m, y, cW, 2, 4, 4, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica','bold');
+    doc.text('Queres mejorar tu puntaje?', m + 6, y + 12);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(180,210,240);
+    doc.text('En el Metodo FBC te enseno a ordenar tus finanzas e invertir con criterio, desde cero.', m + 6, y + 19);
+    doc.setTextColor(...teal);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.text('metodofbc.com', m + 6, y + 26);
+
+    // Footer on all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(150,150,150);
+      doc.text('nicopassini.com  |  Este test es informativo y no constituye asesoramiento financiero.', m, H - 8);
+      doc.text('@nicopassini_  |  Pag. ' + i + '/' + totalPages, W - m, H - 8, {align:'right'});
+    }
+
+    doc.save('reporte-salud-financiera.pdf');
+    showToast('PDF descargado');
 
   } catch(err) {
     console.error('PDF error:', err);
     alert('Error al generar el PDF: ' + err.message);
   }
 }
+
 </script>
 
 <!-- EMAIL POPUP - Nico Passini / FBC -->
