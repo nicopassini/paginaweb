@@ -1390,6 +1390,7 @@ async function downloadPDFReport() {
   const dateStr = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
   const levelColor = level.name === 'Critico' ? [232,84,84] : level.name === 'Fragil' ? [240,160,48] : level.name === 'En camino' ? [240,192,64] : [17,179,183];
   const dk = [13,27,46], bl = [11,128,225], tl = [17,179,183], gy = [100,116,139];
+  const areaNames = { saving:'Ahorro', debt:'Deudas', budget:'Presupuesto', investment:'Inversiones', income:'Ingresos', mindset:'Mentalidad' };
 
   // Header bar
   doc.setFillColor(...dk); doc.rect(0,0,W,38,'F');
