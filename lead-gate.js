@@ -122,7 +122,8 @@
     try {
       // GHL Webhook Integration
       const params = new URLSearchParams({ first_name: name, email: email, source: 'Herramientas NicoPassini.com' });
-      const response = await fetch(GHL_WEBHOOK_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+      var img = new Image();
+      img.src = GHL_WEBHOOK_URL + '?' + params.toString();
 
       // Even if GHL returns non-200, we let them through
       // (don't block users because of API issues)

@@ -1349,7 +1349,8 @@ function submitPopup(){
 
   // === GHL WEBHOOK INTEGRATION ===
   const params = new URLSearchParams({ first_name: name, email: email, source: 'Popup NicoPassini.com' });
-  fetch(GHL_WEBHOOK_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' }).catch(function(e){ console.log('GHL error:', e); });
+  var img = new Image();
+  img.src = GHL_WEBHOOK_URL + '?' + params.toString();
 
   // Mostrar éxito
   document.getElementById('popupForm').style.display = 'none';
