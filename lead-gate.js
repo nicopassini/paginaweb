@@ -121,15 +121,8 @@
 
     try {
       // GHL Webhook Integration
-      const response = await fetch(GHL_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          first_name: name,
-          email: email,
-          source: 'Herramientas NicoPassini.com - ' + (document.title || window.location.pathname)
-        })
-      });
+      const params = new URLSearchParams({ first_name: name, email: email, source: 'Herramientas NicoPassini.com' });
+      const response = await fetch(GHL_WEBHOOK_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
 
       // Even if GHL returns non-200, we let them through
       // (don't block users because of API issues)

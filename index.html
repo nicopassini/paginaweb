@@ -1347,15 +1347,8 @@ function submitPopup(){
   }
 
   // === GHL WEBHOOK INTEGRATION ===
-  fetch(GHL_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      first_name: name,
-      email: email,
-      source: 'Popup NicoPassini.com - ' + document.title
-    })
-  }).catch(function(e){ console.log('GHL error:', e); });
+  const params = new URLSearchParams({ first_name: name, email: email, source: 'Popup NicoPassini.com' });
+  fetch(GHL_WEBHOOK_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' }).catch(function(e){ console.log('GHL error:', e); });
 
   // Mostrar éxito
   document.getElementById('popupForm').style.display = 'none';
