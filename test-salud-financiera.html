@@ -1398,6 +1398,16 @@ async function downloadPDFReport() {
     const levelColor = level.name === 'Critico' ? [220,60,60] : level.name === 'Fragil' ? [230,150,30] : level.name === 'En camino' ? [230,180,40] : teal;
     const areaNames = { saving:'Ahorro', debt:'Deudas', budget:'Presupuesto', investment:'Inversiones', income:'Ingresos', mindset:'Mentalidad' };
 
+    // Sanitize text for jsPDF (Helvetica only supports basic ASCII)
+    function san(str) {
+      return String(str)
+        .replace(/[áàâã]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
+        .replace(/[óòôõ]/g,'o').replace(/[úùû]/g,'u').replace(/[ñ]/g,'n')
+        .replace(/[ÁÀÂÃ]/g,'A').replace(/[ÉÈÊ]/g,'E').replace(/[ÍÌÎ]/g,'I')
+        .replace(/[ÓÒÔÕ]/g,'O').replace(/[ÚÙÛ]/g,'U').replace(/[Ñ]/g,'N')
+        .replace(/[¿¡]/g,'').replace(/[—–]/g,'-').replace(/[""]/g,'"').replace(/['']/g,"'");
+    }
+
     // ===== PAGE 1: SCORE + AREAS =====
     doc.setFillColor(...navy);
     doc.rect(0, 0, W, 40, 'F');
@@ -1428,14 +1438,14 @@ async function downloadPDFReport() {
     doc.text(score.toString(), m + 22, y + 25, {align:'center'});
     doc.setFontSize(22);
     doc.setTextColor(...navy);
-    doc.text(level.name.toUpperCase(), m + 45, y + 18);
+    doc.text(san(level.name.toUpperCase()), m + 45, y + 18);
     doc.setFontSize(11);
     doc.setTextColor(...blue);
-    doc.text(score + ' de 100 puntos', m + 45, y + 28);
+    doc.text(san(score + ' de 100 puntos'), m + 45, y + 28);
     doc.setFontSize(9);
     doc.setFont('helvetica','normal');
     doc.setTextColor(...grayTxt);
-    const descLines = doc.splitTextToSize(level.desc, cW - 55);
+    const descLines = doc.splitTextToSize(san(level.desc), cW - 55);
     doc.text(descLines, m + 45, y + 36);
 
     y += 52;
@@ -1485,7 +1495,7 @@ async function downloadPDFReport() {
     doc.setFontSize(9);
     doc.setFont('helvetica','normal');
     doc.setTextColor(180,210,240);
-    doc.text('Basados en tu puntaje de ' + score + '/100', m, 30);
+    doc.text(san('Basados en tu puntaje de ' + score + '/100'), m, 30);
     y = 54;
 
     const allTips = [];
@@ -1553,7 +1563,8 @@ async function downloadPDFReport() {
       doc.text(t.area, m + 7, y + 7);
       doc.setFontSize(9);
       doc.setTextColor(...labelColor);
-      doc.text(t.pct + '%  |  ' + label, m + 7 + doc.getTextWidth(t.area) + 4, y + 7);
+      const areaW = doc.getTextWidth(t.area);
+      doc.text(t.pct + '%  |  ' + label, m + 7 + areaW + 4, y + 7);
       doc.setFont('helvetica','normal');
       doc.setTextColor(60,60,60);
       doc.setFontSize(8.5);
@@ -1591,7 +1602,7 @@ async function downloadPDFReport() {
       doc.setFont('helvetica','normal');
       doc.setTextColor(150,150,150);
       doc.text('nicopassini.com  |  Este test es informativo y no constituye asesoramiento financiero.', m, H - 8);
-      doc.text('@nicopassini_  |  Pag. ' + i + '/' + totalPages, W - m, H - 8, {align:'right'});
+      doc.text('@nicopassini_  |  Pag. ' + String(i) + '/' + String(totalPages), W - m, H - 8, {align:'right'});
     }
 
     doc.save('reporte-salud-financiera.pdf');
