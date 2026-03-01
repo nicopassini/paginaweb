@@ -1319,9 +1319,8 @@ reveals.forEach(el => revealObserver.observe(el));
 </style>
 <script>
 (function(){
-  // CONFIG: Cambiar estos valores cuando tengas Klaviyo configurado
-  const KLAVIYO_LIST_ID = 'TNhMED';
-  const KLAVIYO_PUBLIC_KEY = 'XbCYge';
+  // CONFIG: GoHighLevel Webhook
+  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/MIk6rZOxMRO5C9bFaZu1/webhook-trigger/28b92337-e7e4-4648-a113-33f99f8e1f4d';
   const POPUP_DELAY_MS = 5000; // 5 segundos
   const POPUP_KEY = 'fbc_popup_shown';
 
@@ -1347,32 +1346,16 @@ function submitPopup(){
     return;
   }
 
-  // === KLAVIYO API INTEGRATION ===
-  fetch('https://a.klaviyo.com/client/subscriptions/?company_id=XbCYge', {
+  // === GHL WEBHOOK INTEGRATION ===
+  fetch(GHL_WEBHOOK_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      data: {
-        type: 'subscription',
-        attributes: {
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: {
-                email: email,
-                first_name: name,
-                properties: { source: 'Popup NicoPassini.com - ' + document.title }
-              }
-            }
-          },
-          custom_source: 'Popup NicoPassini.com'
-        },
-        relationships: {
-          list: { data: { type: 'list', id: 'TNhMED' } }
-        }
-      }
+      first_name: name,
+      email: email,
+      source: 'Popup NicoPassini.com - ' + document.title
     })
-  }).catch(function(e){ console.log('Klaviyo error:', e); });
+  }).catch(function(e){ console.log('GHL error:', e); });
 
   // Mostrar éxito
   document.getElementById('popupForm').style.display = 'none';

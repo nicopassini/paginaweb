@@ -2,12 +2,11 @@
     Incluir en cada herramienta con: <script src="lead-gate.js"></script>
     NO se activa en index.html
     Una vez suscrito, guarda en localStorage y no vuelve a aparecer.
-    Envía nombre + email a Klaviyo (lista TNhMED).
+    Envía nombre + email a GoHighLevel via webhook.
 */
 (function(){
   // ========== CONFIG ==========
-  const KLAVIYO_PUBLIC_KEY = 'XbCYge';
-  const KLAVIYO_LIST_ID   = 'TNhMED';
+  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/MIk6rZOxMRO5C9bFaZu1/webhook-trigger/28b92337-e7e4-4648-a113-33f99f8e1f4d';
   const STORAGE_KEY       = 'fbc_lead_subscribed';
 
   // No activar en index
@@ -121,45 +120,21 @@
     btn.innerHTML = '<span class="lg-spinner"></span> Enviando...';
 
     try {
-      // Klaviyo Subscribe API (client-side)
-      const response = await fetch('https://a.klaviyo.com/client/subscriptions/?company_id=' + KLAVIYO_PUBLIC_KEY, {
+      // GHL Webhook Integration
+      const response = await fetch(GHL_WEBHOOK_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          data: {
-            type: 'subscription',
-            attributes: {
-              profile: {
-                data: {
-                  type: 'profile',
-                  attributes: {
-                    email: email,
-                    first_name: name,
-                    properties: {
-                      source: 'herramientas-web',
-                      tool: document.title || window.location.pathname
-                    }
-                  }
-                }
-              },
-              custom_source: 'Herramientas NicoPassini.com'
-            },
-            relationships: {
-              list: {
-                data: {
-                  type: 'list',
-                  id: KLAVIYO_LIST_ID
-                }
-              }
-            }
-          }
+          first_name: name,
+          email: email,
+          source: 'Herramientas NicoPassini.com - ' + (document.title || window.location.pathname)
         })
       });
 
-      // Even if Klaviyo returns non-200, we let them through
+      // Even if GHL returns non-200, we let them through
       // (don't block users because of API issues)
     } catch(e) {
-      console.warn('Klaviyo error:', e);
+      console.warn('GHL error:', e);
       // Still let them through
     }
 
