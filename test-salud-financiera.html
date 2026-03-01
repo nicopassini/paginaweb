@@ -1422,28 +1422,28 @@ async function downloadPDFReport() {
     var y = 50;
 
     // Score box
-    doc.setFillColor(245,247,250); doc.roundedRect(m, y, cW, 38, 4, 4, 'F');
-    doc.setDrawColor(220,225,235); doc.roundedRect(m, y, cW, 38, 4, 4, 'S');
+    doc.setFillColor(245,247,250); doc.roundedRect(m, y, cW, 50, 4, 4, 'F');
+    doc.setDrawColor(220,225,235); doc.roundedRect(m, y, cW, 50, 4, 4, 'S');
     // Score circle
-    doc.setFillColor(...lc); doc.circle(m+22, y+19, 17, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
-    doc.text(String(score), m+22, y+24, {align:'center'});
+    doc.setFillColor(...lc); doc.circle(m+25, y+25, 20, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
+    doc.text(String(score), m+25, y+31, {align:'center'});
     // Level
-    doc.setFontSize(22); doc.setTextColor(...navy);
-    doc.text(san(level.name).toUpperCase(), m+46, y+16);
-    doc.setFontSize(11); doc.setTextColor(...blue);
-    doc.text(String(score) + ' de 100 puntos', m+46, y+25);
+    doc.setFontSize(26); doc.setTextColor(...navy);
+    doc.text(san(level.name).toUpperCase(), m+52, y+18);
+    doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(...blue);
+    doc.text(String(score) + ' de 100 puntos', m+52, y+28);
     doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
-    var dl = doc.splitTextToSize(san(level.desc), cW-54);
-    doc.text(dl, m+46, y+33);
+    var dl = doc.splitTextToSize(san(level.desc), cW-60);
+    doc.text(dl, m+52, y+36);
 
-    y += 46;
+    y += 58;
 
     // Section: DETALLE
-    doc.setFillColor(...navy); doc.roundedRect(m, y, cW, 9, 2, 2, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-    doc.text('DETALLE POR AREA', m+4, y+6.5);
-    y += 13;
+    doc.setFillColor(...navy); doc.roundedRect(m, y, cW, 10, 2, 2, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text('DETALLE POR AREA', m+4, y+7);
+    y += 14;
 
     areaList.forEach(function(a) {
       var raw = areaScores[a.key] || 0;
@@ -1451,18 +1451,18 @@ async function downloadPDFReport() {
       var pct = Math.round((raw / max) * 100);
       var bc = pct >= 70 ? teal : pct >= 40 ? [230,150,30] : [220,60,60];
 
-      doc.setFillColor(250,251,252); doc.roundedRect(m, y, cW, 14, 1.5, 1.5, 'F');
-      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
-      doc.text(a.label, m+4, y+8.5);
+      doc.setFillColor(250,251,252); doc.roundedRect(m, y, cW, 16, 2, 2, 'F');
+      doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+      doc.text(a.label, m+5, y+10.5);
 
-      var bx = m+48, bw = cW-82, bh = 5, by = y+5.5;
+      var bx = m+52, bw = cW-86, bh = 6, by = y+6;
       doc.setFillColor(220,225,235); doc.roundedRect(bx, by, bw, bh, 2, 2, 'F');
       var fw = Math.max(bw*(pct/100), 2);
       doc.setFillColor(...bc); doc.roundedRect(bx, by, fw, bh, 2, 2, 'F');
 
-      doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(...bc);
-      doc.text(String(pct)+'%', W-m-2, y+9, {align:'right'});
-      y += 17;
+      doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(...bc);
+      doc.text(String(pct)+'%', W-m-3, y+10.5, {align:'right'});
+      y += 19;
     });
 
     // ===== PAGE 2: TIPS =====
