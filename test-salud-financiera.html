@@ -1425,23 +1425,23 @@ async function downloadPDFReport() {
     doc.setFillColor(245,247,250); doc.roundedRect(m, y, cW, 38, 4, 4, 'F');
     doc.setDrawColor(220,225,235); doc.roundedRect(m, y, cW, 38, 4, 4, 'S');
     // Score circle
-    doc.setFillColor(...lc); doc.circle(m+20, y+19, 14, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text(String(score), m+20, y+23, {align:'center'});
+    doc.setFillColor(...lc); doc.circle(m+22, y+19, 17, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
+    doc.text(String(score), m+22, y+24, {align:'center'});
     // Level
-    doc.setFontSize(20); doc.setTextColor(...navy);
-    doc.text(san(level.name).toUpperCase(), m+42, y+16);
-    doc.setFontSize(10); doc.setTextColor(...blue);
-    doc.text(String(score) + ' de 100 puntos', m+42, y+25);
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
-    var dl = doc.splitTextToSize(san(level.desc), cW-50);
-    doc.text(dl, m+42, y+32);
+    doc.setFontSize(22); doc.setTextColor(...navy);
+    doc.text(san(level.name).toUpperCase(), m+46, y+16);
+    doc.setFontSize(11); doc.setTextColor(...blue);
+    doc.text(String(score) + ' de 100 puntos', m+46, y+25);
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(...gy);
+    var dl = doc.splitTextToSize(san(level.desc), cW-54);
+    doc.text(dl, m+46, y+33);
 
     y += 46;
 
     // Section: DETALLE
     doc.setFillColor(...navy); doc.roundedRect(m, y, cW, 9, 2, 2, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
     doc.text('DETALLE POR AREA', m+4, y+6.5);
     y += 13;
 
@@ -1451,18 +1451,18 @@ async function downloadPDFReport() {
       var pct = Math.round((raw / max) * 100);
       var bc = pct >= 70 ? teal : pct >= 40 ? [230,150,30] : [220,60,60];
 
-      doc.setFillColor(250,251,252); doc.roundedRect(m, y, cW, 12, 1.5, 1.5, 'F');
-      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
-      doc.text(a.label, m+4, y+8);
+      doc.setFillColor(250,251,252); doc.roundedRect(m, y, cW, 14, 1.5, 1.5, 'F');
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+      doc.text(a.label, m+4, y+8.5);
 
-      var bx = m+45, bw = cW-78, bh = 4.5, by = y+4.5;
+      var bx = m+48, bw = cW-82, bh = 5, by = y+5.5;
       doc.setFillColor(220,225,235); doc.roundedRect(bx, by, bw, bh, 2, 2, 'F');
       var fw = Math.max(bw*(pct/100), 2);
       doc.setFillColor(...bc); doc.roundedRect(bx, by, fw, bh, 2, 2, 'F');
 
-      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...bc);
-      doc.text(String(pct)+'%', W-m-2, y+8, {align:'right'});
-      y += 15;
+      doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(...bc);
+      doc.text(String(pct)+'%', W-m-2, y+9, {align:'right'});
+      y += 17;
     });
 
     // ===== PAGE 2: TIPS =====
@@ -1523,7 +1523,7 @@ async function downloadPDFReport() {
 
       doc.setFontSize(8.5);
       var tl2 = doc.splitTextToSize(tip, cW-14);
-      var th = 17 + tl2.length * 4;
+      var th = 18 + tl2.length * 4.5;
 
       if(y + th > H - 35) {
         doc.addPage();
@@ -1541,16 +1541,16 @@ async function downloadPDFReport() {
       doc.setFillColor(...bc2); doc.rect(m, y+3, 2.5, th-6, 'F');
 
       // Area name
-      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
-      doc.text(a.label, m+8, y+7);
+      doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+      doc.text(a.label, m+8, y+8);
       // Status badge
       var nw = doc.getTextWidth(a.label);
-      doc.setFontSize(8); doc.setTextColor(...bc2);
-      doc.text(String(pct) + '%  |  ' + statusLabel, m+8+nw+3, y+7);
+      doc.setFontSize(9); doc.setTextColor(...bc2);
+      doc.text(String(pct) + '%  |  ' + statusLabel, m+8+nw+4, y+8);
 
       // Tip text
-      doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(8.5);
-      doc.text(tl2, m+8, y+14);
+      doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(9);
+      doc.text(tl2, m+8, y+15);
 
       y += th + 4;
     });
@@ -1561,12 +1561,12 @@ async function downloadPDFReport() {
     // CTA
     doc.setFillColor(...navy); doc.roundedRect(m, y, cW, 28, 4, 4, 'F');
     doc.setFillColor(...teal); doc.roundedRect(m, y, cW, 2, 4, 4, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont('helvetica','bold');
-    doc.text('Queres mejorar tu puntaje?', m+6, y+11);
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(180,210,240);
-    doc.text('En el Metodo FBC te enseno a ordenar tus finanzas e invertir con criterio, desde cero.', m+6, y+18);
-    doc.setTextColor(...teal); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-    doc.text('metodofbc.com', m+6, y+24);
+    doc.setTextColor(255,255,255); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('Queres mejorar tu puntaje?', m+6, y+12);
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(180,210,240);
+    doc.text('En el Metodo FBC te enseno a ordenar tus finanzas e invertir con criterio, desde cero.', m+6, y+20);
+    doc.setTextColor(...teal); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.text('metodofbc.com', m+6, y+26);
 
     // Footer all pages
     var tp = doc.internal.getNumberOfPages();
