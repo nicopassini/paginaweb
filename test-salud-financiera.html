@@ -1425,9 +1425,21 @@ async function downloadPDFReport() {
     doc.setFillColor(245,247,250); doc.roundedRect(m, y, cW, 50, 4, 4, 'F');
     doc.setDrawColor(220,225,235); doc.roundedRect(m, y, cW, 50, 4, 4, 'S');
     // Score circle
-    doc.setFillColor(...lc); doc.circle(m+25, y+25, 20, 'F');
-    doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
-    doc.text(String(score), m+25, y+31, {align:'center'});
+    // Score circle with centered number
+    var circleR = 20;
+    var circleCX = m + 25;
+    var circleCY = y + 25;
+    doc.setFillColor(...lc);
+    doc.circle(circleCX, circleCY, circleR, 'F');
+    // Font = ~60% of circle diameter
+    var scoreFontSize = Math.round(circleR * 2 * 0.6);
+    if(score === 100) scoreFontSize = Math.round(circleR * 2 * 0.48);
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(scoreFontSize);
+    doc.setFont('helvetica','bold');
+    // Vertical center: baseline offset is roughly fontSize * 0.35
+    var baselineOffset = scoreFontSize * 0.35 * 0.352;
+    doc.text(String(score), circleCX, circleCY + baselineOffset, {align:'center'});
     // Level
     doc.setFontSize(26); doc.setTextColor(...navy);
     doc.text(san(level.name).toUpperCase(), m+52, y+18);
