@@ -453,38 +453,63 @@ const systemDescriptions = {
 // ====== BCRA API - Fetch UVA & Inflation ======
 async function fetchBCRAData() {
   const today = new Date();
-  const desde = new Date(today); desde.setDate(desde.getDate() - 15);
-  const formatDate = d => d.toISOString().split('T')[0];
+  const desde = new Date(today); desde.setDate(desde.getDate() - 30);
+  const fmt2 = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const desdeStr = fmt2(desde);
+  const hastaStr = fmt2(today);
 
-  try {
-    // Fetch UVA value (idVariable=31) and Inflation interanual (idVariable=28)
-    const [uvaRes, infRes] = await Promise.allSettled([
-      fetch('https://api.bcra.gob.ar/estadisticas/v1/datosvariable/31/' + formatDate(desde) + '/' + formatDate(today), {headers:{'User-Agent':'nicopassini.com'}}).then(r => r.json()),
-      fetch('https://api.bcra.gob.ar/estadisticas/v1/datosvariable/28/' + formatDate(desde) + '/' + formatDate(today), {headers:{'User-Agent':'nicopassini.com'}}).then(r => r.json())
-    ]);
+  // Try multiple API approaches
+  const apiUrls = [
+    // v3.0 (current)
+    { uva: 'https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+desdeStr+'&hasta='+hastaStr+'&limit=10', inf: 'https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/28?desde='+desdeStr+'&hasta='+hastaStr+'&limit=10' },
+    // v2.0 fallback
+    { uva: 'https://api.bcra.gob.ar/estadisticas/v2.0/DatosVariable/31/'+desdeStr+'/'+hastaStr, inf: 'https://api.bcra.gob.ar/estadisticas/v2.0/DatosVariable/28/'+desdeStr+'/'+hastaStr }
+  ];
 
-    if (uvaRes.status === 'fulfilled' && uvaRes.value.results && uvaRes.value.results.length > 0) {
-      const last = uvaRes.value.results[uvaRes.value.results.length - 1];
-      uvaValue = last.valor;
-      uvaDate = last.fecha;
-      document.getElementById('uvaValDisplay').textContent = '$ ' + uvaValue.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
-      document.getElementById('uvaDateDisplay').textContent = uvaDate;
-      document.getElementById('uvaDot').style.background = '#22c55e';
-    } else {
-      document.getElementById('uvaValDisplay').textContent = 'No disponible';
-      document.getElementById('uvaDot').style.background = '#ef4444';
+  for (const urls of apiUrls) {
+    try {
+      const [uvaRes, infRes] = await Promise.allSettled([
+        fetch(urls.uva).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); }),
+        fetch(urls.inf).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+      ]);
+
+      if (uvaRes.status === 'fulfilled' && uvaRes.value.results && uvaRes.value.results.length > 0) {
+        const results = uvaRes.value.results;
+        const last = results[results.length - 1];
+        uvaValue = last.valor || last.value;
+        uvaDate = last.fecha || last.date;
+        document.getElementById('uvaValDisplay').textContent = '$ ' + Number(uvaValue).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('uvaDateDisplay').textContent = String(uvaDate).substring(0,10);
+        document.getElementById('uvaDot').style.background = '#22c55e';
+      }
+
+      if (infRes.status === 'fulfilled' && infRes.value.results && infRes.value.results.length > 0) {
+        const results = infRes.value.results;
+        const lastInf = results[results.length - 1];
+        bcraInflation = lastInf.valor || lastInf.value;
+        document.getElementById('uvaInflation').value = Number(bcraInflation).toFixed(1);
+        document.getElementById('inflationHint').textContent = 'Dato BCRA interanual: ' + Number(bcraInflation).toFixed(1) + '% (editable)';
+      }
+
+      if (uvaValue) return; // Success, stop trying
+    } catch(e) {
+      console.warn('BCRA API attempt failed:', e);
     }
+  }
 
-    if (infRes.status === 'fulfilled' && infRes.value.results && infRes.value.results.length > 0) {
-      const lastInf = infRes.value.results[infRes.value.results.length - 1];
-      bcraInflation = lastInf.valor;
-      document.getElementById('uvaInflation').value = bcraInflation.toFixed(1);
-      document.getElementById('inflationHint').textContent = 'Dato BCRA interanual: ' + bcraInflation.toFixed(1) + '% (editable)';
-    }
-  } catch(e) {
-    console.warn('BCRA API error:', e);
-    document.getElementById('uvaValDisplay').textContent = 'Error de conexión';
-    document.getElementById('uvaDot').style.background = '#ef4444';
+  // If all API calls failed, use fallback values
+  if (!uvaValue) {
+    console.warn('BCRA API unavailable, using fallback values');
+    uvaValue = 1547.21; // Approximate recent value
+    uvaDate = 'Valor estimado';
+    document.getElementById('uvaValDisplay').textContent = '~ $ ' + uvaValue.toLocaleString('es-AR', {minimumFractionDigits:2});
+    document.getElementById('uvaDateDisplay').textContent = '(API no disponible)';
+    document.getElementById('uvaDot').style.background = '#f0a030';
+  }
+  if (!bcraInflation) {
+    bcraInflation = 25;
+    document.getElementById('uvaInflation').value = '25';
+    document.getElementById('inflationHint').textContent = 'Estimado ~25% (API no disponible, editable)';
   }
 }
 
@@ -651,7 +676,7 @@ function calcUVA(principal, uvaRate, n, annualInflation, currentUVA) {
 }
 
 // ====== MAIN CALCULATE ======
-function calculate() {
+async function calculate() {
   const principal = parseFormattedInt(document.getElementById('loanAmount').value);
   const tna = parseNum(document.getElementById('annualRate').value);
   const n = parseInt(document.getElementById('numPayments').value);
@@ -660,7 +685,10 @@ function calculate() {
 
   // UVA-specific handling
   if (selectedSystem === 'uva') {
-    if (!uvaValue) { alert('Esperá a que se cargue el valor UVA del BCRA, o revisá tu conexión.'); return; }
+    if (!uvaValue) { 
+      await fetchBCRAData();
+      if (!uvaValue) { alert('No se pudo obtener el valor UVA. Intentá de nuevo en unos segundos.'); return; }
+    }
     const uvaRate = parseNum(document.getElementById('uvaRate').value);
     const inflation = parseNum(document.getElementById('uvaInflation').value);
     if (!uvaRate || uvaRate <= 0) { alert('Ingresá la TNA UVA'); return; }
