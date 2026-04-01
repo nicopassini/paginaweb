@@ -1533,22 +1533,36 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
   }
 
   // 4. INFLACIÓN - ArgentinaDatos
+  // Mensual
   try {
-    const [infMRes, infARes] = await Promise.allSettled([
-      fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion').then(r=>r.json()),
-      fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion-interanual').then(r=>r.json())
-    ]);
-    if(infMRes.status === 'fulfilled' && Array.isArray(infMRes.value) && infMRes.value.length > 0){
-      const last = infMRes.value[infMRes.value.length - 1];
-      const val = last.valor || last.v;
-      if(val != null) document.getElementById('tkInflMes').textContent = Number(val).toFixed(1) + '%';
+    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion');
+    if(res.ok){
+      const data = await res.json();
+      if(Array.isArray(data) && data.length > 0){
+        const last = data[data.length - 1];
+        const val = last.valor ?? last.v ?? last.value ?? last.variacion;
+        if(val != null) document.getElementById('tkInflMes').textContent = Number(val).toFixed(1) + '%';
+      }
     }
-    if(infARes.status === 'fulfilled' && Array.isArray(infARes.value) && infARes.value.length > 0){
-      const last = infARes.value[infARes.value.length - 1];
-      const val = last.valor || last.v;
-      if(val != null) document.getElementById('tkInflAnual').textContent = Number(val).toFixed(1) + '%';
+  } catch(e){ console.warn('Inflacion mensual:', e); }
+  // Interanual
+  try {
+    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion-interanual');
+    if(res.ok){
+      const data = await res.json();
+      if(Array.isArray(data) && data.length > 0){
+        // Try last few entries in case latest is null
+        for(let i = data.length - 1; i >= Math.max(0, data.length - 5); i--){
+          const item = data[i];
+          const val = item.valor ?? item.v ?? item.value ?? item.variacion;
+          if(val != null && !isNaN(Number(val))){
+            document.getElementById('tkInflAnual').textContent = Number(val).toFixed(1) + '%';
+            break;
+          }
+        }
+      }
     }
-  } catch(e){ console.warn('Inflacion:', e); }
+  } catch(e){ console.warn('Inflacion interanual:', e); }
 })();
 </script>
 
