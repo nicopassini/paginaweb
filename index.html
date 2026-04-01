@@ -993,7 +993,16 @@ body {
       <span class="ticker-label">RIESGO PAÍS</span>
       <span class="ticker-value rp" id="tkRP">---</span>
     </div>
-    <div class="ticker-update" id="tkUpdate"></div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">INFLACIÓN MENSUAL</span>
+      <span class="ticker-value inf" id="tkInflMes">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">INFLACIÓN INTERANUAL</span>
+      <span class="ticker-value inf" id="tkInflAnual">---</span>
+    </div>
   </div>
 </div>
 <style>
@@ -1014,14 +1023,13 @@ body {
 .ticker-label{font-size:10px;font-weight:700;letter-spacing:1px;color:#5a7a9b;text-transform:uppercase;}
 .ticker-value{font-size:12px;font-weight:700;color:#e4eaf2;font-family:'Century Gothic Fallback','Questrial',sans-serif;}
 .ticker-value.rp{color:#11b3b7;}
+.ticker-value.inf{color:#f0a030;}
 .ticker-sep{color:#1f4672;font-size:12px;user-select:none;}
-.ticker-update{font-size:9px;color:#3a5a7a;margin-left:auto;white-space:nowrap;}
 @media(max-width:768px){
   .ticker-inner{justify-content:flex-start;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
   .ticker-inner::-webkit-scrollbar{display:none;}
   .ticker-label{font-size:9px;letter-spacing:.5px;}
   .ticker-value{font-size:11px;}
-  .ticker-update{display:none;}
 }
 /* Push nav down to make room for ticker */
 .nav{top:32px!important;}
@@ -1453,11 +1461,6 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
       if(blue) document.getElementById('tkBlue').textContent = fmtARS(blue.venta);
       if(mep) document.getElementById('tkMEP').textContent = fmtARS(mep.venta);
       if(ccl) document.getElementById('tkCCL').textContent = fmtARS(ccl.venta);
-      const upd = oficial?.fechaActualizacion || blue?.fechaActualizacion;
-      if(upd){
-        const d = new Date(upd);
-        document.getElementById('tkUpdate').textContent = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' hs';
-      }
     }
   } catch(e){ console.warn('Ticker dolar:', e); }
 
@@ -1528,6 +1531,24 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
       }
     } catch(e){ console.warn('UVA bcra:', e); }
   }
+
+  // 4. INFLACIÓN - ArgentinaDatos
+  try {
+    const [infMRes, infARes] = await Promise.allSettled([
+      fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion').then(r=>r.json()),
+      fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion-interanual').then(r=>r.json())
+    ]);
+    if(infMRes.status === 'fulfilled' && Array.isArray(infMRes.value) && infMRes.value.length > 0){
+      const last = infMRes.value[infMRes.value.length - 1];
+      const val = last.valor || last.v;
+      if(val != null) document.getElementById('tkInflMes').textContent = Number(val).toFixed(1) + '%';
+    }
+    if(infARes.status === 'fulfilled' && Array.isArray(infARes.value) && infARes.value.length > 0){
+      const last = infARes.value[infARes.value.length - 1];
+      const val = last.valor || last.v;
+      if(val != null) document.getElementById('tkInflAnual').textContent = Number(val).toFixed(1) + '%';
+    }
+  } catch(e){ console.warn('Inflacion:', e); }
 })();
 </script>
 
