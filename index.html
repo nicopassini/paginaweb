@@ -215,7 +215,7 @@ body {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding-top: 112px;
+  padding-top: 138px;
   position: relative;
   overflow: hidden;
 }
@@ -995,16 +995,47 @@ body {
     </div>
     <div class="ticker-sep">|</div>
     <div class="ticker-item">
-      <span class="ticker-label">INFLACIÓN MENSUAL</span>
+      <span class="ticker-label">INFLACIÓN</span>
       <span class="ticker-value inf" id="tkInflMes">---</span>
-    </div>
-    <div class="ticker-sep">|</div>
-    <div class="ticker-item">
-      <span class="ticker-label">INFLACIÓN INTERANUAL</span>
-      <span class="ticker-value inf" id="tkInflAnual">---</span>
     </div>
   </div>
 </div>
+
+<!-- NEWS TICKER -->
+<div class="news-ticker-bar" id="newsTickerBar">
+  <div class="news-ticker-track" id="newsTickerTrack"></div>
+</div>
+<style>
+.news-ticker-bar{
+  position:fixed;top:32px;left:0;right:0;z-index:10000;
+  background:#060e1a;border-bottom:1px solid rgba(31,70,114,.3);
+  height:26px;overflow:hidden;display:flex;align-items:center;
+}
+.news-ticker-track{
+  display:flex;align-items:center;white-space:nowrap;
+  animation:newsScroll 60s linear infinite;
+  gap:0;
+}
+.news-ticker-track:hover{animation-play-state:paused;}
+@keyframes newsScroll{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-50%);}
+}
+.news-item{
+  display:inline-flex;align-items:center;gap:6px;padding:0 24px;
+  font-size:11px;color:#8da4bf;text-decoration:none;
+  transition:color .2s;white-space:nowrap;
+}
+.news-item:hover{color:#11b3b7;}
+.news-source{
+  font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:#0b80e1;background:rgba(11,128,225,.1);
+  padding:1px 6px;border-radius:3px;flex-shrink:0;
+}
+.news-sep{color:#1f4672;font-size:10px;user-select:none;}
+/* Push nav down for ticker + news */
+.nav{top:58px!important;}
+</style>
 <style>
 .ticker-bar{
   position:fixed;top:0;left:0;right:0;z-index:10001;
@@ -1032,7 +1063,7 @@ body {
   .ticker-value{font-size:11px;}
 }
 /* Push nav down to make room for ticker */
-.nav{top:32px!important;}
+.nav{top:58px!important;}
 </style>
 
 <div class="noise"></div>
@@ -1545,24 +1576,46 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
       }
     }
   } catch(e){ console.warn('Inflacion mensual:', e); }
-  // Interanual
+
+  // 5. NEWS TICKER - RSS feeds via rss2json
   try {
-    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion-interanual');
-    if(res.ok){
-      const data = await res.json();
-      if(Array.isArray(data) && data.length > 0){
-        // Try last few entries in case latest is null
-        for(let i = data.length - 1; i >= Math.max(0, data.length - 5); i--){
-          const item = data[i];
-          const val = item.valor ?? item.v ?? item.value ?? item.variacion;
-          if(val != null && !isNaN(Number(val))){
-            document.getElementById('tkInflAnual').textContent = Number(val).toFixed(1) + '%';
-            break;
+    const feeds = [
+      { url:'https://www.ambito.com/rss/economia.xml', source:'ÁMBITO' },
+      { url:'https://www.ambito.com/rss/finanzas.xml', source:'ÁMBITO' },
+      { url:'https://www.bloomberglinea.com/arc/outboundfeeds/rss/?outputType=xml', source:'BLOOMBERG' }
+    ];
+    var allNews = [];
+    for(const feed of feeds){
+      try {
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.url)+'&count=8');
+        if(res.ok){
+          const data = await res.json();
+          if(data.status === 'ok' && data.items){
+            data.items.forEach(function(item){
+              allNews.push({ title: item.title, link: item.link, source: feed.source });
+            });
           }
         }
-      }
+      } catch(e){ /* skip feed */ }
     }
-  } catch(e){ console.warn('Inflacion interanual:', e); }
+    // Shuffle and limit
+    allNews = allNews.sort(function(){ return 0.5 - Math.random(); }).slice(0, 20);
+    if(allNews.length > 0){
+      var track = document.getElementById('newsTickerTrack');
+      var html = '';
+      // Duplicate for seamless loop
+      for(var r = 0; r < 2; r++){
+        allNews.forEach(function(n){
+          html += '<a href="'+n.link+'" target="_blank" rel="noopener" class="news-item"><span class="news-source">'+n.source+'</span>'+n.title+'</a><span class="news-sep">›</span>';
+        });
+      }
+      track.innerHTML = html;
+      // Adjust animation speed based on content width
+      var w = track.scrollWidth / 2;
+      var speed = Math.max(30, w / 50); // ~50px per second
+      track.style.animationDuration = speed + 's';
+    }
+  } catch(e){ console.warn('News ticker:', e); }
 })();
 </script>
 
