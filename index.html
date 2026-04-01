@@ -1439,11 +1439,12 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
 (async function loadTicker(){
   const fmtARS = v => '$' + Number(v).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
   
+  // 1. DOLARES - DolarAPI (reliable, CORS enabled)
   try {
-    // Fetch dolares from DolarAPI
-    const dolarRes = await fetch('https://dolarapi.com/v1/dolares').then(r=>r.json()).catch(()=>null);
-    if(dolarRes && Array.isArray(dolarRes)){
-      const find = casa => dolarRes.find(d=>d.casa===casa);
+    const res = await fetch('https://dolarapi.com/v1/dolares');
+    if(res.ok){
+      const data = await res.json();
+      const find = casa => data.find(d=>d.casa===casa);
       const oficial = find('oficial');
       const blue = find('blue');
       const mep = find('bolsa');
@@ -1452,33 +1453,78 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
       if(blue) document.getElementById('tkBlue').textContent = fmtARS(blue.venta);
       if(mep) document.getElementById('tkMEP').textContent = fmtARS(mep.venta);
       if(ccl) document.getElementById('tkCCL').textContent = fmtARS(ccl.venta);
-      // Update time
       const upd = oficial?.fechaActualizacion || blue?.fechaActualizacion;
       if(upd){
         const d = new Date(upd);
         document.getElementById('tkUpdate').textContent = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' hs';
       }
     }
-  } catch(e){ console.warn('Ticker dolar error:', e); }
+  } catch(e){ console.warn('Ticker dolar:', e); }
 
+  // 2. RIESGO PAIS - Try multiple sources
+  var rpLoaded = false;
+  // Source A: ArgentinaDatos
   try {
-    // Fetch riesgo pais from ArgentinaDatos
-    const rpRes = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo').then(r=>r.json()).catch(()=>null);
-    if(rpRes && rpRes.valor) document.getElementById('tkRP').textContent = rpRes.valor;
-    else if(rpRes && rpRes.v) document.getElementById('tkRP').textContent = rpRes.v;
-  } catch(e){ console.warn('Ticker RP error:', e); }
-
-  try {
-    // Fetch UVA from BCRA API
-    const today = new Date();
-    const desde = new Date(today); desde.setDate(desde.getDate()-15);
-    const fmt2 = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    const uvaRes = await fetch('https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+fmt2(desde)+'&hasta='+fmt2(today)+'&limit=5').then(r=>r.json()).catch(()=>null);
-    if(uvaRes && uvaRes.results && uvaRes.results.length>0){
-      const last = uvaRes.results[uvaRes.results.length-1];
-      document.getElementById('tkUVA').textContent = '$'+Number(last.valor).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo');
+    if(res.ok){
+      const data = await res.json();
+      const val = data.valor || data.v || data.value;
+      if(val){ document.getElementById('tkRP').textContent = val; rpLoaded = true; }
     }
-  } catch(e){ console.warn('Ticker UVA error:', e); }
+  } catch(e){ console.warn('RP argentinadatos:', e); }
+  // Source B: DolarAPI ambito
+  if(!rpLoaded){
+    try {
+      const res = await fetch('https://dolarapi.com/v1/ambito/riesgo-pais');
+      if(res.ok){
+        const data = await res.json();
+        if(data.valor){ document.getElementById('tkRP').textContent = data.valor; rpLoaded = true; }
+      }
+    } catch(e){ console.warn('RP dolarapi:', e); }
+  }
+  // Source C: Try list endpoint and get last
+  if(!rpLoaded){
+    try {
+      const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais');
+      if(res.ok){
+        const data = await res.json();
+        if(Array.isArray(data) && data.length > 0){
+          const last = data[data.length - 1];
+          const val = last.v || last.valor || last.value;
+          if(val){ document.getElementById('tkRP').textContent = val; rpLoaded = true; }
+        }
+      }
+    } catch(e){ console.warn('RP list:', e); }
+  }
+
+  // 3. UVA - Try multiple sources
+  var uvaLoaded = false;
+  // Source A: BCRA API v3
+  try {
+    const today = new Date();
+    const desde = new Date(today); desde.setDate(desde.getDate()-30);
+    const fmt2 = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const res = await fetch('https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+fmt2(desde)+'&hasta='+fmt2(today)+'&limit=5');
+    if(res.ok){
+      const data = await res.json();
+      if(data.results && data.results.length > 0){
+        const last = data.results[data.results.length-1];
+        document.getElementById('tkUVA').textContent = '$'+Number(last.valor).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+        uvaLoaded = true;
+      }
+    }
+  } catch(e){ console.warn('UVA bcra:', e); }
+  // Source B: ArgentinaDatos
+  if(!uvaLoaded){
+    try {
+      const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/uva/ultimo');
+      if(res.ok){
+        const data = await res.json();
+        const val = data.valor || data.v || data.value;
+        if(val){ document.getElementById('tkUVA').textContent = '$'+Number(val).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); uvaLoaded = true; }
+      }
+    } catch(e){ console.warn('UVA argentinadatos:', e); }
+  }
 })();
 </script>
 
