@@ -1463,16 +1463,16 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
 
   // 2. RIESGO PAIS - Try multiple sources
   var rpLoaded = false;
-  // Source A: ArgentinaDatos
+  // Source A: ArgentinaDatos (correct subdomain: api.argentinadatos.com)
   try {
-    const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo');
+    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo');
     if(res.ok){
       const data = await res.json();
       const val = data.valor || data.v || data.value;
       if(val){ document.getElementById('tkRP').textContent = val; rpLoaded = true; }
     }
   } catch(e){ console.warn('RP argentinadatos:', e); }
-  // Source B: DolarAPI ambito
+  // Source B: DolarAPI
   if(!rpLoaded){
     try {
       const res = await fetch('https://dolarapi.com/v1/ambito/riesgo-pais');
@@ -1482,10 +1482,10 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
       }
     } catch(e){ console.warn('RP dolarapi:', e); }
   }
-  // Source C: Try list endpoint and get last
+  // Source C: ArgentinaDatos list
   if(!rpLoaded){
     try {
-      const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais');
+      const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais');
       if(res.ok){
         const data = await res.json();
         if(Array.isArray(data) && data.length > 0){
@@ -1499,31 +1499,34 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
 
   // 3. UVA - Try multiple sources
   var uvaLoaded = false;
-  // Source A: BCRA API v3
+  // Source A: ArgentinaDatos UVA
   try {
-    const today = new Date();
-    const desde = new Date(today); desde.setDate(desde.getDate()-30);
-    const fmt2 = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    const res = await fetch('https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+fmt2(desde)+'&hasta='+fmt2(today)+'&limit=5');
+    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/uva');
     if(res.ok){
       const data = await res.json();
-      if(data.results && data.results.length > 0){
-        const last = data.results[data.results.length-1];
-        document.getElementById('tkUVA').textContent = '$'+Number(last.valor).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        uvaLoaded = true;
-      }
-    }
-  } catch(e){ console.warn('UVA bcra:', e); }
-  // Source B: ArgentinaDatos
-  if(!uvaLoaded){
-    try {
-      const res = await fetch('https://argentinadatos.com/v1/finanzas/indices/uva/ultimo');
-      if(res.ok){
-        const data = await res.json();
-        const val = data.valor || data.v || data.value;
+      if(Array.isArray(data) && data.length > 0){
+        const last = data[data.length - 1];
+        const val = last.valor || last.v || last.value;
         if(val){ document.getElementById('tkUVA').textContent = '$'+Number(val).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); uvaLoaded = true; }
       }
-    } catch(e){ console.warn('UVA argentinadatos:', e); }
+    }
+  } catch(e){ console.warn('UVA argentinadatos:', e); }
+  // Source B: BCRA API v3
+  if(!uvaLoaded){
+    try {
+      const today = new Date();
+      const desde = new Date(today); desde.setDate(desde.getDate()-30);
+      const fmt2 = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      const res = await fetch('https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+fmt2(desde)+'&hasta='+fmt2(today)+'&limit=5');
+      if(res.ok){
+        const data = await res.json();
+        if(data.results && data.results.length > 0){
+          const last = data.results[data.results.length-1];
+          document.getElementById('tkUVA').textContent = '$'+Number(last.valor).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+          uvaLoaded = true;
+        }
+      }
+    } catch(e){ console.warn('UVA bcra:', e); }
   }
 })();
 </script>
