@@ -1587,7 +1587,7 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
     var allNews = [];
     for(const feed of feeds){
       try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.url)+'&count=8');
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.url));
         if(res.ok){
           const data = await res.json();
           if(data.status === 'ok' && data.items){
