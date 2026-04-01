@@ -215,7 +215,7 @@ body {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding-top: 80px;
+  padding-top: 112px;
   position: relative;
   overflow: hidden;
 }
@@ -961,6 +961,72 @@ body {
 </head>
 <body>
 
+<!-- ===== COTIZACIONES TICKER ===== -->
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-inner" id="tickerInner">
+    <div class="ticker-item">
+      <span class="ticker-label">DÓLAR OFICIAL</span>
+      <span class="ticker-value" id="tkOficial">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">BLUE</span>
+      <span class="ticker-value" id="tkBlue">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">MEP</span>
+      <span class="ticker-value" id="tkMEP">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">CCL</span>
+      <span class="ticker-value" id="tkCCL">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">UVA</span>
+      <span class="ticker-value" id="tkUVA">---</span>
+    </div>
+    <div class="ticker-sep">|</div>
+    <div class="ticker-item">
+      <span class="ticker-label">RIESGO PAÍS</span>
+      <span class="ticker-value rp" id="tkRP">---</span>
+    </div>
+    <div class="ticker-update" id="tkUpdate"></div>
+  </div>
+</div>
+<style>
+.ticker-bar{
+  position:fixed;top:0;left:0;right:0;z-index:10001;
+  background:linear-gradient(90deg,#0a1628,#0d1e38,#0a1628);
+  border-bottom:1px solid rgba(17,179,183,.2);
+  padding:0 16px;height:32px;overflow:hidden;
+  display:flex;align-items:center;
+}
+.ticker-inner{
+  display:flex;align-items:center;gap:12px;
+  width:100%;justify-content:center;
+  animation:tickerLoad .5s ease;
+}
+@keyframes tickerLoad{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.ticker-item{display:flex;align-items:center;gap:5px;}
+.ticker-label{font-size:10px;font-weight:700;letter-spacing:1px;color:#5a7a9b;text-transform:uppercase;}
+.ticker-value{font-size:12px;font-weight:700;color:#e4eaf2;font-family:'Century Gothic Fallback','Questrial',sans-serif;}
+.ticker-value.rp{color:#11b3b7;}
+.ticker-sep{color:#1f4672;font-size:12px;user-select:none;}
+.ticker-update{font-size:9px;color:#3a5a7a;margin-left:auto;white-space:nowrap;}
+@media(max-width:768px){
+  .ticker-inner{justify-content:flex-start;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .ticker-inner::-webkit-scrollbar{display:none;}
+  .ticker-label{font-size:9px;letter-spacing:.5px;}
+  .ticker-value{font-size:11px;}
+  .ticker-update{display:none;}
+}
+/* Push nav down to make room for ticker */
+.nav{top:32px!important;}
+</style>
+
 <div class="noise"></div>
 
 <!-- ===== NAVIGATION ===== -->
@@ -1366,6 +1432,54 @@ document.addEventListener('keydown', function(e){
 document.getElementById('emailPopup')?.addEventListener('click', function(e){
   if(e.target === this) closePopup();
 });
+</script>
+
+<!-- TICKER COTIZACIONES -->
+<script>
+(async function loadTicker(){
+  const fmtARS = v => '$' + Number(v).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+  
+  try {
+    // Fetch dolares from DolarAPI
+    const dolarRes = await fetch('https://dolarapi.com/v1/dolares').then(r=>r.json()).catch(()=>null);
+    if(dolarRes && Array.isArray(dolarRes)){
+      const find = casa => dolarRes.find(d=>d.casa===casa);
+      const oficial = find('oficial');
+      const blue = find('blue');
+      const mep = find('bolsa');
+      const ccl = find('contadoconliqui');
+      if(oficial) document.getElementById('tkOficial').textContent = fmtARS(oficial.venta);
+      if(blue) document.getElementById('tkBlue').textContent = fmtARS(blue.venta);
+      if(mep) document.getElementById('tkMEP').textContent = fmtARS(mep.venta);
+      if(ccl) document.getElementById('tkCCL').textContent = fmtARS(ccl.venta);
+      // Update time
+      const upd = oficial?.fechaActualizacion || blue?.fechaActualizacion;
+      if(upd){
+        const d = new Date(upd);
+        document.getElementById('tkUpdate').textContent = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' hs';
+      }
+    }
+  } catch(e){ console.warn('Ticker dolar error:', e); }
+
+  try {
+    // Fetch riesgo pais from ArgentinaDatos
+    const rpRes = await fetch('https://argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo').then(r=>r.json()).catch(()=>null);
+    if(rpRes && rpRes.valor) document.getElementById('tkRP').textContent = rpRes.valor;
+    else if(rpRes && rpRes.v) document.getElementById('tkRP').textContent = rpRes.v;
+  } catch(e){ console.warn('Ticker RP error:', e); }
+
+  try {
+    // Fetch UVA from BCRA API
+    const today = new Date();
+    const desde = new Date(today); desde.setDate(desde.getDate()-15);
+    const fmt2 = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const uvaRes = await fetch('https://api.bcra.gob.ar/estadisticas/v3.0/monetarias/31?desde='+fmt2(desde)+'&hasta='+fmt2(today)+'&limit=5').then(r=>r.json()).catch(()=>null);
+    if(uvaRes && uvaRes.results && uvaRes.results.length>0){
+      const last = uvaRes.results[uvaRes.results.length-1];
+      document.getElementById('tkUVA').textContent = '$'+Number(last.valor).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+  } catch(e){ console.warn('Ticker UVA error:', e); }
+})();
 </script>
 
 </body>
