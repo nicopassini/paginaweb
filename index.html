@@ -1499,40 +1499,36 @@ document.getElementById('emailPopup')?.addEventListener('click', function(e){
     }
   } catch(e){ console.warn('Ticker dolar:', e); }
 
-  // 2. RIESGO PAIS - Try multiple sources
+  // 2. RIESGO PAIS - Try multiple sources (with cache bust)
   var rpLoaded = false;
-  // Source A: ArgentinaDatos (correct subdomain: api.argentinadatos.com)
+  var cb = '?_=' + Date.now();
+  // Source A: ArgentinaDatos full list (ordered, most reliable fresh data)
   try {
-    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo');
+    const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais' + cb, {cache:'no-store'});
     if(res.ok){
       const data = await res.json();
-      const val = data.valor || data.v || data.value;
-      if(val){ document.getElementById('tkRP').textContent = val; rpLoaded = true; }
-    }
-  } catch(e){ console.warn('RP argentinadatos:', e); }
-  // Source B: DolarAPI
-  if(!rpLoaded){
-    try {
-      const res = await fetch('https://dolarapi.com/v1/ambito/riesgo-pais');
-      if(res.ok){
-        const data = await res.json();
-        if(data.valor){ document.getElementById('tkRP').textContent = data.valor; rpLoaded = true; }
-      }
-    } catch(e){ console.warn('RP dolarapi:', e); }
-  }
-  // Source C: ArgentinaDatos list
-  if(!rpLoaded){
-    try {
-      const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais');
-      if(res.ok){
-        const data = await res.json();
-        if(Array.isArray(data) && data.length > 0){
-          const last = data[data.length - 1];
-          const val = last.v || last.valor || last.value;
-          if(val){ document.getElementById('tkRP').textContent = val; rpLoaded = true; }
+      if(Array.isArray(data) && data.length > 0){
+        // Sort by date descending just in case
+        data.sort(function(a,b){ return (b.fecha || '').localeCompare(a.fecha || ''); });
+        const last = data[0];
+        const val = last.valor ?? last.v ?? last.value;
+        if(val != null){
+          document.getElementById('tkRP').textContent = Math.round(Number(val));
+          rpLoaded = true;
         }
       }
-    } catch(e){ console.warn('RP list:', e); }
+    }
+  } catch(e){ console.warn('RP list:', e); }
+  // Source B: Ultimo endpoint
+  if(!rpLoaded){
+    try {
+      const res = await fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo' + cb, {cache:'no-store'});
+      if(res.ok){
+        const data = await res.json();
+        const val = data.valor ?? data.v ?? data.value;
+        if(val != null){ document.getElementById('tkRP').textContent = Math.round(Number(val)); rpLoaded = true; }
+      }
+    } catch(e){ console.warn('RP ultimo:', e); }
   }
 
   // 3. UVA - Try multiple sources
